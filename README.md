@@ -30,10 +30,7 @@ Operator Input
 cd /your zync folder
 docker -compose up --build
 
-# Frontend
-cd frontend
-npm install
-npm run dev
+
 ```
 
 ## Team
