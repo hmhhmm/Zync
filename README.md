@@ -1,4 +1,4 @@
-# EarthMind — Malaysia's Sovereign REE Engineering Intelligence
+# Zync — Malaysia's Sovereign REE Engineering Intelligence
 
 > Putting GLM-5.1's scientific reasoning at the point where Malaysia's RM 1 trillion rare earth ambition is won or lost.
 
