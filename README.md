@@ -26,11 +26,9 @@ Operator Input
 
 ## Quick Start
 ```bash
-# Backend
-cd backend
-pip install -r requirements.txt
-cp ../.env.example ../.env   # fill in your GLM API key
-uvicorn main:app --reload --port 8000
+# Backend(dwld docker frist, create a personal acc)
+cd /your zync folder
+docker -compose up --build
 
 # Frontend
 cd frontend
