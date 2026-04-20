@@ -1,9 +1,10 @@
+import useBackendHealth from '../../hooks/useBackendHealth';
+
 const FACTS = [
   { label: 'Session', value: 'ZX-47A21C', accent: true },
   { label: 'Model', value: 'GLM-5.1 MoE · 744B / 40B active' },
   { label: 'Context', value: '202,048 tok' },
   { label: 'Residency', value: 'MY-01 (Cyberjaya)' },
-  { label: 'Last sync', value: 'UTC 02:15:44' },
 ];
 
 const BENCHES = [
@@ -13,6 +14,18 @@ const BENCHES = [
 ];
 
 export default function SessionContext() {
+  const health = useBackendHealth();
+
+  const badge = (() => {
+    if (health.online === null) {
+      return { label: 'Connecting…', tone: 'checking' };
+    }
+    if (health.online) {
+      return { label: 'Backend live', tone: 'live' };
+    }
+    return { label: 'Backend offline · mock', tone: 'offline' };
+  })();
+
   return (
     <div className="session-bar" role="note" aria-label="Session context">
       <div className="session-facts">
@@ -26,6 +39,13 @@ export default function SessionContext() {
             </span>
           </div>
         ))}
+        <div className="session-fact">
+          <span className="session-fact__label">API</span>
+          <span className={`session-status session-status--${badge.tone}`}>
+            <span className="session-status__dot" aria-hidden />
+            {badge.label}
+          </span>
+        </div>
       </div>
       <div className="session-benchmarks" aria-label="Benchmark reference">
         {BENCHES.map((b) => (

@@ -22,7 +22,15 @@ const SCORING_WEIGHTS = [
 ];
 
 export default function ZoneStrategyModule() {
-  const { zones, summaryBM, isLoading, error, fetchZones } = useZoneStrategy();
+  const {
+    zones,
+    summaryBM,
+    validation,
+    isValidating,
+    error,
+    fetchZones,
+    runValidationSuite,
+  } = useZoneStrategy();
 
   useEffect(() => {
     fetchZones();
@@ -38,7 +46,7 @@ export default function ZoneStrategyModule() {
         eyebrow="Agents 00 · 01 · 03 · 04 · 05"
         title="Zone Prioritization"
         lead="GraphRAG traverses 100 years of geological studies; Agents 03 and 04 run in parallel to rank zones against yield and ESG thresholds."
-        meta={isLoading ? 'Refreshing GET /api/zone-strategy…' : null}
+        meta={isValidating ? 'Running POST /api/validate…' : null}
         inputs={['Layer depth', 'Accessibility', 'Survey PDFs', 'IoT feeds']}
         outputs={['Ranked leaderboard', 'Sovereign BM brief', 'Regulatory flags', 'Rollout plan']}
       />
@@ -73,11 +81,11 @@ export default function ZoneStrategyModule() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 2xl:grid-cols-5 gap-5">
-        <div className="2xl:col-span-3 grid gap-3" id="zone-leaderboard">
+      <div className="grid grid-cols-1 2xl:grid-cols-5" style={{ gap: '24px' }}>
+        <div className="2xl:col-span-3 grid" style={{ gap: '16px' }} id="zone-leaderboard">
           <div className="flex items-center justify-between">
             <p className="muted-kicker">Ranked leaderboard</p>
-            <p className="mono-meta" style={{ fontSize: 10 }}>GET /api/zone-strategy</p>
+            <p className="mono-meta" style={{ fontSize: 10 }}>Curated zone dataset · backed by /api/validate</p>
           </div>
           {zones.map((zone) => {
             const status = STATUS_MAP[zone.regulatory] ?? STATUS_MAP.Exploration;
@@ -144,46 +152,130 @@ export default function ZoneStrategyModule() {
           })}
         </div>
 
-        <div className="2xl:col-span-2 grid gap-4">
-          <div className="panel-inset--accent p-5" id="sovereign-summary">
+        <div className="2xl:col-span-2 grid" style={{ gap: '20px' }}>
+          <div className="panel-inset--accent" id="sovereign-summary" style={{ padding: '24px' }}>
             <div className="flex items-center gap-2">
               <Shield size={15} className="text-[var(--color-accent)]" />
               <p className="muted-kicker">Sovereign Summary · Agent 05</p>
             </div>
-            <h3 className="text-[16px] font-semibold text-white mt-2">{summaryBM.title}</h3>
+            <h3 className="text-[16px] font-semibold text-white" style={{ marginTop: '10px' }}>
+              {summaryBM.title}
+            </h3>
 
-            <div className="mt-3 inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
+            <div
+              className="inline-flex items-center gap-2 chip chip--accent"
+              style={{ fontSize: 10, marginTop: '14px' }}
+            >
               <BadgeCheck size={11} />
               Bahasa Malaysia Brief
             </div>
 
-            <p className="mt-4 text-[13px] leading-relaxed text-white/75 whitespace-pre-line max-w-[52ch]">
+            <p
+              className="text-[13px] text-white/80 whitespace-pre-line max-w-[52ch]"
+              style={{ marginTop: '18px', lineHeight: 1.75 }}
+            >
               {summaryBM.content}
             </p>
           </div>
 
-          <div className="panel-inset p-5" id="methodology-card">
+          <div className="panel-inset" id="methodology-card" style={{ padding: '24px' }}>
             <p className="muted-kicker">Weighted Scoring</p>
-            <p className="text-[11.5px] text-white/50 mt-1.5 leading-relaxed">
+            <p
+              className="text-[11.5px] text-white/55 leading-relaxed"
+              style={{ marginTop: '8px' }}
+            >
               S = Σ wᵢ · xᵢ · Agent 03 fits weights; Agent 04 enforces hard thresholds.
             </p>
-            <div className="mt-4 grid gap-2">
+            <div className="grid" style={{ marginTop: '18px', gap: '10px' }}>
               {SCORING_WEIGHTS.map((item) => (
-                <div key={item.label} className="relative panel-inset--soft px-3 py-2.5 overflow-hidden">
+                <div
+                  key={item.label}
+                  className="relative panel-inset--soft overflow-hidden"
+                  style={{ padding: '12px 16px' }}
+                >
                   <div
                     className="absolute inset-y-0 left-0 pointer-events-none"
                     style={{
                       width: `${item.weight * 2}%`,
-                      background: 'linear-gradient(90deg, rgba(124,58,237,0.22), rgba(180,95,238,0.08))',
+                      background:
+                        'linear-gradient(90deg, rgba(124,58,237,0.22), rgba(180,95,238,0.05))',
                     }}
                   />
                   <div className="relative flex items-center justify-between">
-                    <span className="text-white/85 text-[13px]">{item.label}</span>
-                    <span className="font-mono text-[var(--color-accent-bright)] font-semibold text-[13px]">{item.weight}%</span>
+                    <span className="text-white/90 text-[13px]">{item.label}</span>
+                    <span className="font-mono text-[var(--color-accent-bright)] font-semibold text-[13px]">
+                      {item.weight}%
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="panel-inset" id="validation-card" style={{ padding: '24px' }}>
+            <div
+              className="flex items-center justify-between"
+              style={{ marginBottom: '16px' }}
+            >
+              <p className="muted-kicker">Known-Answer Validation</p>
+              <p className="mono-meta" style={{ fontSize: 9.5 }}>POST /api/validate</p>
+            </div>
+            <p
+              className="text-[11.5px] text-white/60 leading-relaxed"
+              style={{ marginBottom: '22px' }}
+            >
+              Five published benchmarks (DOSM, AELB, MOSTI) run against the live backend to prove
+              the recommendation engine is grounded — not hallucinated.
+            </p>
+            <button
+              onClick={() => runValidationSuite()}
+              disabled={isValidating}
+              className="btn btn-primary w-full"
+              id="run-validation-btn"
+            >
+              {isValidating ? 'Running…' : 'Run validation suite'}
+            </button>
+
+            {validation && (
+              <div
+                className="grid text-[12px]"
+                style={{
+                  marginTop: '22px',
+                  paddingTop: '18px',
+                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                  gap: '12px',
+                }}
+              >
+                <div className="flex items-center justify-between font-mono">
+                  <span className="text-white/70">Result</span>
+                  <span className="text-[var(--color-accent-bright)]">
+                    {validation.passed}/{validation.total} pass · {validation.edge_cases} edge · {validation.failed} fail
+                  </span>
+                </div>
+                <div className="grid" style={{ gap: '8px' }}>
+                  {validation.results?.slice(0, 5).map((r) => (
+                    <div
+                      key={r.test_id}
+                      className="panel-inset--soft flex items-center justify-between gap-3"
+                      style={{ padding: '10px 14px' }}
+                    >
+                      <span className="text-white/80 truncate">{r.scenario}</span>
+                      <span
+                        className={`font-mono text-[11px] px-2 py-0.5 rounded-md border ${
+                          r.status === 'pass'
+                            ? 'border-green-500/40 text-green-300 bg-green-500/10'
+                            : r.status === 'edge_case'
+                              ? 'border-indigo-400/40 text-indigo-200 bg-indigo-500/10'
+                              : 'border-amber-500/40 text-amber-200 bg-amber-500/10'
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

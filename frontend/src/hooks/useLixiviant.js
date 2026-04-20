@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { runPipeline } from '../api/client';
 
 const DOMAIN_REAGENTS = [
   { id: 'hcl', name: 'HCl (3M)', yield: 68.2, esgRisk: 6.8, temperature: 90, time: 6, class: 'acid', slRatio: '1:8' },
@@ -22,7 +23,7 @@ const DOMAIN_OPTIMAL = {
   sfiles_notation: '(feed){crush/80μm}→{leach/H₂SO₄+NaF/85°C/4h}→(PLS)[SX/D2EHPA/kerosene]→(strip/HCl)→{precip/oxalic_acid}→{calcine/900°C}→(REE₂O₃)',
   chain_of_thought: {
     reasoning_content: `The optimization engine evaluated 7 lixiviant systems across a multi-objective function:
-    
+
 Objective: Maximize f(yield, ESG) = w₁·yield - w₂·ESG_risk, where w₁=0.7, w₂=0.3
 
 Key findings:
@@ -41,51 +42,60 @@ SFILES 2.0 flowsheet generated per standard chemical process notation (Ryu et al
   },
 };
 
-const normalizeReasoning = (payload) => {
-  if (!payload) {
-    return null;
-  }
-
-  if (typeof payload === 'string') {
-    return { reasoning_content: payload, references: [] };
-  }
-
-  return {
-    reasoning_content: payload.reasoning_content ?? payload.content ?? '',
-    references: payload.references ?? [],
-  };
+const DEFAULT_DEPOSIT = {
+  location: 'Perak Tin Tailings Belt',
+  state: 'Perak',
+  clay_type: 'laterite',
+  ree_grade: 0.08,
+  depth_m: 12,
+  area_ha: 340,
+  iron_oxide_pct: 6.5,
+  esg_priority: 'medium',
+  notes: 'Legacy tin tailings; monazite-rich; road + rail access.',
 };
 
-const normalizeReagent = (reagent) => ({
-  id: reagent.id,
-  name: reagent.name,
-  yield: Number(reagent.yield ?? 0),
-  esgRisk: Number(reagent.esgRisk ?? reagent.esg_risk ?? 0),
-  temperature: Number(reagent.temperature ?? reagent.temperature_c ?? 0),
-  time: Number(reagent.time ?? reagent.residence_time_hr ?? 0),
-  class: reagent.class ?? 'acid',
-  slRatio: reagent.slRatio ?? reagent.solid_liquid_ratio ?? '-',
-});
-
-const normalizeOptimal = (optimalPayload) => {
-  if (!optimalPayload) {
-    return DOMAIN_OPTIMAL;
-  }
-
-  return {
-    optimal_lixiviant: optimalPayload.optimal_lixiviant ?? optimalPayload.lixiviant ?? DOMAIN_OPTIMAL.optimal_lixiviant,
-    extraction_yield: Number(optimalPayload.extraction_yield ?? optimalPayload.yield ?? DOMAIN_OPTIMAL.extraction_yield),
-    esg_risk_score: Number(optimalPayload.esg_risk_score ?? optimalPayload.esg_risk ?? DOMAIN_OPTIMAL.esg_risk_score),
-    temperature_c: Number(optimalPayload.temperature_c ?? optimalPayload.temperature ?? DOMAIN_OPTIMAL.temperature_c),
-    residence_time_hr: Number(optimalPayload.residence_time_hr ?? optimalPayload.time ?? DOMAIN_OPTIMAL.residence_time_hr),
-    solid_liquid_ratio: optimalPayload.solid_liquid_ratio ?? optimalPayload.sl_ratio ?? DOMAIN_OPTIMAL.solid_liquid_ratio,
-    design_speedup: Number(optimalPayload.design_speedup ?? DOMAIN_OPTIMAL.design_speedup),
-    sfiles_notation: optimalPayload.sfiles_notation ?? optimalPayload.sfiles_2_0 ?? DOMAIN_OPTIMAL.sfiles_notation,
-    chain_of_thought: normalizeReasoning(
-      optimalPayload.chain_of_thought ?? optimalPayload.reasoning_content,
-    ) ?? DOMAIN_OPTIMAL.chain_of_thought,
+/**
+ * Extracts the optimal lixiviant block from a raw flowsheet dict returned
+ * by Agent 2. The real backend returns something like:
+ *   { lixiviant, concentration_M, pH_range, temperature_C, residence_hr,
+ *     yield_pct, esg_risk_score, sfiles_2_0 | sfiles_notation, ... }
+ */
+function mapBackendFlowsheet(flowsheet, reasoningText) {
+  const picked = {
+    optimal_lixiviant:
+      flowsheet.lixiviant ??
+      flowsheet.optimal_lixiviant ??
+      DOMAIN_OPTIMAL.optimal_lixiviant,
+    extraction_yield: Number(
+      flowsheet.yield_pct ?? flowsheet.extraction_yield ?? DOMAIN_OPTIMAL.extraction_yield,
+    ),
+    esg_risk_score: Number(
+      flowsheet.esg_risk_score ?? flowsheet.esg_risk ?? DOMAIN_OPTIMAL.esg_risk_score,
+    ),
+    temperature_c: Number(
+      flowsheet.temperature_C ?? flowsheet.temperature_c ?? DOMAIN_OPTIMAL.temperature_c,
+    ),
+    residence_time_hr: Number(
+      flowsheet.residence_hr ??
+        flowsheet.residence_time_hr ??
+        DOMAIN_OPTIMAL.residence_time_hr,
+    ),
+    solid_liquid_ratio:
+      flowsheet.solid_liquid_ratio ??
+      flowsheet.sl_ratio ??
+      DOMAIN_OPTIMAL.solid_liquid_ratio,
+    design_speedup: DOMAIN_OPTIMAL.design_speedup,
+    sfiles_notation:
+      flowsheet.sfiles_notation ??
+      flowsheet.sfiles_2_0 ??
+      DOMAIN_OPTIMAL.sfiles_notation,
+    chain_of_thought: {
+      reasoning_content: reasoningText || DOMAIN_OPTIMAL.chain_of_thought.reasoning_content,
+      references: flowsheet.references ?? DOMAIN_OPTIMAL.chain_of_thought.references,
+    },
   };
-};
+  return picked;
+}
 
 export default function useLixiviant() {
   const [reagents, setReagents] = useState(DOMAIN_REAGENTS);
@@ -93,68 +103,101 @@ export default function useLixiviant() {
   const [flowsheet, setFlowsheet] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isLive, setIsLive] = useState(false); // true when backend returned real data
+  const [streamingReasoning, setStreamingReasoning] = useState('');
+  const [agentStatus, setAgentStatus] = useState({}); // { 2: "thinking" | "done", ... }
+  const abortRef = useRef(null);
 
-  const fetchOptimization = useCallback(async () => {
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  const fetchOptimization = useCallback(async (deposit = DEFAULT_DEPOSIT) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setIsLoading(true);
     setError(null);
+    setStreamingReasoning('');
+    setAgentStatus({});
+    setFlowsheet(null);
+
+    let reasoningBuffer = '';
+    let capturedFlowsheet = null;
+
     try {
-      const response = await fetch('/api/chemical-optimization');
-      if (response.ok) {
-        const data = await response.json();
-        const structured = data?.structured_output ?? data;
-        const backendReagents = structured?.reagents ?? [];
-        const backendOptimal = structured?.optimal ?? structured;
+      await runPipeline(
+        { deposit_profile: deposit },
+        {
+          signal: controller.signal,
+          onEvent: (evt) => {
+            if (typeof evt.agent === 'number') {
+              setAgentStatus((prev) => ({
+                ...prev,
+                [evt.agent]: evt.status ?? evt.type ?? 'active',
+              }));
+            }
+            if (evt.agent === 2 && evt.type === 'reasoning' && evt.text) {
+              reasoningBuffer += evt.text;
+              setStreamingReasoning(reasoningBuffer);
+            }
+            if (evt.agent === 2 && evt.status === 'done' && evt.flowsheet) {
+              capturedFlowsheet = evt.flowsheet;
+              setFlowsheet(
+                capturedFlowsheet.sfiles_2_0 ??
+                  capturedFlowsheet.sfiles_notation ??
+                  null,
+              );
+            }
+          },
+        },
+      );
 
-        if (Array.isArray(backendReagents) && backendReagents.length > 0) {
-          setReagents(backendReagents.map(normalizeReagent));
-        } else {
-          setReagents(DOMAIN_REAGENTS);
-        }
-
-        const mergedOptimal = normalizeOptimal({
-          ...backendOptimal,
-          reasoning_content: data?.reasoning_content,
-        });
-        setOptimal(mergedOptimal);
+      if (capturedFlowsheet) {
+        setOptimal(mapBackendFlowsheet(capturedFlowsheet, reasoningBuffer));
+        setIsLive(true);
       } else {
-        setReagents(DOMAIN_REAGENTS);
         setOptimal(DOMAIN_OPTIMAL);
       }
-    } catch {
-      setError('Chemical optimization API is temporarily unavailable. Showing baseline scenario.');
+      setReagents(DOMAIN_REAGENTS);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        setError('Pipeline unreachable — showing validated baseline scenario.');
+      }
       setReagents(DOMAIN_REAGENTS);
       setOptimal(DOMAIN_OPTIMAL);
+      setIsLive(false);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
+  /**
+   * Kept for UI compatibility. If the pipeline has already been run and we
+   * have a flowsheet, just echo it. Otherwise trigger the pipeline which
+   * will set both `optimal.sfiles_notation` and `flowsheet`.
+   */
   const generateFlowsheet = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/chemical-optimization/flowsheet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lixiviant: optimal.optimal_lixiviant,
-          reasoning_content: optimal.chain_of_thought?.reasoning_content,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const structured = data?.structured_output ?? data;
-        setFlowsheet(structured?.sfiles_notation ?? structured?.sfiles_2_0 ?? optimal.sfiles_notation);
-        setIsLoading(false);
-        return;
-      }
-    } catch {
-      setError('Flowsheet generation service unavailable. Showing latest validated notation.');
+    if (optimal?.sfiles_notation && !flowsheet) {
+      setFlowsheet(optimal.sfiles_notation);
+      return;
     }
+    if (!isLive) {
+      await fetchOptimization();
+    } else {
+      setFlowsheet(optimal.sfiles_notation);
+    }
+  }, [optimal, flowsheet, isLive, fetchOptimization]);
 
-    await new Promise((r) => setTimeout(r, 1200));
-    setFlowsheet(DOMAIN_OPTIMAL.sfiles_notation);
-    setIsLoading(false);
-  }, [optimal]);
-
-  return { reagents, optimal, flowsheet, isLoading, error, fetchOptimization, generateFlowsheet };
+  return {
+    reagents,
+    optimal,
+    flowsheet,
+    isLoading,
+    error,
+    isLive,
+    streamingReasoning,
+    agentStatus,
+    fetchOptimization,
+    generateFlowsheet,
+  };
 }

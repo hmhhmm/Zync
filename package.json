@@ -1,0 +1,14 @@
+{
+  "name": "zync",
+  "private": true,
+  "description": "Zync root orchestration scripts. Actual frontend lives in ./frontend, backend in ./backend.",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "lint": "npm --prefix frontend run lint",
+    "install:frontend": "npm --prefix frontend install",
+    "backend:up": "docker compose up --build",
+    "backend:down": "docker compose down"
+  }
+}

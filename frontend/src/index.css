@@ -433,6 +433,45 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   .session-benchmarks { flex-wrap: wrap; }
 }
 
+.session-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+
+.session-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.session-status--live {
+  color: rgba(163, 255, 200, 0.95);
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.session-status--offline {
+  color: rgba(253, 186, 116, 0.95);
+  background: rgba(251, 146, 60, 0.12);
+  border-color: rgba(251, 146, 60, 0.35);
+}
+
+.session-status--checking {
+  color: rgba(191, 203, 255, 0.85);
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(129, 140, 248, 0.35);
+}
+
 /* ==========================================================================
    SFILES 2.0 parsed pipeline
    ========================================================================== */

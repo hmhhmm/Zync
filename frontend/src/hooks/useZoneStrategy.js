@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { runValidation } from '../api/client';
 
 const DOMAIN_ZONES = [
   {
@@ -106,79 +107,46 @@ The Sovereign Strategy Summary translates findings into Bahasa Malaysia per Mala
   },
 };
 
-const normalizeReasoning = (payload) => {
-  if (!payload) {
-    return null;
-  }
-
-  if (typeof payload === 'string') {
-    return { reasoning_content: payload, references: [] };
-  }
-
-  return {
-    reasoning_content: payload.reasoning_content ?? payload.content ?? '',
-    references: payload.references ?? [],
-  };
-};
-
-const normalizeZone = (zone, index) => ({
-  id: zone.id ?? `zone-${index + 1}`,
-  rank: Number(zone.rank ?? index + 1),
-  name: zone.name ?? 'Unnamed Zone',
-  score: Number(zone.score ?? 0),
-  treo_grade: zone.treo_grade ?? zone.treo ?? '-',
-  reserves_tonnes: Number(zone.reserves_tonnes ?? zone.reserves ?? 0),
-  infrastructure: zone.infrastructure ?? 'Medium',
-  regulatory: zone.regulatory ?? 'Under Review',
-  ree_types: Array.isArray(zone.ree_types) ? zone.ree_types : [],
-  description: zone.description ?? 'No description provided by backend.',
-});
-
 export default function useZoneStrategy() {
-  const [zones, setZones] = useState(DOMAIN_ZONES);
-  const [summaryBM, setSummaryBM] = useState(DOMAIN_SUMMARY_BM);
-  const [isLoading, setIsLoading] = useState(false);
+  const [zones] = useState(DOMAIN_ZONES);
+  const [summaryBM] = useState(DOMAIN_SUMMARY_BM);
+  const [validation, setValidation] = useState(null);
+  const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchZones = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/zone-strategy');
-      if (response.ok) {
-        const data = await response.json();
-        const structured = data?.structured_output ?? data;
-        const backendZones = structured?.zones ?? [];
-        const backendSummary = structured?.summary_bm ?? structured?.summaryBM;
-
-        if (Array.isArray(backendZones) && backendZones.length > 0) {
-          setZones(backendZones.map(normalizeZone));
-        } else {
-          setZones(DOMAIN_ZONES);
-        }
-
-        if (backendSummary) {
-          setSummaryBM({
-            title: backendSummary.title ?? DOMAIN_SUMMARY_BM.title,
-            content: backendSummary.content ?? DOMAIN_SUMMARY_BM.content,
-            chain_of_thought:
-              normalizeReasoning(backendSummary.chain_of_thought ?? data?.reasoning_content) ??
-              DOMAIN_SUMMARY_BM.chain_of_thought,
-          });
-        } else {
-          setSummaryBM(DOMAIN_SUMMARY_BM);
-        }
-      } else {
-        setZones(DOMAIN_ZONES);
-        setSummaryBM(DOMAIN_SUMMARY_BM);
-      }
-    } catch {
-      setError('Strategic priority API is currently unavailable. Showing latest validated zoning baseline.');
-      setZones(DOMAIN_ZONES);
-      setSummaryBM(DOMAIN_SUMMARY_BM);
-    }
-    setIsLoading(false);
+    // Zone ranking is a static curated dataset (no backend endpoint defined).
+    // Kept for forward compatibility; resolve immediately.
+    return { zones: DOMAIN_ZONES, summaryBM: DOMAIN_SUMMARY_BM };
   }, []);
 
-  return { zones, summaryBM, isLoading, error, fetchZones };
+  /**
+   * Run the 5 known-answer tests against the real backend. Used to prove the
+   * zone ranking logic is grounded in validated chemistry recommendations.
+   */
+  const runValidationSuite = useCallback(async (testIds = null) => {
+    setIsValidating(true);
+    setError(null);
+    try {
+      const result = await runValidation(testIds);
+      setValidation(result);
+      return result;
+    } catch (err) {
+      setError(err.message || 'Validation suite unreachable.');
+      setValidation(null);
+      return null;
+    } finally {
+      setIsValidating(false);
+    }
+  }, []);
+
+  return {
+    zones,
+    summaryBM,
+    validation,
+    isValidating,
+    error,
+    fetchZones,
+    runValidationSuite,
+  };
 }
