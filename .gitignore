@@ -7,10 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node / Vite
 node_modules
 dist
 dist-ssr
 *.local
+
+# Python
+__pycache__/
+*.pyc
+*.db
+*.sqlite3
+
+# Env
+.env
+CLAUDE.md
 
 # Editor directories and files
 .vscode/*

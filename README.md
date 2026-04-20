@@ -1,16 +1,47 @@
-# React + Vite
+# Zync — Malaysia's Sovereign REE Engineering Intelligence
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Putting GLM-5.1's scientific reasoning at the point where Malaysia's RM 1 trillion rare earth ambition is won or lost.
 
-Currently, two official plugins are available:
+## What it does
+Zync is a multi-agent AI system that helps Malaysian site engineers make three critical hydrometallurgical decisions:
+1. **Process Diagnosis** — why did my yield drop?
+2. **Lixiviant Selection** — what chemistry should I use on this soil?
+3. **Zone Prioritisation** — which zone do I mine first?
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
+- **AI** — Z.ai GLM-5.1 (SciGLM, 202K context, streaming reasoning)
+- **Backend** — FastAPI (Python), Server-Sent Events for streaming
+- **RAG** — GraphRAG (Neo4j), SQL RAG (PostgreSQL), Hybrid Search (Qdrant)
+- **Frontend** — React + Vite, Bahasa Malaysia + English
 
-## React Compiler
+## Agent Pipeline
+```
+Operator Input
+    → Agent 0 (Router)
+    → Agent 1 (Historian — GraphRAG)
+    → Agent 2 (Chemist — SciGLM ★ streaming)
+    → Agent 3 (Optimizer) + Agent 4 (Compliance) [parallel]
+    → Agent 5 (Report Writer)
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Quick Start
 
-## Expanding the ESLint configuration
+### Backend (Docker)
+```bash
+cp .env.example .env   # fill in API keys
+docker compose up --build
+# API available at http://localhost:8000
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Frontend (Vite dev server)
+```bash
+cd frontend
+npm install
+npm run dev
+# UI available at http://localhost:5173
+```
+
+The frontend proxies `/api/*` to the backend at `http://localhost:8000` (see `frontend/vite.config.js`).
+
+## Team
+Built for UM Hackathon 2026.
