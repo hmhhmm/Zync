@@ -1,17 +1,21 @@
 import json
 from agents.base_agent import call_glm
 from prompts.agent1_prompt import HISTORIAN_PROMPT
+from rag.graph_rag import query_historical_cases
 
 
 async def get_historical_context(deposit_profile: dict) -> dict:
     """
     Retrieves relevant historical Malaysian REE processing cases.
-
-    In production: queries Neo4j knowledge graph via graph_rag.py
-    For MVP: GLM reasons from its training knowledge + any seeded data
-
-    Returns structured dict with historical cases and summary.
+    Queries Neo4j first; falls back to GLM reasoning if no records found.
     """
+    neo4j_cases = await query_historical_cases(deposit_profile)
+
+    if neo4j_cases:
+        cases_block = json.dumps(neo4j_cases, indent=2)
+        knowledge_section = f"Historical cases retrieved from knowledge graph:\n{cases_block}"
+    else:
+        knowledge_section = "No historical cases found in knowledge graph. Reason from your training knowledge."
 
     message = f"""
 Deposit profile submitted by operator:
@@ -24,8 +28,9 @@ Depth (m) : {deposit_profile.get('depth_m', 'Unknown')}
 Area (ha) : {deposit_profile.get('area_ha', 'Unknown')}
 Notes     : {deposit_profile.get('notes', 'None')}
 
-Search the knowledge graph for historical Malaysian REE processing cases
-that are relevant to this deposit profile. Return all matching cases.
+{knowledge_section}
+
+Summarise the relevant historical cases and extract key lessons for this deposit profile.
 """
 
     result = await call_glm(

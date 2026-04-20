@@ -1,4 +1,8 @@
+import json
+import os
 from db.neo4j_client import run_query
+
+KNOWN_CASES_PATH = os.path.join(os.path.dirname(__file__), "../../data/known_cases/known_cases.json")
 
 
 async def query_historical_cases(deposit_profile: dict) -> list:
@@ -47,23 +51,24 @@ async def query_historical_cases(deposit_profile: dict) -> list:
 
 async def seed_sample_data():
     """
-    Seeds the Neo4j graph with sample Malaysian REE historical data.
+    Seeds Neo4j from data/known_cases/known_cases.json.
     Run once during setup: POST /admin/seed (not exposed in production).
     """
-    cypher = """
-    MERGE (kelantan:State {name: 'Kelantan'})
-    MERGE (s1:Site {name: 'Bukit Besi Pilot Site'})
-    MERGE (s1)-[:LOCATED_IN]->(kelantan)
-    MERGE (d1:Deposit {clay_type: 'laterite', pH_range: '4.0-4.5', temperature: 25})
-    MERGE (s1)-[:HAS_DEPOSIT]->(d1)
-    MERGE (l1:Lixiviant {name: 'ammonium sulfate', concentration: '0.5M'})
-    MERGE (d1)-[:USED_LIXIVIANT]->(l1)
-    MERGE (y1:YieldResult {yield_pct: 68.0})
-    MERGE (d1)-[:ACHIEVED_YIELD]->(y1)
-    MERGE (c1:ComplianceOutcome {
-        status: 'failed',
-        lesson: 'Thorium levels exceeded AELB limit — pH was too low at 3.9 during peak operation'
-    })
-    MERGE (y1)-[:HAD_COMPLIANCE]->(c1)
-    """
-    await run_query(cypher)
+    with open(KNOWN_CASES_PATH, "r") as f:
+        cases = json.load(f)
+
+    for c in cases:
+        cypher = """
+        MERGE (state:State {name: $state})
+        MERGE (site:Site {name: $site})
+        MERGE (site)-[:LOCATED_IN]->(state)
+        MERGE (dep:Deposit {clay_type: $clay_type, pH_range: $pH_range, temperature: $temperature_C})
+        MERGE (site)-[:HAS_DEPOSIT]->(dep)
+        MERGE (lix:Lixiviant {name: $lixiviant, concentration: $concentration})
+        MERGE (dep)-[:USED_LIXIVIANT]->(lix)
+        MERGE (y:YieldResult {yield_pct: $yield_pct})
+        MERGE (dep)-[:ACHIEVED_YIELD]->(y)
+        MERGE (comp:ComplianceOutcome {status: $compliance_status, lesson: $key_lesson})
+        MERGE (y)-[:HAD_COMPLIANCE]->(comp)
+        """
+        await run_query(cypher, c)

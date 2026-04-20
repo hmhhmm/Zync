@@ -1,0 +1,14 @@
+[
+  {
+    "site": "Bukit Besi Pilot Site",
+    "state": "Kelantan",
+    "clay_type": "laterite",
+    "lixiviant": "ammonium sulfate",
+    "concentration": "0.5M",
+    "pH_range": "4.0-4.5",
+    "temperature_C": 25,
+    "yield_pct": 68.0,
+    "compliance_status": "failed",
+    "key_lesson": "Thorium levels exceeded AELB limit — pH was too low at 3.9 during peak operation"
+  }
+]
