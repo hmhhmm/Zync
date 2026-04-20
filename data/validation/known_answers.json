@@ -55,10 +55,10 @@
     "id": "test_005",
     "type": "chemistry",
     "scenario": "Unknown clay type, missing geological data",
-    "question": "Can EarthMind make a confident recommendation with no data?",
+    "question": "Can Zync make a confident recommendation with no data?",
     "ground_truth": "low confidence,insufficient",
     "insufficient_data_expected": true,
-    "source": "EarthMind XAI validation — edge case handling",
+    "source": "Zync XAI validation — edge case handling",
     "notes": "GLM must flag insufficient data rather than hallucinate a recommendation",
     "input": {
       "location": "Unknown", "state": "Unknown",

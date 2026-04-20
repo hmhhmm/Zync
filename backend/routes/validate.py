@@ -15,7 +15,7 @@ _TESTS_PATH = os.path.join(
 @router.post("/validate")
 async def run_validation(body: ValidationRequest):
     """
-    Runs the 5 Known Answer Tests against EarthMind agents.
+    Runs the 5 Known Answer Tests against Zync agents.
 
     Each test has a published ground truth from Malaysian REE literature.
     GLM's answer is compared against the known correct answer.
@@ -164,10 +164,10 @@ _FALLBACK_TESTS = [
         "id":       "test_005",
         "type":     "chemistry",
         "scenario": "Unknown clay type, incomplete geological data",
-        "question": "Can EarthMind make a confident recommendation?",
+        "question": "Can Zync make a confident recommendation?",
         "ground_truth": "low confidence,insufficient",
         "insufficient_data_expected": True,
-        "source":   "EarthMind XAI validation — edge case handling",
+        "source":   "Zync XAI validation — edge case handling",
         "notes":    "GLM should flag insufficient data rather than hallucinating",
         "input": {
             "location": "Unknown", "state": "Unknown",

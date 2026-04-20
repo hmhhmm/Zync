@@ -49,7 +49,7 @@ LIXIVIANT_TOOL_DEFINITION = {
     "function": {
         "name":        "lookup_lixiviant",
         "description": (
-            "Look up lixiviant candidates from the EarthMind knowledge base "
+            "Look up lixiviant candidates from the Zync knowledge base "
             "for a given clay type and REE grade. Returns ranked options with "
             "predicted yield ranges and ESG risk scores."
         ),

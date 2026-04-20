@@ -8,7 +8,7 @@ from routes.upload   import router as upload_router
 load_dotenv()
 
 app = FastAPI(
-    title="EarthMind API",
+    title="Zync API",
     description="Agentic AI Intelligence Hub for Malaysian REE Optimization",
     version="1.0.0"
 )
@@ -26,8 +26,8 @@ app.include_router(upload_router,   prefix="/api")
 
 @app.get("/")
 def root():
-    return {"message": "EarthMind backend is running"}
+    return {"message": "Zync backend is running"}
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "EarthMind API"}
+    return {"status": "ok", "service": "Zync API"}
