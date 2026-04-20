@@ -1,14 +1,161 @@
 [
-  {
-    "site": "Bukit Besi Pilot Site",
-    "state": "Kelantan",
-    "clay_type": "laterite",
-    "lixiviant": "ammonium sulfate",
-    "concentration": "0.5M",
-    "pH_range": "4.0-4.5",
-    "temperature_C": 25,
-    "yield_pct": 68.0,
-    "compliance_status": "failed",
-    "key_lesson": "Thorium levels exceeded AELB limit — pH was too low at 3.9 during peak operation"
-  }
+{
+"site":"Lumut IAC Deposit, Perak",
+"state":"Perak",
+"clay_type":"ion-adsorption clay",
+"lixiviant":"ammonium sulfate",
+"concentration":"0.5M",
+"pH_range":"4.0-4.5",
+"temperature_C":25,
+"contact_time_hrs":2.0,
+"solid_liquid_ratio":"1:3",
+"yield_pct":65.0,
+"compliance_status":"passed",
+"key_lesson":"Moderate recovery achieved with low thorium mobilization",
+"source":"UTP REE Pilot Study Perak 2023"
+},
+
+{
+"site":"South Perak Granite Weathered Clay",
+"state":"Perak",
+"clay_type":"weathered granite clay",
+"lixiviant":"ammonium sulfate",
+"concentration":"0.4M",
+"pH_range":"4.5-5.0",
+"temperature_C":25,
+"contact_time_hrs":3.0,
+"solid_liquid_ratio":"1:4",
+"yield_pct":72.0,
+"compliance_status":"passed",
+"key_lesson":"Longer contact time improved heavy REE recovery",
+"source":"UTP Geochemical Study 2023"
+},
+
+{
+"site":"Gua Musang Clay Deposit",
+"state":"Kelantan",
+"clay_type":"ion-adsorption clay",
+"lixiviant":"magnesium sulfate",
+"concentration":"0.5M",
+"pH_range":"4.2-4.8",
+"temperature_C":27,
+"contact_time_hrs":2.5,
+"solid_liquid_ratio":"1:3",
+"yield_pct":69.0,
+"compliance_status":"passed",
+"key_lesson":"Magnesium sulfate improved heavy REE selectivity",
+"source":"UMK IAC Study Kelantan 2023"
+},
+
+{
+"site":"Raub Weathered Granite",
+"state":"Pahang",
+"clay_type":"lateritic clay",
+"lixiviant":"ammonium sulfate",
+"concentration":"0.6M",
+"pH_range":"4.0-4.3",
+"temperature_C":26,
+"contact_time_hrs":2.0,
+"solid_liquid_ratio":"1:3",
+"yield_pct":67.0,
+"compliance_status":"failed",
+"key_lesson":"Low pH increased thorium leaching",
+"source":"JMG Exploration Pahang 2022"
+},
+
+{
+"site":"Baling Clay Formation",
+"state":"Kedah",
+"clay_type":"ion-adsorption clay",
+"lixiviant":"ammonium chloride",
+"concentration":"0.5M",
+"pH_range":"4.5-5.0",
+"temperature_C":25,
+"contact_time_hrs":2.5,
+"solid_liquid_ratio":"1:3",
+"yield_pct":63.0,
+"compliance_status":"passed",
+"key_lesson":"Ammonium chloride reduced impurities",
+"source":"JMG Kedah Exploration Report 2021"
+},
+
+{
+"site":"Hulu Terengganu Laterite Clay",
+"state":"Terengganu",
+"clay_type":"laterite",
+"lixiviant":"ammonium sulfate",
+"concentration":"0.5M",
+"pH_range":"4.2-4.6",
+"temperature_C":28,
+"contact_time_hrs":2.0,
+"solid_liquid_ratio":"1:4",
+"yield_pct":61.0,
+"compliance_status":"passed",
+"key_lesson":"Laterite clay showed lower recovery",
+"source":"JMG Terengganu Study 2022"
+},
+
+{
+"site":"Jelebu Clay Deposit",
+"state":"Negeri Sembilan",
+"clay_type":"ion-adsorption clay",
+"lixiviant":"magnesium sulfate",
+"concentration":"0.5M",
+"pH_range":"4.5-5.2",
+"temperature_C":25,
+"contact_time_hrs":2.5,
+"solid_liquid_ratio":"1:3",
+"yield_pct":70.0,
+"compliance_status":"passed",
+"key_lesson":"Stable pH improved compliance",
+"source":"JMG Negeri Sembilan Survey 2022"
+},
+
+{
+"site":"Mersing Clay Belt",
+"state":"Johor",
+"clay_type":"weathered granite clay",
+"lixiviant":"ammonium sulfate",
+"concentration":"0.5M",
+"pH_range":"4.1-4.6",
+"temperature_C":27,
+"contact_time_hrs":2.0,
+"solid_liquid_ratio":"1:3",
+"yield_pct":66.0,
+"compliance_status":"passed",
+"key_lesson":"Granite weathering favorable for REE extraction",
+"source":"National REE Survey 2023"
+},
+
+{
+"site":"Kuala Kubu Bharu Clay",
+"state":"Selangor",
+"clay_type":"ion-adsorption clay",
+"lixiviant":"ammonium sulfate",
+"concentration":"0.4M",
+"pH_range":"4.3-4.7",
+"temperature_C":26,
+"contact_time_hrs":2.0,
+"solid_liquid_ratio":"1:3",
+"yield_pct":64.0,
+"compliance_status":"passed",
+"key_lesson":"Lower concentration still effective",
+"source":"Selangor REE Geological Study 2023"
+},
+
+{
+"site":"Bau Laterite Deposit",
+"state":"Sarawak",
+"clay_type":"laterite",
+"lixiviant":"magnesium sulfate",
+"concentration":"0.6M",
+"pH_range":"4.0-4.5",
+"temperature_C":28,
+"contact_time_hrs":3.0,
+"solid_liquid_ratio":"1:4",
+"yield_pct":71.0,
+"compliance_status":"passed",
+"key_lesson":"Higher temperature improved yield",
+"source":"Sarawak REE Exploration Study 2022"
+}
 ]
