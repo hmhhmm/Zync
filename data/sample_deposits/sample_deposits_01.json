@@ -1,0 +1,12 @@
+{
+  "location": "Bukit Merah, Perak",
+  "state": "Perak",
+  "clay_type": "laterite",
+  "ree_grade": 0.08,
+  "depth_m": 8.5,
+  "area_ha": 12.3,
+  "iron_oxide_pct": 18.2,
+  "esg_priority": "medium",
+  "esg_notes": "Site is 800m from Sungai Perak — standard EIA required",
+  "notes": "Pilot survey conducted Q3 2024. Ion-adsorption characteristics confirmed."
+}

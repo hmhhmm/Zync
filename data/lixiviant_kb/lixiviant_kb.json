@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Ammonium sulfate",
+    "formula": "(NH4)2SO4",
+    "clay_types": ["laterite", "kaolinite", "halloysite", "iac"],
+    "concentration_M": [0.3, 0.5, 0.8],
+    "pH_range": "4.0-4.5",
+    "yield_range_pct": [60, 80],
+    "esg_risk_score": 3,
+    "esg_note": "Ammonium discharge requires wastewater treatment per DOE EQA Schedule 10",
+    "thorium_risk": "medium",
+    "cost_index": "low"
+  },
+  {
+    "name": "Ammonium chloride",
+    "formula": "NH4Cl",
+    "clay_types": ["laterite", "kaolinite"],
+    "concentration_M": [0.5, 1.0],
+    "pH_range": "4.0-5.0",
+    "yield_range_pct": [55, 75],
+    "esg_risk_score": 3,
+    "esg_note": "Chloride ions may affect downstream water quality",
+    "thorium_risk": "medium",
+    "cost_index": "low"
+  },
+  {
+    "name": "Magnesium sulfate",
+    "formula": "MgSO4",
+    "clay_types": ["smectite", "halloysite", "laterite"],
+    "concentration_M": [0.5, 1.0],
+    "pH_range": "4.5-5.5",
+    "yield_range_pct": [45, 65],
+    "esg_risk_score": 1,
+    "esg_note": "Lower environmental impact — no ammonium discharge concern",
+    "thorium_risk": "low",
+    "cost_index": "medium"
+  },
+  {
+    "name": "Sodium sulfate",
+    "formula": "Na2SO4",
+    "clay_types": ["kaolinite", "halloysite"],
+    "concentration_M": [0.5, 1.5],
+    "pH_range": "5.0-6.0",
+    "yield_range_pct": [40, 60],
+    "esg_risk_score": 1,
+    "esg_note": "Safest option — minimal environmental impact",
+    "thorium_risk": "low",
+    "cost_index": "medium"
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "test_001",
+    "type": "chemistry",
+    "scenario": "Laterite clay, Kelantan, REE grade 0.08%",
+    "question": "Optimal lixiviant and pH range?",
+    "ground_truth": "ammonium sulfate,ph 4.0-4.5",
+    "source": "DOSM 2019 IAC-REE Pilot Study",
+    "input": {
+      "location": "Kelantan", "state": "Kelantan",
+      "clay_type": "laterite", "ree_grade": 0.08
+    }
+  },
+  {
+    "id": "test_002",
+    "type": "compliance",
+    "scenario": "Ammonium sulfate at pH 3.8 — high thorium risk",
+    "question": "Does this configuration pass AELB compliance?",
+    "ground_truth": "fail",
+    "source": "AELB Regulations 1986, Regulation 26",
+    "input": {
+      "lixiviant": "ammonium sulfate", "concentration_M": 0.5,
+      "pH_range": "3.5-3.8", "temperature_C": 25,
+      "thorium_risk": "high", "esg_flag": true,
+      "esg_note": "pH below 4.0 — thorium co-extraction risk exceeds AELB limit"
+    }
+  },
+  {
+    "id": "test_003",
+    "type": "chemistry",
+    "scenario": "Smectite clay, Pahang, REE grade 0.05%, high ESG priority",
+    "question": "Best low-environmental-risk lixiviant?",
+    "ground_truth": "magnesium sulfate,sodium sulfate",
+    "source": "MOSTI REE Processing Guidelines 2022",
+    "input": {
+      "location": "Pahang", "state": "Pahang",
+      "clay_type": "smectite", "ree_grade": 0.05,
+      "esg_priority": "high"
+    }
+  },
+  {
+    "id": "test_004",
+    "type": "compliance",
+    "scenario": "Magnesium sulfate, pH 4.5-5.0, low thorium risk",
+    "question": "Does this configuration pass all Malaysian regulations?",
+    "ground_truth": "pass",
+    "source": "DOE EQA 1974 Schedule 10, AELB Regulations 1986",
+    "input": {
+      "lixiviant": "magnesium sulfate", "concentration_M": 0.5,
+      "pH_range": "4.5-5.0", "temperature_C": 25,
+      "thorium_risk": "low", "esg_flag": false
+    }
+  },
+  {
+    "id": "test_005",
+    "type": "chemistry",
+    "scenario": "Unknown clay type, missing geological data",
+    "question": "Can EarthMind make a confident recommendation with no data?",
+    "ground_truth": "low confidence,insufficient",
+    "insufficient_data_expected": true,
+    "source": "EarthMind XAI validation — edge case handling",
+    "notes": "GLM must flag insufficient data rather than hallucinate a recommendation",
+    "input": {
+      "location": "Unknown", "state": "Unknown",
+      "clay_type": "unknown", "ree_grade": 0.0
+    }
+  }
+]
