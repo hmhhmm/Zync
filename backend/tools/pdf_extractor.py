@@ -1,21 +1,21 @@
 import io
 
+
 async def extract_text_from_pdf(file_bytes: bytes) -> str:
     """
     Extract text from uploaded geological survey PDF.
-    Uses PyMuPDF (fitz) for extraction.
+    Uses pypdf — pure Python, no compilation needed.
     Returns raw text string for GLM to process.
     """
     try:
-        import fitz  # PyMuPDF
-        doc  = fitz.open(stream=file_bytes, filetype="pdf")
+        from pypdf import PdfReader
+        reader = PdfReader(io.BytesIO(file_bytes))
         text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
+        for page in reader.pages:
+            text += page.extract_text() or ""
         return text.strip()
     except ImportError:
-        return "[PyMuPDF not installed — PDF extraction unavailable]"
+        return "[pypdf not installed — PDF extraction unavailable]"
     except Exception as e:
         return f"[PDF extraction error: {str(e)}]"
 
