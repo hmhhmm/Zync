@@ -1,354 +1,560 @@
-import { useState } from 'react';
-
 import {
-  ArrowLeft,
-  ArrowRight,
   ArrowUpRight,
-  FlaskConical,
-  Code2,
+  Atom,
+  BrainCircuit,
   Cpu,
+  Database,
+  FlaskConical,
+  Gauge,
+  GitBranch,
   Globe,
-  Gem,
   MapPin,
-  MessageCircle,
-  Send,
-  Sparkles,
-  Shield,
-  Rocket,
-  AtSign,
-  TerminalSquare,
+  Network,
   Play,
+  ScrollText,
+  Shield,
+  Workflow,
+  Zap,
 } from 'lucide-react';
 
-const MODULE_ACTIONS = [
-  { label: 'Diagnosis Flow', module: 'diagnosis', icon: FlaskConical },
-  { label: 'Lixiviant Selection', module: 'lixiviant', icon: Cpu },
-  { label: 'Zone Prioritization', module: 'zone-strategy', icon: MapPin },
+/* ============================================================
+   Static copy
+   ============================================================ */
+
+const NAV_LINKS = [
+  { href: '#problem', label: 'Problem' },
+  { href: '#architecture', label: 'Architecture' },
+  { href: '#operator', label: 'Operator' },
+  { href: '#delivery', label: 'Delivery' },
+  { href: '#impact', label: 'Impact' },
 ];
 
-const DEPLOYMENT_CARDS = [
+const FRAME_TABS = [
+  { id: 'pipeline', label: 'Pipeline' },
+  { id: 'reasoning', label: 'Reasoning', active: true },
+  { id: 'flowsheet', label: 'Flowsheet' },
+  { id: 'esg', label: 'ESG' },
+  { id: 'report', label: 'Report' },
+];
+
+const STATUS_LABEL = { done: 'ok', streaming: 'live', pending: 'wait' };
+
+const AGENT_ROWS = [
+  { idx: '00', label: 'Router', status: 'done' },
+  { idx: '01', label: 'Historian · GraphRAG', status: 'done' },
+  { idx: '02', label: 'Chemist · SciGLM', status: 'streaming' },
+  { idx: '03', label: 'Optimizer · SQL RAG', status: 'pending' },
+  { idx: '04', label: 'ESG · Hybrid Search', status: 'pending' },
+  { idx: '05', label: 'Reporter', status: 'pending' },
+];
+
+const REASONING_LINES = [
+  { tone: 'dim', text: '> deposit = Lahad Datu laterite · REE 0.42%, thorium 0.8 ppm' },
+  { tone: 'dim', text: '> context: 7 analogous sites retrieved (GraphRAG)' },
+  { blank: true },
+  { text: 'Clay mineralogy suggests ion-adsorption profile. Ammonium sulfate is the established lixiviant for this matrix.' },
+  { blank: true },
+  { tone: 'accent', text: 'Optimal pH window: 4.0 – 4.5' },
+  { text: 'Rationale — below pH 4.0 accelerates thorium co-extraction, triggering AELB radioactivity thresholds. Above 4.5 yield drops sharply as adsorbed REE remain bound to clay sites.' },
+  { blank: true },
+  { tone: 'accent', text: 'Predicted yield: 68–72% at 45°C, 90 min contact', cursor: true },
+];
+
+const PROBLEMS = [
   {
-    title: 'Expertise Gap In Hydrometallurgy',
-    text: 'Traditional REE flowsheet design takes months of manual trial-and-error by scarce expert teams.',
-    icon: Code2,
+    icon: Database,
+    kicker: 'Market gap · 01',
+    title: 'RM 1 trillion locked underground',
+    copy: 'Malaysia holds one of the world\u2019s largest rare-earth reserves but exports raw minerals to foreign processors, capturing a fraction of the value chain.',
   },
   {
-    title: 'Autonomous 8-Hour Optimization Loop',
-    text: 'GLM-5.1 executes more than 600 design iterations without intervention to compress engineering cycles.',
-    icon: Rocket,
-  },
-  {
-    title: 'Scientific Reasoning With SciGLM',
-    text: 'College-level scientific and numerical reasoning supports complex yield, cost, and waste trade-offs.',
     icon: Shield,
+    kicker: 'Sovereignty · 02',
+    title: 'Technological monopoly by design',
+    copy: 'NRES confirms a gap in hydrometallurgical expertise. Foreign licenses and black-box IP keep decision authority offshore.',
   },
   {
-    title: 'Zync Brain For Malaysia',
-    text: 'Keeps data and strategic decisions local so national REE capability grows without foreign lock-in.',
-    icon: Sparkles,
+    icon: Gauge,
+    kicker: 'Velocity · 03',
+    title: 'Months of manual trial-and-error',
+    copy: 'Traditional flowsheet design relies on scarce experts cycling through thousands of variables by hand. Results arrive after the market moves.',
   },
 ];
 
-const AGENTIC_PAGES = [
+const AGENT_CARDS = [
   {
-    title: 'MoE Architecture For Scientific Routing',
-    text: 'GLM MoE routes requests to specialized experts for mineralogy, process chemistry, and optimization math while activating only the required parameter set.',
-    cta: 'View MoE Details',
+    icon: Network,
+    kicker: 'Agent 01 · Historian',
+    title: 'GraphRAG over Malaysian geology',
+    copy: 'Multi-hop reasoning across deposit \u2192 reagent \u2192 yield \u2192 regulatory outcome. Every recommendation cites an auditable traversal path.',
+    tag: 'GraphRAG',
   },
   {
-    title: '202,000-Token Dark Data Ingestion',
-    text: 'Long-context reasoning reads fragmented studies, geological PDFs, and historical reports to surface hidden patterns and decision-ready signals.',
-    cta: 'Inspect Context Flow',
+    icon: Atom,
+    kicker: 'Agent 02 · Chemist',
+    title: 'SciGLM scientific reasoning',
+    copy: 'SciInstruct-trained GLM-5.1 generates the first-pass flowsheet grounded in mineralogy and reaction kinetics.',
+    tag: 'SciGLM · 202K ctx',
   },
   {
-    title: 'KARMA + SFILES 2.0 Engineering Delivery',
-    text: 'Manager-agent orchestration coordinates specialist tools and exports execution-ready process logic for real operating workflows, not just chat outputs.',
-    cta: 'Open Delivery Pipeline',
+    icon: BrainCircuit,
+    kicker: 'Agent 03 · Optimizer',
+    title: 'SQL RAG on 600+ iterations',
+    copy: 'Structured table of pH, temp, yield, thorium, cost. Deterministic queries, zero number hallucination.',
+    tag: 'SQL RAG',
+  },
+  {
+    icon: Shield,
+    kicker: 'Agent 04 · ESG Sentinel',
+    title: 'Hybrid search on regulation',
+    copy: 'Keyword precision for exact thresholds (e.g. thorium \u2264 1.0 Bq/g), semantic search for contextual AELB / DOSM clauses.',
+    tag: 'Hybrid Search',
+  },
+  {
+    icon: ScrollText,
+    kicker: 'Agent 05 · Reporter',
+    title: 'Streaming explainable output',
+    copy: 'Reasoning tokens stream live with citations, SFILES 2.0 flowsheet, and KPI block for the operator to inspect.',
+    tag: 'XAI',
+  },
+  {
+    icon: Workflow,
+    kicker: 'Orchestration · KARMA',
+    title: 'One manager, five specialists',
+    copy: 'KARMA multi-agent framework. GLM-5.1 routes each sub-task to the correct retrieval strategy, then synthesises.',
+    tag: 'KARMA · MoE 744B',
   },
 ];
+
+const OPERATOR_FLOWS = [
+  {
+    icon: FlaskConical,
+    title: 'Diagnosis',
+    input: 'Weekly logs — pH, temperature, flow, output ppm',
+    action: 'Causal reasoning links anomalies to operator notes (rainfall, downtime) and proposes corrective action.',
+    module: 'diagnosis',
+  },
+  {
+    icon: Cpu,
+    title: 'Lixiviant Selection',
+    input: 'Clay type, REE concentration, ESG constraints',
+    action: 'Predicts reaction yield and optimises reagent parameters before touching the lab.',
+    module: 'lixiviant',
+  },
+  {
+    icon: MapPin,
+    title: 'Zone Prioritisation',
+    input: 'Geological survey, layer depth, accessibility',
+    action: 'Multi-variable ranking of zones by yield against regulatory and ESG risk.',
+    module: 'zone-strategy',
+  },
+];
+
+const SFILES_LINES = [
+  { tone: 'dim', text: '# Ion-adsorption REE · Lahad Datu' },
+  { tone: 'token', text: '(raw)' },
+  { tone: 'token', text: '>(crush@2mm)' },
+  { tone: 'token', text: '>(leach:NH4SO4,pH4.3,45C)' },
+  { tone: 'token', text: '>(filter)' },
+  { tone: 'token', text: '>(precip:oxalate)' },
+  { tone: 'token', text: '>(calcine:800C)' },
+  { tone: 'token', text: '>(REO)' },
+  { blank: true },
+  { tone: 'ok', text: '# expected yield: 68–72%' },
+  { tone: 'ok', text: '# thorium co-extract: 0.42 Bq/g (AELB ok)' },
+];
+
+const VALIDATION_TESTS = [
+  'DOSM-2023-REE-reserves',
+  'AELB-thorium-threshold',
+  'MOSTI-midstream-roadmap',
+  'BukitBesi-2019-yield-recall',
+  'Lahad-Datu-ion-adsorption',
+];
+
+const STATS = [
+  { value: '89%', label: 'R&D design time reduced' },
+  { value: '600+', label: 'iterations per 8h loop' },
+  { value: '95.3%', label: 'AIME benchmark' },
+  { value: '14.2%', label: 'TFP uplift (13MP)' },
+  { value: '202K', label: 'tokens dark-data ctx' },
+  { value: '5/5', label: 'known-answer tests pass' },
+];
+
+const FOOTER_GROUPS = [
+  {
+    heading: 'Product',
+    items: ['Diagnosis', 'Lixiviant Selection', 'Zone Prioritisation', 'Streaming Reasoning'],
+  },
+  {
+    heading: 'Architecture',
+    items: ['GLM-5.1 · SciGLM', 'GraphRAG · SQL RAG', 'Hybrid Search', 'SFILES 2.0 · KARMA'],
+  },
+  {
+    heading: 'Mission',
+    items: ['13MP alignment', 'Sovereign data autonomy', 'Midstream capability', 'Explainable AI'],
+  },
+];
+
+/* ============================================================
+   Presentational components
+   ============================================================ */
+
+function Nav({ onEnterDashboard }) {
+  return (
+    <nav className="lp-nav" aria-label="Primary">
+      <div className="lp-nav-brand">
+        <span className="lp-nav-wordmark">ZYNC</span>
+      </div>
+
+      <div className="lp-nav-links">
+        {NAV_LINKS.map((link) => (
+          <a key={link.href} href={link.href}>
+            {link.label}
+          </a>
+        ))}
+      </div>
+
+      <button onClick={onEnterDashboard} id="enter-dashboard-btn" className="lp-nav-cta">
+        Launch console
+        <ArrowUpRight size={13} />
+      </button>
+    </nav>
+  );
+}
+
+function Hero({ onEnterDashboard }) {
+  return (
+    <section className="lp-hero">
+      <div className="lp-hero__aura" aria-hidden />
+
+      <h1 className="lp-title">
+        Malaysia&rsquo;s sovereign brain for{' '}
+        <span className="lp-title__accent">rare-earth engineering.</span>
+      </h1>
+
+      <p className="lp-lead">
+        Zync turns a RM 1 trillion reserve into a midstream engineering capability.
+        Six specialised agents, grounded retrieval, and streaming GLM reasoning compress
+        decades of hydrometallurgical trial-and-error into hours &mdash; without exporting
+        decision authority offshore.
+      </p>
+
+      <div className="lp-hero-actions">
+        <button onClick={onEnterDashboard} className="lp-cta-primary">
+          Launch Zync console
+          <ArrowUpRight size={15} />
+        </button>
+        <a href="#architecture" className="lp-cta-secondary">
+          <Play size={14} />
+          See the architecture
+        </a>
+      </div>
+
+      <a href="#frame" className="lp-scroll-hint" aria-label="Scroll to product">
+        <span className="lp-scroll-hint__label">Scroll to explore</span>
+        <span className="lp-scroll-hint__line" aria-hidden />
+      </a>
+    </section>
+  );
+}
+
+function AgentRow({ row }) {
+  const statusClass =
+    row.status === 'streaming'
+      ? 'lp-agent-row__status--streaming'
+      : row.status === 'pending'
+      ? 'lp-agent-row__status--pending'
+      : '';
+  return (
+    <div className={`lp-agent-row ${row.status === 'streaming' ? 'lp-agent-row--active' : ''}`}>
+      <span className="lp-agent-row__idx">{row.idx}</span>
+      <span className="lp-agent-row__label">{row.label}</span>
+      <span className={`lp-agent-row__status ${statusClass}`}>{STATUS_LABEL[row.status]}</span>
+    </div>
+  );
+}
+
+function CodeLines({ lines }) {
+  return (
+    <div className="lp-code-lines">
+      {lines.map((line, i) => {
+        if (line.blank) return <div key={i} className="lp-code-lines__blank" />;
+        const toneClass = line.tone ? `lp-code-lines__line--${line.tone}` : '';
+        return (
+          <div key={i} className={`lp-code-lines__line ${toneClass}`}>
+            {line.text}
+            {line.cursor ? <span className="lp-stream__cursor" /> : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ProductFrame() {
+  return (
+    <section id="frame" className="lp-frame-section">
+      <div className="lp-frame">
+        <div className="lp-frame__tabs" role="tablist">
+          {FRAME_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={Boolean(tab.active)}
+              className={`lp-frame__tab ${tab.active ? 'lp-frame__tab--active' : ''}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="lp-frame__body">
+          <aside className="lp-frame__pane">
+            <p className="lp-frame__pane-title">Agent Pipeline</p>
+            {AGENT_ROWS.map((row) => (
+              <AgentRow key={row.idx} row={row} />
+            ))}
+          </aside>
+
+          <div className="lp-frame__pane">
+            <p className="lp-frame__pane-title">Reasoning stream · Agent 02</p>
+            <CodeLines lines={REASONING_LINES} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SectionHead({ kicker, title, lead }) {
+  return (
+    <div className="lp-section-head">
+      <span className="lp-section-kicker">{kicker}</span>
+      <h2 className="lp-section-title">{title}</h2>
+      {lead ? <p className="lp-lead">{lead}</p> : null}
+    </div>
+  );
+}
+
+function FeatureCard({ data }) {
+  const Icon = data.icon;
+  return (
+    <article className="lp-card">
+      <div className="lp-card__icon">
+        <Icon size={18} />
+      </div>
+      {data.kicker ? <p className="lp-card__kicker">{data.kicker}</p> : null}
+      <h3 className="lp-card__title">{data.title}</h3>
+      <p className="lp-card__copy">{data.copy}</p>
+      {data.tag ? (
+        <span className="lp-card__tag">
+          <GitBranch size={11} />
+          {data.tag}
+        </span>
+      ) : null}
+    </article>
+  );
+}
+
+function OperatorCard({ flow, onNavigate }) {
+  const Icon = flow.icon;
+  return (
+    <article className="lp-card lp-card--operator">
+      <div className="lp-card__icon">
+        <Icon size={18} />
+      </div>
+      <h3 className="lp-card__title">{flow.title}</h3>
+
+      <p className="lp-card__kicker">Operator input</p>
+      <p className="lp-card__copy">{flow.input}</p>
+
+      <p className="lp-card__kicker">Agentic action</p>
+      <p className="lp-card__copy">{flow.action}</p>
+
+      <button
+        type="button"
+        onClick={() => onNavigate(flow.module)}
+        className="lp-card__tag lp-card__tag--button"
+      >
+        <ArrowUpRight size={11} />
+        Open module
+      </button>
+    </article>
+  );
+}
+
+function CodePanel({ title, badge, lines, cursor }) {
+  return (
+    <div className="lp-code-panel">
+      <div className="lp-code-panel__head">
+        <span className="lp-code-panel__title">{title}</span>
+        <span className="lp-code-panel__badge">{badge}</span>
+      </div>
+      <CodeLines lines={cursor ? [...lines, { tone: 'token', text: '', cursor: true }] : lines} />
+    </div>
+  );
+}
+
+function FinalCTA({ onEnterDashboard, onNavigate }) {
+  return (
+    <section className="lp-final">
+      <div className="lp-sphere" aria-hidden />
+      <h2 className="lp-final__title">
+        Ready to unlock Malaysia&rsquo;s RM 1 trillion reserve?
+      </h2>
+      <p className="lp-lead">
+        Step into the Zync console. Run a deposit through the full six-agent pipeline
+        in under five minutes &mdash; see the reasoning, the flowsheet, and the ESG
+        verdict stream in real time.
+      </p>
+      <div className="lp-hero-actions">
+        <button onClick={onEnterDashboard} className="lp-cta-primary">
+          Enter the console
+          <ArrowUpRight size={15} />
+        </button>
+        <button onClick={() => onNavigate('diagnosis')} className="lp-cta-secondary">
+          <Zap size={14} />
+          Start with diagnosis
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="lp-footer">
+      <div className="lp-footer-grid">
+        <div>
+          <p className="lp-footer-brand">ZYNC</p>
+          <p className="lp-footer-copy">
+            A sovereign agentic engineering hub for Malaysia&rsquo;s rare-earth midstream
+            capability. Built on Z.ai GLM-5.1 for UM Hackathon 2026.
+          </p>
+        </div>
+
+        {FOOTER_GROUPS.map((group) => (
+          <div key={group.heading}>
+            <p className="lp-footer-heading">{group.heading}</p>
+            <ul className="lp-footer-list">
+              {group.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="lp-footer-meta">
+        <span>&copy; 2026 Zync · Built for Malaysia&rsquo;s independent REE future</span>
+        <span className="lp-footer-location">
+          <Globe size={11} aria-hidden />
+          Kuala Lumpur &middot; Malaysia
+        </span>
+      </div>
+    </footer>
+  );
+}
+
+/* ============================================================
+   Root
+   ============================================================ */
 
 export default function LandingPage({ onEnterDashboard, onNavigate }) {
-  const [activePage, setActivePage] = useState(0);
-  const [touchStartX, setTouchStartX] = useState(null);
-
-  const goToPrevPage = () => {
-    setActivePage((prev) => (prev - 1 + AGENTIC_PAGES.length) % AGENTIC_PAGES.length);
-  };
-
-  const goToNextPage = () => {
-    setActivePage((prev) => (prev + 1) % AGENTIC_PAGES.length);
-  };
-
-  const onTouchStart = (event) => {
-    setTouchStartX(event.changedTouches[0].clientX);
-  };
-
-  const onTouchEnd = (event) => {
-    if (touchStartX === null) {
-      return;
-    }
-
-    const deltaX = event.changedTouches[0].clientX - touchStartX;
-    const swipeThreshold = 44;
-
-    if (deltaX > swipeThreshold) {
-      goToPrevPage();
-    } else if (deltaX < -swipeThreshold) {
-      goToNextPage();
-    }
-
-    setTouchStartX(null);
-  };
-
-  const currentPage = AGENTIC_PAGES[activePage];
-
   return (
-    <div className="lp-page min-h-screen relative">
+    <div className="lp-page relative overflow-hidden">
       <div className="lp-grid-overlay absolute inset-0" />
       <div className="lp-glow lp-glow-top" />
       <div className="lp-glow lp-glow-left" />
       <div className="lp-glow lp-glow-right" />
 
-      <div className="lp-page-wrap relative z-10 space-y-20 sm:space-y-28">
-        <section className="lp-hero">
-          <header className="lp-nav">
-            <div className="inline-flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl border border-white/15 bg-white/5 flex items-center justify-center text-white">
-                <TerminalSquare size={16} />
-              </div>
-              <div className="lp-footer-brand-block">
-                <p className="text-xs tracking-[0.16em] font-semibold uppercase">ZYNC</p>
-                <p className="text-[10px] tracking-[0.14em] uppercase lp-subtle">Malaysia Agentic Engineering Hub</p>
-              </div>
-            </div>
+      <div className="lp-page-wrap relative z-10">
+        <Nav onEnterDashboard={onEnterDashboard} />
+        <Hero onEnterDashboard={onEnterDashboard} />
+        <ProductFrame />
 
-            <nav className="hidden lg:flex items-center gap-7 text-[11px] tracking-[0.14em] uppercase lp-subtle">
-              <span>Zync Mission</span>
-              <span>Agentic Hub</span>
-              <span>Human In Loop</span>
-              <span>Impact</span>
-            </nav>
-
-            <div className="flex items-center gap-2">
-              <button onClick={onEnterDashboard} id="enter-dashboard-btn" className="lp-btn lp-btn-launch">Launch</button>
-            </div>
-          </header>
-
-          <div className="lp-hero-content">
-            <div className="lp-hero-copy">
-              <span className="lp-chip">
-                <Sparkles size={12} />
-                RM 1 Trillion Sovereign Mission
-              </span>
-
-              <h1 className="lp-title">
-                From Mineral Reserve To Zync REE Engineering Capability.
-              </h1>
-              <p className="lp-lead">
-                NRES identified a technology and commercialization gap in local REE processing. Zync uses GLM-5.1
-                agentic engineering so Malaysian teams keep decision autonomy and move from raw export dependence to
-                midstream plant architecture.
-              </p>
-
-              <div className="lp-hero-actions">
-                <button onClick={onEnterDashboard} className="lp-cta-primary">
-                  Launch Zync Brain
-                  <ArrowUpRight size={16} />
-                </button>
-                <button className="lp-cta-secondary">
-                  <Play size={15} />
-                  Read Evidence
-                </button>
-              </div>
-            </div>
+        <section id="problem" className="lp-section">
+          <SectionHead
+            kicker="01 · The sovereign gap"
+            title="A trillion-ringgit resource, trapped behind an expertise wall."
+          />
+          <div className="lp-bento">
+            {PROBLEMS.map((item) => (
+              <FeatureCard key={item.title} data={item} />
+            ))}
           </div>
         </section>
 
-        <section className="lp-section">
-          <div className="lp-section-head">
-            <h2 className="lp-section-title">Problem Statement And Strategic Solution</h2>
-            <p className="lp-lead">
-              Malaysia needs hydrometallurgical proficiency and repeatable design intelligence. Zync closes this gap
-              through specialized GLM scientific reasoning and autonomous engineering loops.
-            </p>
-          </div>
-
-          <div className="lp-content-grid lp-section-grid grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 w-full">
-            {DEPLOYMENT_CARDS.map((card) => {
-              const Icon = card.icon;
-              return (
-                <article key={card.title} className="lp-feature-card">
-                  <div className="w-10 h-10 rounded-xl border border-white/15 bg-white/5 flex items-center justify-center text-white/90">
-                    <Icon size={18} />
-                  </div>
-                  <h3 className="lp-card-title text-xl sm:text-2xl font-semibold">{card.title}</h3>
-                  <p className="lp-card-copy">{card.text}</p>
-                </article>
-              );
-            })}
+        <section id="architecture" className="lp-section">
+          <SectionHead
+            kicker="02 · System architecture"
+            title="One orchestration layer. Five grounded experts."
+            lead="Most hackathon backends are one GLM call. Zync routes every query through the right retrieval strategy for the right sub-problem — so numbers come from SQL, regulation comes from hybrid search, and chemistry comes from SciGLM."
+          />
+          <div className="lp-bento">
+            {AGENT_CARDS.map((item) => (
+              <FeatureCard key={item.title} data={item} />
+            ))}
           </div>
         </section>
 
-        <section className="lp-section">
-          <div className="lp-section-head">
-            <h2 className="lp-section-title">Agentic Engineering Hub</h2>
-            <p className="lp-lead">
-              Mixture-of-Experts routing, long-context reasoning, SFILES 2.0 translation, and KARMA orchestration combine
-              into one operating layer for sovereign industrial design delivery.
-            </p>
-          </div>
-
-          <div className="lp-carousel" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-            <h3 className="text-3xl font-semibold">{currentPage.title}</h3>
-            <p className="lp-card-copy lp-carousel-copy">
-              {currentPage.text}
-            </p>
-
-            <button className="lp-cta-primary lp-carousel-btn">{currentPage.cta}</button>
-
-            <div className="lp-carousel-controls">
-              <button className="lp-icon-btn" onClick={goToPrevPage} aria-label="Previous card">
-                <ArrowLeft size={14} />
-              </button>
-              <div className="inline-flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase lp-subtle">
-                {AGENTIC_PAGES.map((_, index) => (
-                  <button
-                    key={`dot-${index}`}
-                    className={`lp-carousel-dot ${index === activePage ? 'is-active' : ''}`}
-                    onClick={() => setActivePage(index)}
-                    aria-label={`Go to card ${index + 1}`}
-                  />
-                ))}
-              </div>
-              <button className="lp-icon-btn" onClick={goToNextPage} aria-label="Next card">
-                <ArrowRight size={14} />
-              </button>
-            </div>
+        <section id="operator" className="lp-section">
+          <SectionHead
+            kicker="03 · Operator workflows"
+            title="Built for site engineers — not data scientists."
+            lead="Three decision-support flows. Each takes raw operator input and returns a reasoned, citable recommendation with the human in the loop at every step."
+          />
+          <div className="lp-bento">
+            {OPERATOR_FLOWS.map((flow) => (
+              <OperatorCard key={flow.title} flow={flow} onNavigate={onNavigate} />
+            ))}
           </div>
         </section>
 
-        <section className="lp-section">
-          <div className="lp-section-head">
-            <h2 className="lp-section-title">Operational Design: Human In The Loop</h2>
-            <p className="lp-lead">
-              Built for site engineers and process managers, not data scientists. The system turns operator input into
-              explainable actions through three decision-support flows.
-            </p>
-          </div>
-
-          <div className="lp-content-grid lp-section-grid grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 w-full">
-            <div className="lp-showcase-card">
-              <p className="text-sm font-semibold">Diagnosis And Lixiviant Reasoning</p>
-              <div className="lp-showcase-window-wrap lp-showcase-window">
-                <pre className="text-xs text-white/65 leading-7 overflow-auto">
-{`INPUTS
-- weekly logs: pH, temp, flow, output ppm
-- clay type, REE concentration, ESG constraints
-
-AGENTIC ACTION
-- causal links to operator notes (rainfall, downtime)
-- predicts reaction yields before lab implementation
-- proposes corrective actions with reasoning traces`}
-                </pre>
-              </div>
-            </div>
-
-            <div className="lp-showcase-card">
-              <p className="text-sm font-semibold">Zone Prioritization And Data Ingestion</p>
-              <div className="lp-showcase-window-wrap lp-showcase-window p-5 h-[220px] flex flex-col justify-between">
-                <div className="space-y-3 text-white/65 text-sm leading-7">
-                  <p>- ranks zones by yield vs ESG and regulatory risk</p>
-                  <p>- reads unstructured geological PDFs and auto-fills parameters</p>
-                  <p>- roadmap: IoT API feeds for real-time anomaly detection</p>
-                </div>
-                <div className="w-14 h-14 rounded-xl border border-white/20 bg-white/8 text-white flex items-center justify-center self-end">
-                  <Gem size={20} />
-                </div>
-              </div>
-            </div>
+        <section id="delivery" className="lp-section">
+          <SectionHead
+            kicker="04 · Engineering delivery"
+            title="From streaming reasoning to executable flowsheet."
+            lead="Zync ships SFILES 2.0 notation that lab automation systems consume directly, and a known-answer validation suite that proves every number is grounded."
+          />
+          <div className="lp-showcase">
+            <CodePanel title="SFILES 2.0 Flowsheet" badge="lab-ready" lines={SFILES_LINES} />
+            <CodePanel
+              title="Known-answer validation"
+              badge="POST /api/validate"
+              lines={[
+                { tone: 'dim', text: '$ zync validate --suite nres' },
+                { blank: true },
+                ...VALIDATION_TESTS.flatMap((test) => [
+                  { tone: 'ok', text: `PASS  ${test}` },
+                ]),
+                { blank: true },
+                { tone: 'token', text: '5 of 5 tests grounded' },
+                { tone: 'warn', text: '0 hallucinated numbers detected' },
+              ]}
+              cursor
+            />
           </div>
         </section>
 
-        <section className="lp-final-section">
-          <div className="lp-sphere" />
-
-          <div className="lp-final-head">
-            <h2 className="lp-section-title">Quantifiable Impact And National Value</h2>
-            <p className="lp-lead lp-final-lead">
-              Zync is a national infrastructure asset: 89.0% R&D design-time reduction, 14.2% total factor
-              productivity uplift, and 95.3% AIME capability for advanced industrial decision intelligence.
-            </p>
-          </div>
-
-          <div className="lp-final-cta-wrap">
-            <button onClick={onEnterDashboard} className="lp-cta-primary lp-final-primary">
-              Enter Zync Console
-              <ArrowUpRight size={16} />
-            </button>
-
-            <div className="lp-final-secondary-grid">
-              {MODULE_ACTIONS.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <button key={action.module} onClick={() => onNavigate(action.module)} className="lp-cta-secondary lp-final-secondary">
-                    <Icon size={14} />
-                    {action.label}
-                  </button>
-                );
-              })}
-            </div>
+        <section id="impact" className="lp-section">
+          <SectionHead
+            kicker="05 · Quantifiable impact"
+            title="Evidence that maps to the 13th Malaysia Plan."
+          />
+          <div className="lp-stats">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="lp-stat">
+                <span className="lp-stat__value">{stat.value}</span>
+                <span className="lp-stat__label">{stat.label}</span>
+              </div>
+            ))}
           </div>
         </section>
 
-        <footer className="lp-footer">
-          <div className="lp-footer-grid">
-            <div>
-              <p className="lp-footer-brand">ZYNC</p>
-              <p className="lp-footer-copy">Malaysia's decision infrastructure for rare earth engineering and midstream industrial capability.</p>
-              <div className="lp-footer-follow lp-subtle">Follow mission updates</div>
-              <div className="lp-footer-social mt-3 text-white/72">
-                <MessageCircle size={15} />
-                <Globe size={15} />
-                <Send size={15} />
-                <AtSign size={15} />
-              </div>
-            </div>
-
-            <div>
-              <p className="lp-footer-heading">Mission</p>
-              <ul className="lp-footer-list">
-                <li>Sovereign autonomy</li>
-                <li>Technology transfer</li>
-                <li>Industrial capability</li>
-                <li>Explainable decisions</li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="lp-footer-heading">Core System</p>
-              <ul className="lp-footer-list">
-                <li>GLM-5.1 reasoning</li>
-                <li>SciGLM depth</li>
-                <li>SFILES 2.0 delivery</li>
-                <li>KARMA orchestration</li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="lp-footer-heading">National Impact</p>
-              <ul className="lp-footer-list">
-                <li>89.0% faster design</li>
-                <li>14.2% TFP uplift</li>
-                <li>95.3% AIME benchmark</li>
-                <li>13MP alignment</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="lp-footer-meta mt-9 pt-6 border-t border-white/10 text-xs text-white/45">
-            ©2026 Zync. Built for Malaysia's independent REE future.
-          </div>
-        </footer>
+        <FinalCTA onEnterDashboard={onEnterDashboard} onNavigate={onNavigate} />
+        <Footer />
       </div>
     </div>
   );
