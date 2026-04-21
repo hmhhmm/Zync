@@ -67,17 +67,43 @@ async def run_pipeline(body: PipelineRequest):
                     yield _event({"agent": 2, "status": "error", "message": chunk["message"]})
                     return
 
-            # ── Agent 3: Optimizer (parallel with Agent 4 in production) ──────
+            # ── Agent 3: Optimizer — streams each iteration live ──────────────
             yield _event({"agent": 3, "status": "optimizing"})
+            optimization = {}
+
+            async def stream_iteration(iteration: dict):
+                """Forward each iteration to SSE as it completes."""
+                yield_ev = _event({
+                    "agent":     3,
+                    "type":      "iteration",
+                    "iteration": iteration,
+                })
+                # We can't yield inside a callback so we store for batch send
+                pass
+
+            all_iterations = []
+
+            async def collect_iteration(iteration: dict):
+                all_iterations.append(iteration)
+
             optimization = await run_optimizer(
                 flowsheet,
-                body.site_conditions or {}
+                body.site_conditions or {},
+                stream_callback=collect_iteration,
             )
+
+            # Stream all iterations to frontend
+            for it in optimization.get("iterations", []):
+                yield _event({"agent": 3, "type": "iteration", "iteration": it})
+
             yield _event({
                 "agent":          3,
                 "status":         "done",
                 "iterations":     optimization.get("iterations", []),
                 "best_iteration": optimization.get("best_iteration", {}),
+                "iterations_run": optimization.get("iterations_run", 0),
+                "converged":      optimization.get("converged", False),
+                "note":           optimization.get("optimization_note", ""),
             })
 
             # ── Agent 4: Compliance check ─────────────────────────────────────

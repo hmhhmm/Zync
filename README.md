@@ -20,7 +20,7 @@ Operator Input
     → Agent 0 (Router)
     → Agent 1 (Historian — GraphRAG)
     → Agent 2 (Chemist — SciGLM ★ streaming)
-    → Agent 3 (Optimizer) + Agent 4 (Compliance) [parallel]
+    → Agent 3 (Optimizer — GLM iteration loop) + Agent 4 (Compliance) [parallel]
     → Agent 5 (Report Writer)
 ```
 
