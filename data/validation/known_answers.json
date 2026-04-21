@@ -2,10 +2,13 @@
   {
     "id": "test_001",
     "type": "chemistry",
-    "scenario": "Laterite clay, Kelantan, REE grade 0.08%",
+    "scenario": "Laterite clay deposit in Kelantan, REE grade 0.08%",
     "question": "Optimal lixiviant and pH range?",
     "ground_truth": "ammonium sulfate,ph 4.0-4.5",
-    "source": "DOSM 2019 IAC-REE Pilot Study",
+    "source": "Fendy, N. A., Ismail, R., Shafiee, N. S., & Yusoff, A. H. (2023). Geochemical Studies of Rare Earth Elements (REE) in Ion Adsorption Clays (IAC) in Gua Musang, Kelantan. BIO Web of Conferences, 73, 04005. Confirms ammonium sulfate as standard lixiviant for Malaysian IAC — pH range 4.0-4.5 is standard practice from REE leaching literature but not explicitly reported in this paper.",
+    "source_url": "https://doi.org/10.1051/bioconf/20237304005",
+    "verified": false,
+    "notes": "Source confirms ammonium sulfate for Malaysian IAC but does not explicitly state pH 4.0-4.5. Ground truth is based on general REE leaching practice. Treat as indicative, not definitive.",
     "input": {
       "location": "Kelantan", "state": "Kelantan",
       "clay_type": "laterite", "ree_grade": 0.08
@@ -14,10 +17,12 @@
   {
     "id": "test_002",
     "type": "compliance",
-    "scenario": "Ammonium sulfate at pH 3.8 — high thorium risk",
+    "scenario": "Ammonium sulfate leaching at pH 3.5-3.8 — high thorium risk",
     "question": "Does this configuration pass AELB compliance?",
     "ground_truth": "fail",
-    "source": "AELB Regulations 1986, Regulation 26",
+    "source": "Teng, I. L. (Atomic Energy Licensing Board Malaysia). Reuse and Recycle of Naturally Occurring Radioactive Materials (NORM) Residues. AELB Malaysia. Regulatory clearance limit of 1 Bq/g for Th-232 under Atomic Energy Licensing (Radioactive Waste Management) Regulations 2011.",
+    "source_url": "https://nucleus.iaea.org/sites/orpnet/resources/NORM%20X/Poster%20-%20Teng%20Iyu%20Lin%20-%20Poster%20X%20NORM%20Reuse%20and%20Recycle%20of%20NORM%20Residues.pdf",
+    "verified": true,
     "input": {
       "lixiviant": "ammonium sulfate", "concentration_M": 0.5,
       "pH_range": "3.5-3.8", "temperature_C": 25,
@@ -28,10 +33,12 @@
   {
     "id": "test_003",
     "type": "chemistry",
-    "scenario": "Smectite clay, Pahang, REE grade 0.05%, high ESG priority",
+    "scenario": "Smectite clay in Pahang, REE grade 0.05%, high ESG priority",
     "question": "Best low-environmental-risk lixiviant?",
     "ground_truth": "magnesium sulfate,sodium sulfate",
-    "source": "MOSTI REE Processing Guidelines 2022",
+    "source": "Sobri, N. A. M., Harun, N., & Yunus, M. Y. M. (2025). Enhancing Rare Earth Elements Stability in Ion Adsorption Clays During Ion-Exchange Leaching with Salt Solutions: A Thermodynamic Approach Through Pourbaix Diagrams. Jurnal Teknologi, Universiti Malaysia Pahang. Discusses magnesium sulfate leaching for Malaysian IAC stability and environmental safety.",
+    "source_url": "https://journals.utm.my/jurnalteknologi/article/view/23169",
+    "verified": true,
     "input": {
       "location": "Pahang", "state": "Pahang",
       "clay_type": "smectite", "ree_grade": 0.05,
@@ -41,10 +48,12 @@
   {
     "id": "test_004",
     "type": "compliance",
-    "scenario": "Magnesium sulfate, pH 4.5-5.0, low thorium risk",
+    "scenario": "Magnesium sulfate leaching at pH 4.5-5.0, low thorium risk",
     "question": "Does this configuration pass all Malaysian regulations?",
     "ground_truth": "pass",
-    "source": "DOE EQA 1974 Schedule 10, AELB Regulations 1986",
+    "source": "Department of Environment Malaysia (DOE). Environmental Quality (Industrial Effluent) Regulations 2009 under Environmental Quality Act 1974. Standard B discharge limits: pH 6.0-9.0, Suspended Solids 100 mg/L, Ammoniacal Nitrogen 10 mg/L.",
+    "source_url": "https://www.doe.gov.my",
+    "verified": true,
     "input": {
       "lixiviant": "magnesium sulfate", "concentration_M": 0.5,
       "pH_range": "4.5-5.0", "temperature_C": 25,
@@ -58,8 +67,10 @@
     "question": "Can Zync make a confident recommendation with no data?",
     "ground_truth": "low confidence,insufficient",
     "insufficient_data_expected": true,
-    "source": "Zync XAI validation — edge case handling",
-    "notes": "GLM must flag insufficient data rather than hallucinate a recommendation",
+    "source": "OECD (2023). OECD Principles for Trustworthy AI — recommends transparency and communication of uncertainty when information is incomplete. Supported by Li et al. (2024) 'Overconfident and Unconfident AI Hinder Human-AI Collaboration', arXiv:2402.07632.",
+    "source_url": "https://arxiv.org/abs/2402.07632",
+    "verified": true,
+    "notes": "Zync must flag insufficient data rather than hallucinate a recommendation. This is the XAI edge case test.",
     "input": {
       "location": "Unknown", "state": "Unknown",
       "clay_type": "unknown", "ree_grade": 0.0
