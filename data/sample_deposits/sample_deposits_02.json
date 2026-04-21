@@ -1,0 +1,12 @@
+{
+  "location": "Gua Musang, Kelantan",
+  "state": "Kelantan",
+  "clay_type": "ion-adsorption clay",
+  "ree_grade": 0.07,
+  "depth_m": 6.0,
+  "area_ha": 8.5,
+  "iron_oxide_pct": 14.2,
+  "esg_priority": "high",
+  "esg_notes": "Site is 400m from Sungai Galas — full EIA required before operations. High ESG sensitivity.",
+  "notes": "IAC characteristics confirmed by UMK geochemical study 2023. High heavy REE content detected."
+}

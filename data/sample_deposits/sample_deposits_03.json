@@ -1,0 +1,12 @@
+{
+  "location": "Raub, Pahang",
+  "state": "Pahang",
+  "clay_type": "lateritic clay",
+  "ree_grade": 0.06,
+  "depth_m": 9.2,
+  "area_ha": 15.0,
+  "iron_oxide_pct": 21.5,
+  "esg_priority": "medium",
+  "esg_notes": "Previous compliance failure recorded at this site — thorium levels exceeded AELB limit at pH below 4.0. Requires strict pH monitoring.",
+  "notes": "JMG Pahang exploration report 2022. Weathered granite clay profile. High iron oxide content may interfere with leaching."
+}
