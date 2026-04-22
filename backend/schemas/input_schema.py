@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
 
 class DepositProfile(BaseModel):
@@ -37,6 +37,23 @@ class ComplianceRequest(BaseModel):
     thorium_risk:     Optional[str] = Field(None, description="Estimated thorium risk level")
     esg_flag:         Optional[bool] = Field(False)
     esg_note:         Optional[str] = Field(None)
+
+
+class ZoneProfile(BaseModel):
+    name:                    str            = Field(...,  description="Zone identifier e.g. Zone A")
+    ree_grade_ppm:           float          = Field(...,  description="Total REE grade in ppm")
+    hree_proportion_pct:     float          = Field(...,  description="Heavy REE as % of total REE")
+    river_proximity_m:       float          = Field(...,  description="Distance to nearest water body in metres")
+    road_access:             str            = Field(...,  description="sealed | moderate | forest track")
+    distance_to_facility_km: float          = Field(...,  description="Distance to processing plant in km")
+    area_ha:                 Optional[float] = Field(None, description="Zone area in hectares")
+    notes:                   Optional[str]  = Field(None, description="Additional site notes")
+
+
+class ZonePrioritisationRequest(BaseModel):
+    location: str             = Field(...,  description="Site name e.g. Perak IAC-REE")
+    state:    str             = Field(...,  description="Malaysian state")
+    zones:    List[ZoneProfile] = Field(...,  description="2 to 5 zone profiles to assess")
 
 
 class ValidationRequest(BaseModel):
