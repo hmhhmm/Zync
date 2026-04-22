@@ -18,7 +18,7 @@ class DepositProfile(BaseModel):
 class PipelineRequest(BaseModel):
     deposit_profile: DepositProfile
     operator_name:   Optional[str] = Field(None, description="Operator name for report")
-    site_conditions: Optional[dict] = Field(None, description="Real site conditions for optimizer")
+    site_conditions: Optional[dict] = Field(default_factory=dict, description="Real site conditions for optimizer")
 
 
 class DiagnosisRequest(BaseModel):
