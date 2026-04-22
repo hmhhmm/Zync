@@ -1,6 +1,7 @@
 import pytest
 import sys
 import os
+import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from unittest.mock import AsyncMock, patch, MagicMock
@@ -186,3 +187,43 @@ async def test_agent5_assembles_report():
         assert "recommended_flowsheet" in result
         assert "compliance" in result
         assert "next_steps" in result
+
+
+@pytest.mark.asyncio
+async def test_agent6_returns_zone_recommendation():
+    """Agent 6 should stream reasoning, steps, and a final ranked recommendation."""
+    mock_result = {
+        "ranked_zones": [
+            {"rank": 1, "zone": "Zone A", "composite_score": 82.5, "recommendation": "Prioritise"},
+            {"rank": 2, "zone": "Zone B", "composite_score": 71.0, "recommendation": "Secondary"},
+        ],
+        "top_zone": "Zone A",
+        "confidence": "HIGH",
+    }
+
+    async def mock_stream_glm(*args, **kwargs):
+        yield {"type": "reasoning", "text": "Analysing zone profiles..."}
+        yield {"type": "output",    "text": "Step 1: Profiles validated."}
+        yield {"type": "done",      "output": json.dumps(mock_result)}
+
+    SAMPLE_ZONES = [
+        {"name": "Zone A", "ree_grade_ppm": 850, "hree_proportion_pct": 35,
+         "river_proximity_m": 600, "road_access": "sealed", "distance_to_facility_km": 12},
+        {"name": "Zone B", "ree_grade_ppm": 620, "hree_proportion_pct": 28,
+         "river_proximity_m": 350, "road_access": "moderate", "distance_to_facility_km": 25},
+    ]
+
+    with patch("agents.agent6_zone_prioritiser.stream_glm", mock_stream_glm):
+        from agents.agent6_zone_prioritiser import run_zone_prioritiser
+        chunks = [c async for c in run_zone_prioritiser("Perak IAC-REE", "Perak", SAMPLE_ZONES)]
+
+    types = [c["type"] for c in chunks]
+    assert "reasoning" in types
+    assert "step"      in types
+    assert "done"      in types
+
+    done = next(c for c in chunks if c["type"] == "done")
+    assert "result" in done
+    assert "ranked_zones" in done["result"]
+    assert len(done["result"]["ranked_zones"]) == 2
+    assert done["result"]["ranked_zones"][0]["rank"] == 1
