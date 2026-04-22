@@ -4,7 +4,8 @@ from routes.pipeline import router as pipeline_router
 from routes.validate import router as validate_router
 from routes.upload   import router as upload_router
 from routes.admin    import router as admin_router
-from routes.zone     import router as zone_router
+from routes.zone      import router as zone_router
+from routes.diagnosis import router as diagnosis_router
 
 app = FastAPI(title="Zync API", version="1.0.0")
 
@@ -19,7 +20,8 @@ app.include_router(pipeline_router, prefix="/api")
 app.include_router(validate_router, prefix="/api")
 app.include_router(upload_router,   prefix="/api")
 app.include_router(admin_router,    prefix="/api")
-app.include_router(zone_router,     prefix="/api")
+app.include_router(zone_router,      prefix="/api")
+app.include_router(diagnosis_router, prefix="/api")
 
 @app.get("/health")
 async def health():
