@@ -53,21 +53,26 @@ Decision 3 — POST /api/zone
 
 ## Quick Start
 
-### Backend (Docker)
+### 1. Configure environment
 ```bash
-cp .env.example .env   # fill in GLM_API_KEY
+# Add your GLM_API_KEY to backend/.env
+# (copy backend/.env.example if it doesn't exist)
+```
+
+### 2. Start backend + all databases (Docker)
+```bash
 docker compose up --build
-# API available at http://localhost:8000
+# Backend API → http://localhost:8000
+# Neo4j, PostgreSQL, Qdrant all start automatically
 ```
 
-### Backend (local)
+### 3. Seed the databases (first run only)
 ```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+curl -X POST http://localhost:8000/api/admin/seed -H "X-Admin-Secret: zync-admin"
+curl -X POST http://localhost:8000/api/admin/seed-qdrant -H "X-Admin-Secret: zync-admin"
 ```
 
-### Frontend (Vite dev server)
+### 4. Start frontend (separate terminal)
 ```bash
 cd frontend
 npm install
@@ -76,6 +81,8 @@ npm run dev
 ```
 
 The frontend proxies `/api/*` to the backend at `http://localhost:8000` (see `frontend/vite.config.js`).
+
+> **Daily startup:** `docker compose up` (no `--build` needed unless code changed). Stop with `docker compose down`.
 
 ## Team
 Built for UM Hackathon 2026.
