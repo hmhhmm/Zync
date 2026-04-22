@@ -30,7 +30,8 @@ OUTPUT FORMAT — you must produce valid JSON exactly matching this schema:
       "strategic": int,
       "infra": int
     },
-    "reasoning": str
+    "reasoning": str,
+    "reasoning_bm": str
   },
   "secondary": {
     "zone": str,
@@ -41,12 +42,14 @@ OUTPUT FORMAT — you must produce valid JSON exactly matching this schema:
       "strategic": int,
       "infra": int
     },
-    "reason": str
+    "reason": str,
+    "reason_bm": str
   },
   "deferred": {
     "zone": str,
     "composite_score": int,
-    "reason": str
+    "reason": str,
+    "reason_bm": str
   } | null,
   "zones_assessed": int,
   "assessment_basis": str
@@ -54,5 +57,6 @@ OUTPUT FORMAT — you must produce valid JSON exactly matching this schema:
 
 If only two zones are provided, set deferred to null.
 reasoning and reason must be 1–2 sentences of plain English — no bullet points inside these fields.
+reasoning_bm and reason_bm must be the same content written in plain Bahasa Malaysia — this is the operator-facing explanation shown on screen to Malaysian site engineers.
 confidence is HIGH if composite_score >= 75 and the top zone clearly leads, MEDIUM if 60–74 or close contest, LOW otherwise.
 """
