@@ -136,7 +136,15 @@ async def test_agent4_returns_compliance_result():
 @pytest.mark.asyncio
 async def test_agent3_returns_iteration_table():
     """Agent 3 should return iteration table with best iteration."""
-    with patch("agents.agent3_optimizer._store_iterations", new_callable=AsyncMock):
+    mock_proposal = {
+        "pH_lower": 4.0, "pH_upper": 4.5,
+        "concentration_M": 0.5, "temperature_C": 25, "contact_time_hrs": 2.0,
+        "reasoning": "Stable parameters"
+    }
+    mock_glm_response = {"output": '{"pH_lower":4.0,"pH_upper":4.5,"concentration_M":0.5,"temperature_C":25,"contact_time_hrs":2.0,"reasoning":"Stable"}', "reasoning": "", "tool_calls": []}
+
+    with patch("agents.agent3_optimizer._store_iteration", new_callable=AsyncMock), \
+         patch("agents.agent3_optimizer.call_glm", new_callable=AsyncMock, return_value=mock_glm_response):
         from agents.agent3_optimizer import run_optimizer
         result = await run_optimizer(MOCK_FLOWSHEET, {})
         assert "iterations" in result
