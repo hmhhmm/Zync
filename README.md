@@ -59,7 +59,7 @@ Decision 3 — POST /api/zone
 # (copy backend/.env.example if it doesn't exist)
 ```
 
-### 2. Start backend + all databases (Docker)
+### 2. Start frontend + backend + all databases (Docker)
 ```bash
 docker compose up --build
 # Backend API → http://localhost:8000
@@ -72,13 +72,6 @@ curl -X POST http://localhost:8000/api/admin/seed -H "X-Admin-Secret: zync-admin
 curl -X POST http://localhost:8000/api/admin/seed-qdrant -H "X-Admin-Secret: zync-admin"
 ```
 
-### 4. Start frontend (separate terminal)
-```bash
-cd frontend
-npm install
-npm run dev
-# UI available at http://localhost:5173
-```
 
 The frontend proxies `/api/*` to the backend at `http://localhost:8000` (see `frontend/vite.config.js`).
 
