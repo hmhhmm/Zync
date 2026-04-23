@@ -1,53 +1,37 @@
-import httpx
 import json
+import logging
 from typing import AsyncGenerator
+import openai
 from config import GLM_API_KEY, GLM_URL, GLM_MODEL
 
-HEADERS = {
-    "Authorization": f"Bearer {GLM_API_KEY}",
-    "Content-Type": "application/json",
-}
+log = logging.getLogger("zync.base_agent")
+
+_client = openai.AsyncOpenAI(
+    api_key=GLM_API_KEY,
+    base_url=GLM_URL,
+)
+
+MAX_TOKENS = 4096
 
 
-def _build_payload(
-    system_prompt: str,
-    user_message: str,
-    tools: list = None,
-    images: list = None,
-    stream: bool = False,
-    json_mode: bool = False,
-) -> dict:
-    """Build the request payload for GLM API."""
+def _build_messages(system_prompt: str, user_message: str, images: list = None) -> list:
+    content = []
 
-    # Default: plain text message
-    content = user_message
-
-    # Multimodal: attach images if provided
     if images:
-        content = [
-            {"type": "image_url", "image_url": {"url": img}}
-            for img in images
-        ] + [{"type": "text", "text": user_message}]
+        for img in images:
+            if not img.startswith("data:"):
+                img = f"data:image/jpg;base64,{img}"
+            content.append({
+                "type":      "image_url",
+                "image_url": {"url": img},
+            })
 
-    payload = {
-        "model": GLM_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": content},
-        ],
-        "temperature": 0.1,   # Low = deterministic, good for engineering
-        "stream": stream,
-    }
+    content.append({"type": "text", "text": user_message})
 
-    # Force structured JSON output (used by Agent 2, 4, 5)
-    if json_mode:
-        payload["response_format"] = {"type": "json_object"}
-
-    # Attach function-calling tools (used by Agent 2 lixiviant KB lookup)
-    if tools:
-        payload["tools"] = tools
-
-    return payload
+    return [
+        {"role": "system",  "content": system_prompt},
+        {"role": "user",    "content": content if images else user_message},
+    ]
 
 
 # ─── 1. Single call (no streaming) ───────────────────────────────────────────
@@ -60,31 +44,40 @@ async def call_glm(
     json_mode: bool = False,
 ) -> dict:
     """
-    Single GLM call. Returns:
+    Single ILMU call. Returns:
     {
-        "output":    str,   # final answer text or JSON string
-        "reasoning": str,   # GLM's internal thinking trace (XAI block)
-        "tool_calls": list  # if GLM called a function tool
+        "output":     str,
+        "reasoning":  str,
+        "tool_calls": list
     }
     """
-    payload = _build_payload(
-        system_prompt, user_message,
-        tools=tools, images=images,
-        stream=False, json_mode=json_mode,
+    kwargs = dict(
+        model=GLM_MODEL,
+        max_tokens=MAX_TOKENS,
+        messages=_build_messages(system_prompt, user_message, images),
+        temperature=0.1,
     )
+    if tools:
+        kwargs["tools"] = tools
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
 
-    async with httpx.AsyncClient(timeout=120) as client:
-        res = await client.post(GLM_URL, json=payload, headers=HEADERS)
-        res.raise_for_status()
-        data = res.json()
+    response = await _client.chat.completions.create(**kwargs)
 
-    message = data["choices"][0]["message"]
+    msg = response.choices[0].message
+    output = msg.content or ""
+    tool_calls = []
+    if msg.tool_calls:
+        for tc in msg.tool_calls:
+            tool_calls.append({
+                "id": tc.id,
+                "function": {
+                    "name":      tc.function.name,
+                    "arguments": tc.function.arguments,
+                },
+            })
 
-    return {
-        "output":     message.get("content", ""),
-        "reasoning":  message.get("reasoning_content", ""),  # XAI trace
-        "tool_calls": message.get("tool_calls", []),
-    }
+    return {"output": output, "reasoning": "", "tool_calls": tool_calls}
 
 
 # ─── 2. Streaming call ────────────────────────────────────────────────────────
@@ -97,73 +90,40 @@ async def stream_glm(
     json_mode: bool = False,
 ) -> AsyncGenerator[dict, None]:
     """
-    Streaming GLM call. Yields chunks as they arrive:
+    Streaming ILMU call via OpenAI SDK.
 
-    Reasoning chunk  → {"type": "reasoning", "text": "..."}
-    Answer chunk     → {"type": "output",    "text": "..."}
-    Final chunk      → {"type": "done",      "output": full_text,
-                                              "reasoning": full_reasoning}
-    Error chunk      → {"type": "error",     "message": "..."}
+    ilmu-glm-5.1 streams content tokens directly — no separate reasoning trace.
+    The frontend right-panel shows them live as the answer builds.
 
-    Usage (in agent):
-        async for chunk in stream_glm(system, message):
-            yield chunk   # forward straight to SSE route
+    Yields:
+      {"type": "output",  "text": "..."}
+      {"type": "done",    "output": full_text, "reasoning": ""}
+      {"type": "error",   "message": "..."}
     """
-    payload = _build_payload(
-        system_prompt, user_message,
-        tools=tools, images=images,
-        stream=True, json_mode=json_mode,
+    kwargs = dict(
+        model=GLM_MODEL,
+        max_tokens=MAX_TOKENS,
+        messages=_build_messages(system_prompt, user_message, images),
+        temperature=0.1,
+        stream=True,
     )
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
 
-    full_output    = ""
-    full_reasoning = ""
+    full_output = ""
 
     try:
-        async with httpx.AsyncClient(timeout=180) as client:
-            async with client.stream(
-                "POST", GLM_URL, json=payload, headers=HEADERS
-            ) as response:
-                response.raise_for_status()
+        stream = await _client.chat.completions.create(**kwargs)
+        async for chunk in stream:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                full_output += delta.content
+                yield {"type": "output", "text": delta.content}
 
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
+        yield {"type": "done", "output": full_output, "reasoning": ""}
 
-                    raw = line[6:].strip()
-
-                    if raw == "[DONE]":
-                        # Final chunk — send complete assembled output
-                        yield {
-                            "type":      "done",
-                            "output":    full_output,
-                            "reasoning": full_reasoning,
-                        }
-                        return
-
-                    try:
-                        chunk = json.loads(raw)
-                    except json.JSONDecodeError:
-                        continue
-
-                    delta = chunk["choices"][0].get("delta", {})
-
-                    # Reasoning trace (thinking mode — XAI block)
-                    reasoning_delta = delta.get("reasoning_content", "")
-                    if reasoning_delta:
-                        full_reasoning += reasoning_delta
-                        yield {"type": "reasoning", "text": reasoning_delta}
-
-                    # Answer text
-                    output_delta = delta.get("content", "")
-                    if output_delta:
-                        full_output += output_delta
-                        yield {"type": "output", "text": output_delta}
-
-    except httpx.HTTPStatusError as e:
-        yield {"type": "error", "message": f"GLM API error: {e.response.status_code}"}
-    except httpx.TimeoutException:
-        yield {"type": "error", "message": "GLM API timeout — model took too long"}
     except Exception as e:
+        log.error(f"stream_glm error: {e}")
         yield {"type": "error", "message": str(e)}
 
 
@@ -173,57 +133,41 @@ async def call_glm_with_tools(
     system_prompt: str,
     user_message: str,
     tools: list,
-    tool_executor,          # async fn(tool_name, tool_args) → str
+    tool_executor,
 ) -> dict:
-    """
-    Multi-turn tool use loop:
-    1. Call GLM with tools defined
-    2. If GLM calls a tool → execute it → send result back
-    3. Repeat until GLM gives final answer (no more tool calls)
-
-    Returns same shape as call_glm().
-    """
+    """Multi-turn tool use loop (max 5 rounds)."""
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user",   "content": user_message},
     ]
 
-    async with httpx.AsyncClient(timeout=120) as client:
-        for _ in range(5):  # Max 5 tool-call rounds
-            payload = {
-                "model":       GLM_MODEL,
-                "messages":    messages,
-                "temperature": 0.1,
-                "tools":       tools,
-            }
+    for _ in range(5):
+        response = await _client.chat.completions.create(
+            model=GLM_MODEL,
+            max_tokens=MAX_TOKENS,
+            messages=messages,
+            tools=tools,
+            temperature=0.1,
+        )
 
-            res = await client.post(GLM_URL, json=payload, headers=HEADERS)
-            res.raise_for_status()
-            data = res.json()
+        msg = response.choices[0].message
+        output = msg.content or ""
+        tool_calls = msg.tool_calls or []
 
-            message = data["choices"][0]["message"]
-            messages.append(message)  # Add assistant turn to history
+        if response.choices[0].finish_reason != "tool_calls" or not tool_calls:
+            return {"output": output, "reasoning": "", "tool_calls": []}
 
-            # No tool calls → GLM gave final answer
-            if not message.get("tool_calls"):
-                return {
-                    "output":     message.get("content", ""),
-                    "reasoning":  message.get("reasoning_content", ""),
-                    "tool_calls": [],
-                }
+        messages.append({"role": "assistant", "content": msg.content, "tool_calls": [
+            {"id": tc.id, "type": "function", "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+            for tc in tool_calls
+        ]})
 
-            # Execute each tool call and feed results back
-            for tool_call in message["tool_calls"]:
-                tool_name = tool_call["function"]["name"]
-                tool_args = json.loads(tool_call["function"]["arguments"])
+        for tc in tool_calls:
+            result = await tool_executor(tc.function.name, json.loads(tc.function.arguments))
+            messages.append({
+                "role":         "tool",
+                "tool_call_id": tc.id,
+                "content":      str(result),
+            })
 
-                tool_result = await tool_executor(tool_name, tool_args)
-
-                messages.append({
-                    "role":         "tool",
-                    "tool_call_id": tool_call["id"],
-                    "content":      str(tool_result),
-                })
-
-    # Fallback if loop exhausted
     return {"output": "", "reasoning": "", "tool_calls": []}

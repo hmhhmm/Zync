@@ -6,8 +6,8 @@ export default function ReferencesPanel({ references = [], title = 'Citations' }
     <div className="panel-inset p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <BookOpen size={13} className="text-[var(--color-accent)]" />
-          <span className="mono-meta text-white/75">{title} ({references.length})</span>
+          <BookOpen size={13} style={{ color: 'var(--color-accent)' }} />
+          <span className="mono-meta">{title} ({references.length})</span>
         </div>
         <span className="mono-meta" style={{ fontSize: 9.5 }}>Peer-reviewed · always visible</span>
       </div>
@@ -19,7 +19,7 @@ export default function ReferencesPanel({ references = [], title = 'Citations' }
               <p className="ref-item__title">{ref.title}</p>
               <p className="ref-item__meta">
                 {ref.journal}
-                {ref.doi ? <> · DOI <span className="text-white/70">{ref.doi}</span></> : null}
+                {ref.doi ? <> · DOI <span style={{ color: 'var(--text-soft)' }}>{ref.doi}</span></> : null}
               </p>
             </div>
           </div>

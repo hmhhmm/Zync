@@ -23,7 +23,7 @@ const NAV_ITEMS = [
     subtitle: 'Rank zones by yield vs ESG risk',
     icon: MapPin,
     step: '03',
-    agents: '5 agents',
+    agents: '3 agents · Agent 06',
   },
 ];
 
@@ -37,12 +37,18 @@ export default function Sidebar({
     <aside className="sidebar-sticky" id="sidebar">
       <div className="panel panel-pad-sm">
         <header
-          className="flex items-center justify-between border-b border-white/10"
-          style={{ paddingBottom: '22px', marginBottom: '24px' }}
+          className="flex items-center justify-between"
+          style={{
+            paddingBottom: '20px',
+            marginBottom: '22px',
+            borderBottom: '1px solid var(--border-softer)',
+          }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <p className="muted-kicker">Navigation</p>
-            <h2 className="text-[17px] font-semibold text-white leading-tight">Decision Flow</h2>
+            <h2 className="text-[16px] font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+              Decision Flow
+            </h2>
           </div>
           {onReturnToLanding && (
             <button
@@ -56,7 +62,7 @@ export default function Sidebar({
           )}
         </header>
 
-        <nav className="grid gap-3.5">
+        <nav className="grid gap-3">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = activeModule === item.id;
@@ -67,29 +73,36 @@ export default function Sidebar({
                 className={`nav-item ${active ? 'nav-item--active' : ''}`}
                 id={`nav-${item.id}`}
               >
-                <div className="flex items-start gap-3.5">
+                <div className="flex items-start gap-3">
                   <div
-                    className={`w-9 h-9 shrink-0 rounded-xl border flex items-center justify-center ${
-                      active
-                        ? 'border-[rgba(221,214,254,0.45)] bg-white/10 text-white'
-                        : 'border-white/10 bg-white/5 text-white/65'
-                    }`}
+                    className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center"
+                    style={{
+                      border: '1px solid var(--border-soft)',
+                      background: active ? 'rgba(124,58,237,0.12)' : 'var(--icon-btn-bg)',
+                      color: active ? 'var(--color-accent)' : 'var(--text-muted)',
+                      transition: 'background 0.18s ease, color 0.18s ease',
+                    }}
                   >
                     <Icon size={14} />
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
                       <span className="mono-meta">Step {item.step}</span>
-                      {active && <ArrowUpRight size={13} className="text-white/80" />}
+                      {active && (
+                        <ArrowUpRight size={12} style={{ color: 'var(--color-accent)', opacity: 0.8 }} />
+                      )}
                     </div>
-                    <p className={`text-[14px] font-semibold leading-tight ${active ? 'text-white' : 'text-white/85'}`}>
+                    <p
+                      className="text-[13.5px] font-semibold leading-tight"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       {item.label}
                     </p>
-                    <p className="text-[11.5px] text-white/55 leading-relaxed">
+                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                       {item.subtitle}
                     </p>
-                    <p className="mono-meta pt-1" style={{ fontSize: 9.5 }}>{item.agents}</p>
+                    <p className="mono-meta pt-0.5" style={{ fontSize: 9.5 }}>{item.agents}</p>
                   </div>
                 </div>
               </button>
@@ -97,13 +110,13 @@ export default function Sidebar({
           })}
         </nav>
 
-        <section className="mt-8 panel-inset--soft" style={{ padding: '20px' }}>
-          <div className="flex items-center justify-between" style={{ marginBottom: '18px' }}>
+        <section className="mt-7 panel-inset--soft" style={{ padding: '18px' }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
             <span className="muted-kicker" style={{ fontSize: 9.5 }}>Agents Online</span>
             <span className="mono-meta" style={{ fontSize: 10 }}>{activeAgents.length}/6</span>
           </div>
-          <div className="flex gap-1.5" style={{ marginBottom: '22px' }}>
-            {Array.from({ length: 6 }, (_, i) => {
+          <div className="flex gap-1.5" style={{ marginBottom: '18px' }}>
+            {Array.from({ length: 7 }, (_, i) => {
               const on = activeAgents.includes(i);
               return (
                 <span
@@ -112,15 +125,20 @@ export default function Sidebar({
                   style={{
                     background: on
                       ? 'linear-gradient(90deg, #5769f7, #b45fee)'
-                      : 'rgba(208, 214, 255, 0.12)',
+                      : 'var(--border-soft)',
+                    transition: 'background 0.3s ease',
                   }}
                 />
               );
             })}
           </div>
           <p
-            className="text-[10.5px] text-white/45 leading-relaxed"
-            style={{ paddingTop: '18px', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            className="text-[10.5px] leading-relaxed"
+            style={{
+              paddingTop: '16px',
+              borderTop: '1px solid var(--border-softer)',
+              color: 'var(--text-muted)',
+            }}
           >
             Operator retains final decision authority.
           </p>

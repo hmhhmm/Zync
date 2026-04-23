@@ -61,40 +61,68 @@ const DEFAULT_DEPOSIT = {
  *     yield_pct, esg_risk_score, sfiles_2_0 | sfiles_notation, ... }
  */
 function mapBackendFlowsheet(flowsheet, reasoningText) {
-  const picked = {
+  return {
     optimal_lixiviant:
       flowsheet.lixiviant ??
       flowsheet.optimal_lixiviant ??
       DOMAIN_OPTIMAL.optimal_lixiviant,
+
+    // Agent 2 returns predicted_yield_pct; optimizer iterations use yield_pct
     extraction_yield: Number(
-      flowsheet.yield_pct ?? flowsheet.extraction_yield ?? DOMAIN_OPTIMAL.extraction_yield,
+      flowsheet.predicted_yield_pct ??
+      flowsheet.yield_pct ??
+      flowsheet.extraction_yield ??
+      DOMAIN_OPTIMAL.extraction_yield,
     ),
+
+    // Agent 2 does not return a numeric esg_risk_score; use 0 as neutral default
     esg_risk_score: Number(
-      flowsheet.esg_risk_score ?? flowsheet.esg_risk ?? DOMAIN_OPTIMAL.esg_risk_score,
+      flowsheet.esg_risk_score ?? flowsheet.esg_risk ?? 0,
     ),
+
+    concentration_M: flowsheet.concentration_M ?? null,
+
     temperature_c: Number(
       flowsheet.temperature_C ?? flowsheet.temperature_c ?? DOMAIN_OPTIMAL.temperature_c,
     ),
+
+    // Agent 2 uses contact_time_hrs; keep legacy aliases for safety
     residence_time_hr: Number(
+      flowsheet.contact_time_hrs ??
       flowsheet.residence_hr ??
-        flowsheet.residence_time_hr ??
-        DOMAIN_OPTIMAL.residence_time_hr,
+      flowsheet.residence_time_hr ??
+      DOMAIN_OPTIMAL.residence_time_hr,
     ),
+
     solid_liquid_ratio:
       flowsheet.solid_liquid_ratio ??
       flowsheet.sl_ratio ??
       DOMAIN_OPTIMAL.solid_liquid_ratio,
-    design_speedup: DOMAIN_OPTIMAL.design_speedup,
+
+    // Agent 2 uses sfiles_string; keep legacy aliases
     sfiles_notation:
+      flowsheet.sfiles_string ??
       flowsheet.sfiles_notation ??
       flowsheet.sfiles_2_0 ??
       DOMAIN_OPTIMAL.sfiles_notation,
+
+    // Extra fields from Agent 2 — shown in output card
+    thorium_risk: flowsheet.thorium_risk ?? null,
+    thorium_risk_reason: flowsheet.thorium_risk_reason ?? null,
+    esg_flag: flowsheet.esg_flag ?? false,
+    esg_note: flowsheet.esg_note ?? null,
+    confidence: flowsheet.confidence ?? null,
+    confidence_reason: flowsheet.confidence_reason ?? null,
+    alternative_option: flowsheet.alternative_option ?? null,
+    pH_range: flowsheet.pH_range ?? null,
+
+    design_speedup: DOMAIN_OPTIMAL.design_speedup,
+
     chain_of_thought: {
       reasoning_content: reasoningText || DOMAIN_OPTIMAL.chain_of_thought.reasoning_content,
       references: flowsheet.references ?? DOMAIN_OPTIMAL.chain_of_thought.references,
     },
   };
-  return picked;
 }
 
 export default function useLixiviant() {
@@ -103,9 +131,14 @@ export default function useLixiviant() {
   const [flowsheet, setFlowsheet] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isLive, setIsLive] = useState(false); // true when backend returned real data
+  const [isLive, setIsLive] = useState(false);
   const [streamingReasoning, setStreamingReasoning] = useState('');
-  const [agentStatus, setAgentStatus] = useState({}); // { 2: "thinking" | "done", ... }
+  const [agentStatus, setAgentStatus] = useState({});
+  const [iterations, setIterations] = useState([]);
+  const [iterationsRun, setIterationsRun] = useState(null);
+  const [converged, setConverged] = useState(null);
+  const [compliance, setCompliance] = useState(null);
+  const [report, setReport] = useState(null);
   const abortRef = useRef(null);
 
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -120,6 +153,11 @@ export default function useLixiviant() {
     setStreamingReasoning('');
     setAgentStatus({});
     setFlowsheet(null);
+    setIterations([]);
+    setIterationsRun(null);
+    setConverged(null);
+    setCompliance(null);
+    setReport(null);
 
     let reasoningBuffer = '';
     let capturedFlowsheet = null;
@@ -143,10 +181,24 @@ export default function useLixiviant() {
             if (evt.agent === 2 && evt.status === 'done' && evt.flowsheet) {
               capturedFlowsheet = evt.flowsheet;
               setFlowsheet(
-                capturedFlowsheet.sfiles_2_0 ??
+                capturedFlowsheet.sfiles_string ??
+                  capturedFlowsheet.sfiles_2_0 ??
                   capturedFlowsheet.sfiles_notation ??
                   null,
               );
+            }
+            if (evt.agent === 3 && evt.type === 'iteration' && evt.iteration) {
+              setIterations((prev) => [...prev, evt.iteration]);
+            }
+            if (evt.agent === 3 && evt.status === 'done') {
+              setIterationsRun(evt.iterations_run ?? null);
+              setConverged(evt.converged ?? null);
+            }
+            if (evt.agent === 4 && evt.status === 'done' && evt.compliance) {
+              setCompliance(evt.compliance);
+            }
+            if (evt.agent === 5 && evt.status === 'done' && evt.report) {
+              setReport(evt.report);
             }
           },
         },
@@ -197,6 +249,11 @@ export default function useLixiviant() {
     isLive,
     streamingReasoning,
     agentStatus,
+    iterations,
+    iterationsRun,
+    converged,
+    compliance,
+    report,
     fetchOptimization,
     generateFlowsheet,
   };

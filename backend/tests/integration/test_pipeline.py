@@ -189,6 +189,64 @@ async def test_agent5_assembles_report():
         assert "next_steps" in result
 
 
+SAMPLE_DIAGNOSIS_INPUT = {
+    "ph_readings": [4.2, 4.1, 3.8, 3.5, 3.3],
+    "temperature": [25, 25, 26, 26, 27],
+    "yield_pct": [65, 62, 58, 51, 43],
+    "operator_notes": "Yield dropped from 65% to 43% over 5 days. pH trending down.",
+}
+
+MOCK_DIAGNOSIS_RESULT = {
+    "root_cause": "pH drift below optimal range causing incomplete REE extraction",
+    "confidence": "HIGH",
+    "anomaly_detected": True,
+    "anomaly_type": "pH_drift",
+    "esg_flag": False,
+    "esg_note": "",
+    "primary_action": "Adjust lixiviant pH to 4.0–4.5 range",
+    "next_steps": [
+        "Check acid dosing pump calibration",
+        "Test solution pH at 3 points along leach pad",
+    ],
+    "confidence_reason": "Clear correlation between pH drop and yield decline",
+}
+
+
+@pytest.mark.asyncio
+async def test_agent_diagnosis_streams_and_returns_card():
+    """Agent Diagnosis should stream reasoning and return a parsed diagnosis card."""
+    mock_output = json.dumps(MOCK_DIAGNOSIS_RESULT)
+
+    with patch("agents.agent_diagnosis.stream_glm") as mock_stream:
+        async def fake_stream(*args, **kwargs):
+            yield {"type": "reasoning", "text": "Checking pH trend against yield decline..."}
+            yield {"type": "output", "text": mock_output}
+            yield {"type": "done", "output": mock_output, "reasoning": "pH dropped below threshold"}
+        mock_stream.return_value = fake_stream()
+
+        from agents.agent_diagnosis import run_diagnosis
+        chunks = []
+        async for chunk in run_diagnosis(
+            ph_readings=SAMPLE_DIAGNOSIS_INPUT["ph_readings"],
+            temperature=SAMPLE_DIAGNOSIS_INPUT["temperature"],
+            yield_pct=SAMPLE_DIAGNOSIS_INPUT["yield_pct"],
+            operator_notes=SAMPLE_DIAGNOSIS_INPUT["operator_notes"],
+            log_image_b64=None,
+        ):
+            chunks.append(chunk)
+
+    types = [c["type"] for c in chunks]
+    assert "reasoning" in types, "No reasoning chunks streamed"
+    assert "done" in types, "No done chunk received"
+
+    done = next(c for c in chunks if c["type"] == "done")
+    assert "diagnosis" in done
+    diagnosis = done["diagnosis"]
+    assert "root_cause" in diagnosis
+    assert "confidence" in diagnosis
+    assert "primary_action" in diagnosis
+
+
 @pytest.mark.asyncio
 async def test_agent6_returns_zone_recommendation():
     """Agent 6 should stream reasoning, steps, and a final ranked recommendation."""

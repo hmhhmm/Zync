@@ -114,6 +114,117 @@ export async function runPipeline(body, { onEvent, signal } = {}) {
   }
 }
 
+/**
+ * Run Agent 6 zone prioritisation. Streams SSE events and invokes onEvent
+ * for every parsed event. Resolves when stream completes or [DONE] is received.
+ *
+ * @param {Object} body - ZonePrioritisationRequest shape
+ *   { location: string, state: string, zones: ZoneProfile[] }
+ * @param {Object} opts
+ * @param {(event: object) => void} opts.onEvent
+ * @param {AbortSignal} [opts.signal]
+ */
+export async function runZonePrioritisation(body, { onEvent, signal } = {}) {
+  const res = await fetch(`${API_BASE}/api/zone`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify(body),
+    signal,
+  });
+
+  if (!res.ok || !res.body) {
+    const detail = await safeErrorDetail(res);
+    throw new Error(detail || `Zone request failed (${res.status})`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line) continue;
+
+      const payload = line.startsWith('data:') ? line.slice(5).trim() : line;
+      if (payload === '[DONE]') return;
+
+      try {
+        const event = JSON.parse(payload);
+        onEvent?.(event);
+      } catch {
+        // Ignore non-JSON heartbeats
+      }
+    }
+  }
+}
+
+/**
+ * Run the Process Diagnosis agent (Decision 1). Streams SSE events and invokes
+ * onEvent for every parsed event. Resolves when stream completes or [DONE].
+ *
+ * @param {Object} body - DiagnosisRequest shape
+ *   { ph_readings: number[], temperature: number[], yield_pct: number[],
+ *     operator_notes?: string, log_image_b64?: string }
+ * @param {Object} opts
+ * @param {(event: object) => void} opts.onEvent
+ * @param {AbortSignal} [opts.signal]
+ */
+export async function runDiagnosis(body, { onEvent, signal } = {}) {
+  const res = await fetch(`${API_BASE}/api/diagnose`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify(body),
+    signal,
+  });
+
+  if (!res.ok || !res.body) {
+    const detail = await safeErrorDetail(res);
+    throw new Error(detail || `Diagnosis request failed (${res.status})`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line) continue;
+
+      const payload = line.startsWith('data:') ? line.slice(5).trim() : line;
+      if (payload === '[DONE]') return;
+
+      try {
+        const event = JSON.parse(payload);
+        onEvent?.(event);
+      } catch {
+        // Ignore non-JSON heartbeats
+      }
+    }
+  }
+}
+
 async function safeErrorDetail(res) {
   try {
     const data = await res.json();

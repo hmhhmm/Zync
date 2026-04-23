@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Brain } from 'lucide-react';
+import { Brain, ChevronDown, ChevronRight } from 'lucide-react';
 
 export default function LogicExplorer({ chainOfThought, title = 'Reasoning Trace', defaultOpen = false }) {
   const [isExpanded, setIsExpanded] = useState(defaultOpen);
@@ -12,19 +12,27 @@ export default function LogicExplorer({ chainOfThought, title = 'Reasoning Trace
     <div className="mt-4">
       <button
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="w-full rounded-xl panel-inset--soft px-4 py-3 text-left flex items-center justify-between cursor-pointer hover:border-white/20 transition-colors"
+        className="w-full rounded-xl panel-inset--soft px-4 py-3 text-left flex items-center justify-between cursor-pointer transition-colors"
+        style={{ borderColor: isExpanded ? 'var(--border-accent)' : 'var(--border-softer)' }}
         id="logic-explorer-toggle"
       >
         <div className="flex items-center gap-2">
-          <Brain size={14} className="text-[var(--color-accent)]" />
-          <span className="mono-meta text-white/75">{title}</span>
+          <Brain size={14} style={{ color: 'var(--color-accent)' }} />
+          <span className="mono-meta">{title}</span>
         </div>
-        {isExpanded ? <ChevronDown size={15} className="text-white/50" /> : <ChevronRight size={15} className="text-white/50" />}
+        {isExpanded
+          ? <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+          : <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />}
       </button>
 
       {isExpanded && (
-        <div className="mt-3 animate-slide-up panel-inset--soft p-4">
-          <pre className="text-[12.5px] leading-relaxed font-mono text-white/80 whitespace-pre-wrap">{reasoning_content}</pre>
+        <div className="mt-2 animate-slide-up panel-inset--soft p-4">
+          <pre
+            className="text-[12px] leading-relaxed font-mono whitespace-pre-wrap"
+            style={{ color: 'var(--text-soft)' }}
+          >
+            {reasoning_content}
+          </pre>
         </div>
       )}
     </div>

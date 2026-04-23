@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { runValidation } from '../api/client';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { runValidation, runZonePrioritisation } from '../api/client';
 
 const DOMAIN_ZONES = [
   {
@@ -76,7 +76,7 @@ const DOMAIN_ZONES = [
 
 const DOMAIN_SUMMARY_BM = {
   title: 'Ringkasan Strategi Kedaulatan',
-  content: `Analisis Z.ai mengesahkan bahawa Malaysia memiliki potensi mineral nadir bumi (REE) yang signifikan bernilai anggaran RM 1 trilion. 
+  content: `Analisis Z.ai mengesahkan bahawa Malaysia memiliki potensi mineral nadir bumi (REE) yang signifikan bernilai anggaran RM 1 trilion.
 
 Zon Keutamaan Tertinggi: Lembah Tailing Bijih Timah Perak mendapat skor 94/100 berdasarkan gred TREO tinggi (1.8–2.3%), infrastruktur sedia ada, dan kelulusan kawal selia.
 
@@ -89,11 +89,11 @@ Kepatuhan: Semua operasi mematuhi Akta AELB, PDPA, dan garis panduan MCMC untuk 
   chain_of_thought: {
     reasoning_content: `Zone prioritization uses a weighted multi-criteria decision analysis (MCDA):
 
-Score = 0.30×Grade + 0.25×Reserves + 0.20×Infrastructure + 0.15×Regulatory + 0.10×ESG
+Score = 0.30×Economic + 0.25×ESG Risk + 0.30×Strategic + 0.15×Infrastructure
 
 Perak scores highest due to:
 - Grade (1.8-2.3% TREO): 28.5/30 points
-- Reserves (45,000 tonnes): 22.5/25 points  
+- Reserves (45,000 tonnes): 22.5/25 points
 - Infrastructure (existing road/rail): 19/20 points
 - Regulatory (approved): 14.5/15 points
 - ESG (brownfield/tailings): 9.5/10 points
@@ -107,23 +107,151 @@ The Sovereign Strategy Summary translates findings into Bahasa Malaysia per Mala
   },
 };
 
+const SAMPLE_ZONE_REQUEST = {
+  location: 'Kelantan IAC-REE Site',
+  state: 'Kelantan',
+  zones: [
+    { name: 'Zone A', ree_grade_ppm: 800, hree_proportion_pct: 45, river_proximity_m: 450, road_access: 'moderate', distance_to_facility_km: 12 },
+    { name: 'Zone B', ree_grade_ppm: 1200, hree_proportion_pct: 65, river_proximity_m: 650, road_access: 'sealed', distance_to_facility_km: 8 },
+    { name: 'Zone C', ree_grade_ppm: 600, hree_proportion_pct: 30, river_proximity_m: 180, road_access: 'forest track', distance_to_facility_km: 22 },
+  ],
+};
+
 export default function useZoneStrategy() {
-  const [zones] = useState(DOMAIN_ZONES);
-  const [summaryBM] = useState(DOMAIN_SUMMARY_BM);
+  const [zones, setZones] = useState(DOMAIN_ZONES);
+  const [summaryBM, setSummaryBM] = useState(DOMAIN_SUMMARY_BM);
   const [validation, setValidation] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isLive, setIsLive] = useState(false);
+  const [liveResult, setLiveResult] = useState(null);
+  const [streamingReasoning, setStreamingReasoning] = useState('');
+  const [streamingSteps, setStreamingSteps] = useState('');
+  const [agentStatus, setAgentStatus] = useState({});
+  const abortRef = useRef(null);
 
-  const fetchZones = useCallback(async () => {
-    // Zone ranking is a static curated dataset (no backend endpoint defined).
-    // Kept for forward compatibility; resolve immediately.
-    return { zones: DOMAIN_ZONES, summaryBM: DOMAIN_SUMMARY_BM };
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  // Store the last submitted request so we can enrich results with input zone data
+  const lastRequestRef = useRef(null);
+
+  const fetchZones = useCallback(async (request = SAMPLE_ZONE_REQUEST) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    lastRequestRef.current = request;
+
+    setIsLoading(true);
+    setError(null);
+    setStreamingReasoning('');
+    setStreamingSteps('');
+    setAgentStatus({});
+    setLiveResult(null);
+
+    let reasoningBuffer = '';
+    let stepsBuffer = '';
+
+    try {
+      await runZonePrioritisation(request, {
+        signal: controller.signal,
+        onEvent: (evt) => {
+          if (typeof evt.agent === 'number') {
+            setAgentStatus((prev) => ({
+              ...prev,
+              [evt.agent]: evt.status ?? evt.type ?? 'active',
+            }));
+          }
+          if (evt.agent === 6 && evt.type === 'reasoning' && evt.text) {
+            reasoningBuffer += evt.text;
+            setStreamingReasoning(reasoningBuffer);
+          }
+          if (evt.agent === 6 && evt.type === 'step' && evt.text) {
+            stepsBuffer += evt.text;
+            setStreamingSteps(stepsBuffer);
+          }
+          if (evt.agent === 6 && evt.status === 'done' && evt.result) {
+            setLiveResult(evt.result);
+            setIsLive(true);
+
+            // Backend returns { recommended, secondary, deferred, zones_assessed }
+            // Enrich each entry with data from the original input zones
+            const inputZones = lastRequestRef.current?.zones ?? [];
+            const getInput = (zoneName) =>
+              inputZones.find((z) => z.name === zoneName) ?? {};
+
+            const buildCard = (entry, rank, isDeferred) => {
+              const input = getInput(entry.zone);
+              const proximity = input.river_proximity_m;
+              const regulatory =
+                isDeferred ? 'DEFERRED'
+                : proximity != null && proximity < 200 ? 'DEFERRED'
+                : proximity != null && proximity < 500 ? 'Conditional'
+                : 'Approved';
+
+              return {
+                id: entry.zone?.toLowerCase().replace(/\s+/g, '_') ?? `zone_${rank}`,
+                rank,
+                name: entry.zone ?? `Zone ${rank}`,
+                score: entry.composite_score ?? 0,
+                scores: entry.scores ?? {},
+                treo_grade: input.ree_grade_ppm
+                  ? `${(input.ree_grade_ppm / 10000).toFixed(2)}%`
+                  : '—',
+                reserves_tonnes: 0,
+                infrastructure: input.road_access ?? '—',
+                regulatory,
+                ree_types:
+                  input.hree_proportion_pct > 60
+                    ? ['Dy', 'Y', 'Tb']
+                    : ['Ce', 'La', 'Nd'],
+                description: entry.reasoning ?? entry.reason ?? '',
+                reasoning_bm: entry.reasoning_bm ?? entry.reason_bm ?? '',
+                confidence: entry.confidence ?? '',
+                deferred: isDeferred,
+              };
+            };
+
+            const mapped = [];
+            if (evt.result.recommended) {
+              mapped.push(buildCard(evt.result.recommended, 1, false));
+            }
+            if (evt.result.secondary) {
+              mapped.push(buildCard(evt.result.secondary, 2, false));
+            }
+            if (evt.result.deferred) {
+              mapped.push(buildCard(evt.result.deferred, mapped.length + 1, true));
+            }
+            if (mapped.length > 0) setZones(mapped);
+
+            if (evt.result.recommended) {
+              setSummaryBM((prev) => ({
+                ...prev,
+                title: `Zon Disyorkan: ${evt.result.recommended.zone}`,
+                content:
+                  evt.result.recommended.reasoning_bm ??
+                  evt.result.recommended.reasoning ??
+                  prev.content,
+                chain_of_thought: {
+                  ...prev.chain_of_thought,
+                  reasoning_content:
+                    reasoningBuffer || prev.chain_of_thought.reasoning_content,
+                },
+              }));
+            }
+          }
+        },
+      });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        setError(err.message || 'Zone analysis unreachable. Ensure the backend is running.');
+        setIsLive(false);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  /**
-   * Run the 5 known-answer tests against the real backend. Used to prove the
-   * zone ranking logic is grounded in validated chemistry recommendations.
-   */
   const runValidationSuite = useCallback(async (testIds = null) => {
     setIsValidating(true);
     setError(null);
@@ -145,6 +273,12 @@ export default function useZoneStrategy() {
     summaryBM,
     validation,
     isValidating,
+    isLoading,
+    isLive,
+    liveResult,
+    streamingReasoning,
+    streamingSteps,
+    agentStatus,
     error,
     fetchZones,
     runValidationSuite,

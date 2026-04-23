@@ -16,6 +16,7 @@ import {
   Workflow,
   Zap,
 } from 'lucide-react';
+import ThemeToggle from '../layout/ThemeToggle';
 
 /* ============================================================
    Static copy
@@ -215,10 +216,13 @@ function Nav({ onEnterDashboard }) {
         ))}
       </div>
 
-      <button onClick={onEnterDashboard} id="enter-dashboard-btn" className="lp-nav-cta">
-        Launch console
-        <ArrowUpRight size={13} />
-      </button>
+      <div className="inline-flex items-center gap-2">
+        <ThemeToggle />
+        <button onClick={onEnterDashboard} id="enter-dashboard-btn" className="lp-nav-cta">
+          Launch console
+          <ArrowUpRight size={13} />
+        </button>
+      </div>
     </nav>
   );
 }

@@ -43,7 +43,7 @@ def lookup_lixiviant(
     }
 
 
-# GLM function calling tool definition
+# OpenAI-format tool definition
 LIXIVIANT_TOOL_DEFINITION = {
     "type": "function",
     "function": {

@@ -1,6 +1,9 @@
 import json
+import logging
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+
+log = logging.getLogger("zync.pipeline")
 from schemas.input_schema import PipelineRequest
 from agents.agent0_router    import route_request
 from agents.agent1_historian import get_historical_context
@@ -27,6 +30,7 @@ async def run_pipeline(body: PipelineRequest):
 
     async def event_stream():
         try:
+            log.info(f"pipeline start — {deposit.get('location')} / {deposit.get('clay_type')}")
             # ── Agent 0: Route ────────────────────────────────────────────────
             yield _event({"agent": 0, "status": "routing"})
             route = await route_request(str(deposit))
@@ -132,6 +136,7 @@ async def run_pipeline(body: PipelineRequest):
             yield "data: [DONE]\n\n"
 
         except Exception as e:
+            log.error(f"pipeline error: {e}", exc_info=True)
             yield _event({"status": "error", "message": str(e)})
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")

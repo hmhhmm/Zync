@@ -21,8 +21,8 @@ const MODULES = {
   },
   'zone-strategy': {
     component: ZoneStrategyModule,
-    activeAgents: [0, 1, 3, 4, 5],
-    pipelineTitle: 'Prioritization pipeline · GraphRAG + Parallel Optimization',
+    activeAgents: [0, 1, 6],
+    pipelineTitle: 'Prioritization pipeline · Agent 06 Zone Scorer',
   },
 };
 

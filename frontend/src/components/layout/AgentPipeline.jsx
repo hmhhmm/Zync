@@ -7,11 +7,14 @@ const AGENTS = [
   { id: 3, label: 'Optimizer + SQL', sub: 'Stores / queries iteration results' },
   { id: 4, label: 'ESG Hybrid', sub: 'Regulatory & radiological thresholds', critical: true },
   { id: 5, label: 'Report', sub: 'Synthesis · explainable output', critical: true },
+  { id: 6, label: 'Zone Scorer', sub: 'Economic · ESG · Strategic · Infra', critical: true },
 ];
 
 export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline' }) {
   const activeSet = new Set(activeIds);
   const isActive = (id) => activeSet.has(id);
+
+  // Count unique active agents (0-6)
   const activeCount = AGENTS.filter((a) => activeSet.has(a.id)).length;
 
   const renderNode = (agent) => (
@@ -31,6 +34,9 @@ export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline'
     </span>
   );
 
+  // Zone strategy: simplified 3-node flow (0 → 1 → 6)
+  const isZoneMode = activeSet.has(6) && !activeSet.has(2);
+
   return (
     <section className="agent-pipeline" aria-label="Agent pipeline">
       <div className="agent-pipeline__header">
@@ -38,24 +44,36 @@ export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline'
           <span className="status-dot status-dot--live" />
           <span className="agent-pipeline__title">{title}</span>
         </div>
-        <span className="mono-meta">{activeCount}/6 Active · GLM-5.1 MoE</span>
+        <span className="mono-meta">{activeCount}/{AGENTS.length} Active · GLM-5.1 MoE</span>
       </div>
 
       <div className="agent-flow">
-        {renderNode(AGENTS[0])}
-        {arrow('a0')}
-        {renderNode(AGENTS[1])}
-        {arrow('a1')}
-        {renderNode(AGENTS[2])}
-        {arrow('a2')}
-        <div className="agent-parallel">
-          {renderNode(AGENTS[3])}
-          {renderNode(AGENTS[4])}
-          <span className="agent-parallel__bracket" aria-hidden />
-          <span className="agent-parallel__tag">parallel loop</span>
-        </div>
-        {arrow('a3')}
-        {renderNode(AGENTS[5])}
+        {isZoneMode ? (
+          <>
+            {renderNode(AGENTS[0])}
+            {arrow('z0')}
+            {renderNode(AGENTS[1])}
+            {arrow('z1')}
+            {renderNode(AGENTS[6])}
+          </>
+        ) : (
+          <>
+            {renderNode(AGENTS[0])}
+            {arrow('a0')}
+            {renderNode(AGENTS[1])}
+            {arrow('a1')}
+            {renderNode(AGENTS[2])}
+            {arrow('a2')}
+            <div className="agent-parallel">
+              {renderNode(AGENTS[3])}
+              {renderNode(AGENTS[4])}
+              <span className="agent-parallel__bracket" aria-hidden />
+              <span className="agent-parallel__tag">parallel loop</span>
+            </div>
+            {arrow('a3')}
+            {renderNode(AGENTS[5])}
+          </>
+        )}
       </div>
     </section>
   );
