@@ -296,40 +296,6 @@ function CodeLines({ lines }) {
   );
 }
 
-function ProductFrame() {
-  return (
-    <section id="frame" className="lp-frame-section">
-      <div className="lp-frame">
-        <div className="lp-frame__tabs" role="tablist">
-          {FRAME_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              role="tab"
-              aria-selected={Boolean(tab.active)}
-              className={`lp-frame__tab ${tab.active ? 'lp-frame__tab--active' : ''}`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="lp-frame__body">
-          <aside className="lp-frame__pane">
-            <p className="lp-frame__pane-title">Agent Pipeline</p>
-            {AGENT_ROWS.map((row) => (
-              <AgentRow key={row.idx} row={row} />
-            ))}
-          </aside>
-
-          <div className="lp-frame__pane">
-            <p className="lp-frame__pane-title">Reasoning stream · Agent 02</p>
-            <CodeLines lines={REASONING_LINES} />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function SectionHead({ kicker, title, lead }) {
   return (
@@ -476,7 +442,7 @@ export default function LandingPage({ onEnterDashboard, onNavigate }) {
       <div className="lp-page-wrap relative z-10">
         <Nav onEnterDashboard={onEnterDashboard} />
         <Hero onEnterDashboard={onEnterDashboard} />
-        <ProductFrame />
+     
 
         <section id="problem" className="lp-section">
           <SectionHead

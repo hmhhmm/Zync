@@ -12,10 +12,10 @@ const NAV_ITEMS = [
   {
     id: 'lixiviant',
     label: 'Process Optimization',
-    subtitle: 'Full 6-agent optimization loop',
+    subtitle: 'Full 7-agent optimization loop', // Updated from 6 to 7
     icon: Cpu,
     step: '02',
-    agents: '6 agents',
+    agents: '7 agents', // Updated from 6 to 7
   },
   {
     id: 'zone-strategy',
@@ -23,7 +23,7 @@ const NAV_ITEMS = [
     subtitle: 'Rank zones by yield vs ESG risk',
     icon: MapPin,
     step: '03',
-    agents: '3 agents · Agent 06',
+    agents: '3 agents · Agent 06', // Assuming 0-indexed agents (0-6 = 7 agents)
   },
 ];
 
@@ -113,7 +113,7 @@ export default function Sidebar({
         <section className="mt-7 panel-inset--soft" style={{ padding: '18px' }}>
           <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
             <span className="muted-kicker" style={{ fontSize: 9.5 }}>Agents Online</span>
-            <span className="mono-meta" style={{ fontSize: 10 }}>{activeAgents.length}/6</span>
+            <span className="mono-meta" style={{ fontSize: 10 }}>{activeAgents.length}/7</span> {/* Updated from /6 to /7 */}
           </div>
           <div className="flex gap-1.5" style={{ marginBottom: '18px' }}>
             {Array.from({ length: 7 }, (_, i) => {

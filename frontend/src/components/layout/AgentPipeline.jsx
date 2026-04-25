@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react';
+import { RefreshCcw } from 'lucide-react';
 
 const AGENTS = [
   { id: 0, label: 'Agentic RAG', sub: 'Router · decides next agent', critical: true },
@@ -10,12 +11,9 @@ const AGENTS = [
   { id: 6, label: 'Zone Scorer', sub: 'Economic · ESG · Strategic · Infra', critical: true },
 ];
 
-export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline' }) {
+export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline', variant = 'full' }) {
   const activeSet = new Set(activeIds);
   const isActive = (id) => activeSet.has(id);
-
-  // Count unique active agents (0-6)
-  const activeCount = AGENTS.filter((a) => activeSet.has(a.id)).length;
 
   const renderNode = (agent) => (
     <div
@@ -34,8 +32,90 @@ export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline'
     </span>
   );
 
-  // Zone strategy: simplified 3-node flow (0 → 1 → 6)
-  const isZoneMode = activeSet.has(6) && !activeSet.has(2);
+  // Map the variant to the agents actually displayed on screen for accurate counting
+  const displayConfigs = {
+    diagnosis: [0, 1, 2], // Exactly the 3 you wanted
+    lixiviant: [2, 3, 4],
+    zone: [0, 1, 6],
+    full: [0, 1, 2, 3, 4, 5, 6]
+  };
+
+  const displayedAgentIds = displayConfigs[variant] || displayConfigs.full;
+  const visibleActiveCount = displayedAgentIds.filter(id => activeSet.has(id)).length;
+
+  // Render the specific arrangement based on the variant prop
+  const renderFlowLayout = () => {
+    switch (variant) {
+      case 'diagnosis':
+        // Clean, simple line for 0, 1, and 2
+        return (
+          <>
+            {renderNode(AGENTS[0])}
+            {arrow('diag0')}
+            {renderNode(AGENTS[1])}
+            {arrow('diag1')}
+            {renderNode(AGENTS[2])}
+          </>
+        );
+
+      case 'lixiviant':
+        // Clean layout: Label sits naturally above the flow, no bounding box or borders
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            
+            <span className="mono-meta" style={{ 
+              color: 'var(--color-accent)', display: 'flex', alignItems: 'center', gap: '6px' 
+            }}>
+              <RefreshCcw size={11} /> Iterative Optimization Loop
+            </span>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {renderNode(AGENTS[2])}
+              {arrow('lix2')}
+              
+              <div className="agent-parallel">
+                {renderNode(AGENTS[3])}
+                {renderNode(AGENTS[4])}
+                <span className="agent-parallel__bracket" aria-hidden />
+              </div>
+            </div>
+
+          </div>
+        );
+
+      case 'zone':
+        return (
+          <>
+            {renderNode(AGENTS[0])}
+            {arrow('z0')}
+            {renderNode(AGENTS[1])}
+            {arrow('z1')}
+            {renderNode(AGENTS[6])}
+          </>
+        );
+
+      case 'full':
+      default:
+        return (
+          <>
+            {renderNode(AGENTS[0])}
+            {arrow('f0')}
+            {renderNode(AGENTS[1])}
+            {arrow('f1')}
+            {renderNode(AGENTS[2])}
+            {arrow('f2')}
+            <div className="agent-parallel">
+              {renderNode(AGENTS[3])}
+              {renderNode(AGENTS[4])}
+              <span className="agent-parallel__bracket" aria-hidden />
+              <span className="agent-parallel__tag">parallel loop</span>
+            </div>
+            {arrow('f3')}
+            {renderNode(AGENTS[5])}
+          </>
+        );
+    }
+  };
 
   return (
     <section className="agent-pipeline" aria-label="Agent pipeline">
@@ -44,36 +124,13 @@ export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline'
           <span className="status-dot status-dot--live" />
           <span className="agent-pipeline__title">{title}</span>
         </div>
-        <span className="mono-meta">{activeCount}/{AGENTS.length} Active · GLM-5.1 MoE</span>
+        <span className="mono-meta">
+          {visibleActiveCount}/{displayedAgentIds.length} Active · GLM-5.1 MoE
+        </span>
       </div>
 
       <div className="agent-flow">
-        {isZoneMode ? (
-          <>
-            {renderNode(AGENTS[0])}
-            {arrow('z0')}
-            {renderNode(AGENTS[1])}
-            {arrow('z1')}
-            {renderNode(AGENTS[6])}
-          </>
-        ) : (
-          <>
-            {renderNode(AGENTS[0])}
-            {arrow('a0')}
-            {renderNode(AGENTS[1])}
-            {arrow('a1')}
-            {renderNode(AGENTS[2])}
-            {arrow('a2')}
-            <div className="agent-parallel">
-              {renderNode(AGENTS[3])}
-              {renderNode(AGENTS[4])}
-              <span className="agent-parallel__bracket" aria-hidden />
-              <span className="agent-parallel__tag">parallel loop</span>
-            </div>
-            {arrow('a3')}
-            {renderNode(AGENTS[5])}
-          </>
-        )}
+        {renderFlowLayout()}
       </div>
     </section>
   );
