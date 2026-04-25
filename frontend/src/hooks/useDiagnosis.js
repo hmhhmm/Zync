@@ -1,5 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { runDiagnosis } from '../api/client';
+import {
+  DEMO_DIAGNOSIS_REASONING,
+  DEMO_DIAGNOSIS_RESULT,
+} from '../demo/demoData';
+import { streamText, delay } from '../demo/demoStream';
+
+const DEMO_MODE = true;
 
 const DEMO_REQUEST = {
   ph_readings: [5.2, 4.8, 4.1, 3.8, 3.5, 3.2],
@@ -45,7 +52,56 @@ export default function useDiagnosis() {
     };
   }, []);
 
+  const _runDemo = useCallback(async () => {
+    if (!isMountedRef.current) return;
+    setIsStreaming(true);
+    setStreamingReasoning('');
+    setStreamingOutput('');
+    setDiagnosis(null);
+    setError(null);
+    setIsLive(false);
+
+    await delay(2400);
+
+    // Stream reasoning
+    let reasoningBuf = '';
+    await streamText(
+      DEMO_DIAGNOSIS_REASONING,
+      (chunk) => {
+        if (!isMountedRef.current) return;
+        reasoningBuf += chunk;
+        setStreamingReasoning(reasoningBuf);
+      },
+      { chunkSize: 5, delayMs: 18 },
+    );
+
+    await delay(600);
+
+    // Stream output JSON
+    const outputStr = JSON.stringify(DEMO_DIAGNOSIS_RESULT, null, 2);
+    let outputBuf = '';
+    await streamText(
+      outputStr,
+      (chunk) => {
+        if (!isMountedRef.current) return;
+        outputBuf += chunk;
+        setStreamingOutput(outputBuf);
+      },
+      { chunkSize: 8, delayMs: 12 },
+    );
+
+    await delay(300);
+
+    if (isMountedRef.current) {
+      setDiagnosis(DEMO_DIAGNOSIS_RESULT);
+      setIsLive(true);
+      setIsStreaming(false);
+    }
+  }, []);
+
   const _callDiagnose = useCallback(async (request) => {
+    if (DEMO_MODE) { await _runDemo(); return; }
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -87,7 +143,7 @@ export default function useDiagnosis() {
     } finally {
       if (isMountedRef.current) setIsStreaming(false);
     }
-  }, []);
+  }, [_runDemo]);
 
   const startDiagnosis = useCallback(
     async (file) => {
@@ -96,7 +152,7 @@ export default function useDiagnosis() {
 
       let request = { ...DEMO_REQUEST };
 
-      if (file && IMAGE_TYPES.includes(file.type)) {
+      if (!DEMO_MODE && file && IMAGE_TYPES.includes(file.type)) {
         try {
           const b64 = await readFileAsBase64(file);
           request = {
@@ -110,7 +166,7 @@ export default function useDiagnosis() {
           setError('Could not read image file.');
           return;
         }
-      } else if (file) {
+      } else if (!DEMO_MODE && file) {
         request = {
           ...DEMO_REQUEST,
           operator_notes: `${DEMO_REQUEST.operator_notes} (File: ${file.name})`,

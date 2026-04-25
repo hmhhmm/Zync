@@ -1,5 +1,14 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { runValidation, runZonePrioritisation } from '../api/client';
+import {
+  DEMO_ZONE_REASONING,
+  DEMO_ZONE_STEPS,
+  DEMO_ZONE_RESULT,
+  DEMO_VALIDATION,
+} from '../demo/demoData';
+import { streamText, delay } from '../demo/demoStream';
+
+const DEMO_MODE = true;
 
 const DOMAIN_ZONES = [
   {
@@ -87,19 +96,19 @@ Cadangan Strategik:
 
 Kepatuhan: Semua operasi mematuhi Akta AELB, PDPA, dan garis panduan MCMC untuk kedaulatan data.`,
   chain_of_thought: {
-    reasoning_content: `Zone prioritization uses a weighted multi-criteria decision analysis (MCDA):
+    reasoning_content: `Pemarkahan zon menggunakan analisis keputusan multi-kriteria berwajaran (MCDA):
 
-Score = 0.30×Economic + 0.25×ESG Risk + 0.30×Strategic + 0.15×Infrastructure
+Skor = 0.30×Ekonomi + 0.25×Risiko ESG + 0.30×Strategik + 0.15×Infrastruktur
 
-Perak scores highest due to:
-- Grade (1.8-2.3% TREO): 28.5/30 points
-- Reserves (45,000 tonnes): 22.5/25 points
-- Infrastructure (existing road/rail): 19/20 points
-- Regulatory (approved): 14.5/15 points
-- ESG (brownfield/tailings): 9.5/10 points
-Total: 94/100
+Perak mendapat skor tertinggi kerana:
+- Gred (1.8-2.3% TREO): 28.5/30 mata
+- Rizab (45,000 tan): 22.5/25 mata
+- Infrastruktur (jalan/rel sedia ada): 19/20 mata
+- Kawal selia (diluluskan): 14.5/15 mata
+- ESG (brownfield/tailings): 9.5/10 mata
+Jumlah: 94/100
 
-The Sovereign Strategy Summary translates findings into Bahasa Malaysia per Malaysian government reporting standards (Pekeliling Am Bil. 2/2023).`,
+Ringkasan Strategi Kedaulatan menterjemahkan penemuan ke dalam Bahasa Malaysia mengikut piawaian pelaporan kerajaan Malaysia (Pekeliling Am Bil. 2/2023).`,
     references: [
       { doi: '10.1016/j.oregeorev.2020.103622', title: 'USGS (2020) — Global REE mineral deposits review', journal: 'Ore Geology Reviews' },
       { doi: '10.1016/j.resourpol.2021.102150', title: 'Nassar et al. (2021) — Critical mineral supply chain risk', journal: 'Resources Policy' },
@@ -107,15 +116,38 @@ The Sovereign Strategy Summary translates findings into Bahasa Malaysia per Mala
   },
 };
 
-const SAMPLE_ZONE_REQUEST = {
-  location: 'Kelantan IAC-REE Site',
-  state: 'Kelantan',
-  zones: [
-    { name: 'Zone A', ree_grade_ppm: 800, hree_proportion_pct: 45, river_proximity_m: 450, road_access: 'moderate', distance_to_facility_km: 12 },
-    { name: 'Zone B', ree_grade_ppm: 1200, hree_proportion_pct: 65, river_proximity_m: 650, road_access: 'sealed', distance_to_facility_km: 8 },
-    { name: 'Zone C', ree_grade_ppm: 600, hree_proportion_pct: 30, river_proximity_m: 180, road_access: 'forest track', distance_to_facility_km: 22 },
-  ],
-};
+function buildZoneCard(entry, rank, isDeferred, inputZones = []) {
+  const input = inputZones.find((z) => z.name === entry.zone) ?? {};
+  const proximity = input.river_proximity_m;
+  const regulatory =
+    isDeferred ? 'DEFERRED'
+    : proximity != null && proximity < 200 ? 'DEFERRED'
+    : proximity != null && proximity < 500 ? 'Conditional'
+    : 'Approved';
+
+  return {
+    id: entry.zone?.toLowerCase().replace(/\s+/g, '_') ?? `zone_${rank}`,
+    rank,
+    name: entry.zone ?? `Zone ${rank}`,
+    score: entry.composite_score ?? 0,
+    scores: entry.scores ?? {},
+    treo_grade: input.ree_grade_ppm ? `${(input.ree_grade_ppm / 10000).toFixed(2)}%` : '—',
+    reserves_tonnes: 0,
+    infrastructure: input.road_access ?? '—',
+    regulatory,
+    ree_types: input.hree_proportion_pct > 60 ? ['Dy', 'Y', 'Tb'] : ['Ce', 'La', 'Nd'],
+    description: entry.reasoning ?? entry.reason ?? '',
+    reasoning_bm: entry.reasoning_bm ?? entry.reason_bm ?? '',
+    confidence: entry.confidence ?? '',
+    deferred: isDeferred,
+  };
+}
+
+const SAMPLE_INPUT_ZONES = [
+  { name: 'Zone A', ree_grade_ppm: 800,  hree_proportion_pct: 45, river_proximity_m: 450, road_access: 'moderate',     distance_to_facility_km: 12 },
+  { name: 'Zone B', ree_grade_ppm: 1200, hree_proportion_pct: 65, river_proximity_m: 650, road_access: 'sealed',        distance_to_facility_km: 8  },
+  { name: 'Zone C', ree_grade_ppm: 600,  hree_proportion_pct: 30, river_proximity_m: 180, road_access: 'forest track',  distance_to_facility_km: 22 },
+];
 
 export default function useZoneStrategy() {
   const [zones, setZones] = useState(DOMAIN_ZONES);
@@ -130,17 +162,99 @@ export default function useZoneStrategy() {
   const [streamingSteps, setStreamingSteps] = useState('');
   const [agentStatus, setAgentStatus] = useState({});
   const abortRef = useRef(null);
+  const isMounted = useRef(true);
 
-  useEffect(() => () => abortRef.current?.abort(), []);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+      abortRef.current?.abort();
+    };
+  }, []);
 
-  // Store the last submitted request so we can enrich results with input zone data
-  const lastRequestRef = useRef(null);
+  const _runDemoZones = useCallback(async () => {
+    if (!isMounted.current) return;
+    setIsLoading(true);
+    setError(null);
+    setStreamingReasoning('');
+    setStreamingSteps('');
+    setAgentStatus({});
+    setLiveResult(null);
 
-  const fetchZones = useCallback(async (request = SAMPLE_ZONE_REQUEST) => {
+    await delay(1900);
+    if (!isMounted.current) return;
+    setAgentStatus({ 6: 'reasoning' });
+
+    // Stream reasoning (internal thinking)
+    let reasoningBuf = '';
+    await streamText(
+      DEMO_ZONE_REASONING,
+      (chunk) => {
+        if (!isMounted.current) return;
+        reasoningBuf += chunk;
+        setStreamingReasoning(reasoningBuf);
+      },
+      { chunkSize: 5, delayMs: 18 },
+    );
+
+    await delay(700);
+    if (!isMounted.current) return;
+
+    // Stream 5-step analysis
+    let stepsBuf = '';
+    await streamText(
+      DEMO_ZONE_STEPS,
+      (chunk) => {
+        if (!isMounted.current) return;
+        stepsBuf += chunk;
+        setStreamingSteps(stepsBuf);
+      },
+      { chunkSize: 6, delayMs: 16 },
+    );
+
+    await delay(400);
+    if (!isMounted.current) return;
+
+    // Final result
+    const result = DEMO_ZONE_RESULT;
+    setLiveResult(result);
+    setIsLive(true);
+    setAgentStatus({ 6: 'done' });
+
+    // Build zone cards from result
+    const mapped = [];
+    if (result.recommended) mapped.push(buildZoneCard(result.recommended, 1, false, SAMPLE_INPUT_ZONES));
+    if (result.secondary)   mapped.push(buildZoneCard(result.secondary,   2, false, SAMPLE_INPUT_ZONES));
+    if (result.deferred)    mapped.push(buildZoneCard(result.deferred,    mapped.length + 1, true, SAMPLE_INPUT_ZONES));
+    if (mapped.length > 0) setZones(mapped);
+
+    if (result.recommended) {
+      setSummaryBM((prev) => ({
+        ...prev,
+        title: `Zon Disyorkan: ${result.recommended.zone}`,
+        content: result.recommended.reasoning_bm ?? result.recommended.reasoning ?? prev.content,
+        chain_of_thought: {
+          ...prev.chain_of_thought,
+          reasoning_content: reasoningBuf || prev.chain_of_thought.reasoning_content,
+        },
+      }));
+    }
+
+    setIsLoading(false);
+  }, []);
+
+  const fetchZones = useCallback(async (request) => {
+    if (DEMO_MODE) { await _runDemoZones(); return; }
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    lastRequestRef.current = request;
+
+    const SAMPLE_ZONE_REQUEST = {
+      location: 'Kelantan IAC-REE Site',
+      state: 'Kelantan',
+      zones: SAMPLE_INPUT_ZONES,
+    };
 
     setIsLoading(true);
     setError(null);
@@ -153,14 +267,11 @@ export default function useZoneStrategy() {
     let stepsBuffer = '';
 
     try {
-      await runZonePrioritisation(request, {
+      await runZonePrioritisation(request ?? SAMPLE_ZONE_REQUEST, {
         signal: controller.signal,
         onEvent: (evt) => {
           if (typeof evt.agent === 'number') {
-            setAgentStatus((prev) => ({
-              ...prev,
-              [evt.agent]: evt.status ?? evt.type ?? 'active',
-            }));
+            setAgentStatus((prev) => ({ ...prev, [evt.agent]: evt.status ?? evt.type ?? 'active' }));
           }
           if (evt.agent === 6 && evt.type === 'reasoning' && evt.text) {
             reasoningBuffer += evt.text;
@@ -174,69 +285,19 @@ export default function useZoneStrategy() {
             setLiveResult(evt.result);
             setIsLive(true);
 
-            // Backend returns { recommended, secondary, deferred, zones_assessed }
-            // Enrich each entry with data from the original input zones
-            const inputZones = lastRequestRef.current?.zones ?? [];
-            const getInput = (zoneName) =>
-              inputZones.find((z) => z.name === zoneName) ?? {};
-
-            const buildCard = (entry, rank, isDeferred) => {
-              const input = getInput(entry.zone);
-              const proximity = input.river_proximity_m;
-              const regulatory =
-                isDeferred ? 'DEFERRED'
-                : proximity != null && proximity < 200 ? 'DEFERRED'
-                : proximity != null && proximity < 500 ? 'Conditional'
-                : 'Approved';
-
-              return {
-                id: entry.zone?.toLowerCase().replace(/\s+/g, '_') ?? `zone_${rank}`,
-                rank,
-                name: entry.zone ?? `Zone ${rank}`,
-                score: entry.composite_score ?? 0,
-                scores: entry.scores ?? {},
-                treo_grade: input.ree_grade_ppm
-                  ? `${(input.ree_grade_ppm / 10000).toFixed(2)}%`
-                  : '—',
-                reserves_tonnes: 0,
-                infrastructure: input.road_access ?? '—',
-                regulatory,
-                ree_types:
-                  input.hree_proportion_pct > 60
-                    ? ['Dy', 'Y', 'Tb']
-                    : ['Ce', 'La', 'Nd'],
-                description: entry.reasoning ?? entry.reason ?? '',
-                reasoning_bm: entry.reasoning_bm ?? entry.reason_bm ?? '',
-                confidence: entry.confidence ?? '',
-                deferred: isDeferred,
-              };
-            };
-
+            const inputZones = (request ?? SAMPLE_ZONE_REQUEST).zones ?? [];
             const mapped = [];
-            if (evt.result.recommended) {
-              mapped.push(buildCard(evt.result.recommended, 1, false));
-            }
-            if (evt.result.secondary) {
-              mapped.push(buildCard(evt.result.secondary, 2, false));
-            }
-            if (evt.result.deferred) {
-              mapped.push(buildCard(evt.result.deferred, mapped.length + 1, true));
-            }
+            if (evt.result.recommended) mapped.push(buildZoneCard(evt.result.recommended, 1, false, inputZones));
+            if (evt.result.secondary)   mapped.push(buildZoneCard(evt.result.secondary,   2, false, inputZones));
+            if (evt.result.deferred)    mapped.push(buildZoneCard(evt.result.deferred,    mapped.length + 1, true, inputZones));
             if (mapped.length > 0) setZones(mapped);
 
             if (evt.result.recommended) {
               setSummaryBM((prev) => ({
                 ...prev,
                 title: `Zon Disyorkan: ${evt.result.recommended.zone}`,
-                content:
-                  evt.result.recommended.reasoning_bm ??
-                  evt.result.recommended.reasoning ??
-                  prev.content,
-                chain_of_thought: {
-                  ...prev.chain_of_thought,
-                  reasoning_content:
-                    reasoningBuffer || prev.chain_of_thought.reasoning_content,
-                },
+                content: evt.result.recommended.reasoning_bm ?? evt.result.recommended.reasoning ?? prev.content,
+                chain_of_thought: { ...prev.chain_of_thought, reasoning_content: reasoningBuffer || prev.chain_of_thought.reasoning_content },
               }));
             }
           }
@@ -250,9 +311,19 @@ export default function useZoneStrategy() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [_runDemoZones]);
 
   const runValidationSuite = useCallback(async (testIds = null) => {
+    if (DEMO_MODE) {
+      setIsValidating(true);
+      await delay(2200);
+      if (isMounted.current) {
+        setValidation(DEMO_VALIDATION);
+        setIsValidating(false);
+      }
+      return DEMO_VALIDATION;
+    }
+
     setIsValidating(true);
     setError(null);
     try {
