@@ -54,6 +54,67 @@ Every recommendation is grounded in real data — not hallucination:
 
 ---
 
+## System Architecture
+ 
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     OPERATOR INPUT                          │
+│          Deposit profile · logs · survey PDFs               │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│               AGENT 0 — ROUTER                              │
+│   Reads query · classifies intent · routes to pipeline      │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│               AGENT 1 — HISTORIAN                           │
+│   GraphRAG · Neo4j · 10 real Malaysian REE cases            │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│            AGENT 2 — CHEMIST  ★ streaming                   │
+│   SciGLM · thinking mode · function calling                 │
+│   Output: theoretical flowsheet + reasoning chain           │
+└────────────────┬────────────────────────┬───────────────────┘
+                 │      parallel          │
+                 ▼                        ▼
+┌───────────────────────┐   ┌────────────────────────────────┐
+│  AGENT 3 — OPTIMIZER  │◄─►│  AGENT 4 — COMPLIANCE          │
+│  GLM iteration loop   │   │  Qdrant hybrid search          │
+│  15 live iterations   │   │  AELB + DOE + JMG checks       │
+│  PostgreSQL SQL RAG   │   │  Pass/fail per regulation      │
+└───────────┬───────────┘   └──────────────┬─────────────────┘
+            └───────────────┬───────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│            AGENT 6 — ZONE PRIORITISER                       │
+│   5-step scoring: HREE value · ESG · infrastructure         │
+│   13MP alignment · ranked recommendation in BM + EN         │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│            AGENT 5 — REPORT WRITER                          │
+│   Bilingual BM + EN · PDF export · SFILES 2.0               │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+     Decision card · ESG badge · Reasoning block · PDF
+ 
+DATA LAYER
+  Neo4j (GraphRAG) · PostgreSQL (SQL RAG) · Qdrant (hybrid search)
+ 
+STREAMING — KILLER FEATURE
+  FastAPI SSE · Agent 2 reasoning_content streams token by token
+```
+ 
+---
+
 ## Agent Pipeline
 
 ```
