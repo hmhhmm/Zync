@@ -6,6 +6,15 @@ Malaysia sits on RM 1 trillion in Rare Earth Element (REE) resources but lacks t
 
 ---
 
+## Demo
+ 
+| Resource | Link |
+|---|---|
+| 📊 Pitch Deck | [ZYNC](https://canva.link/cne9bpdxwz3f12l) |
+| 🎥 Demo Video | [Watch on YouTube](https://your-youtube-link-here) |
+ 
+---
+
 ## The Three Decisions
 
 Zync is not a chatbot. It is a **three-decision engine** backed by GLM-5.1's scientific reasoning, grounded in real Malaysian geological data, and enforced by live compliance checking against AELB, DOE, and JMG regulations.
