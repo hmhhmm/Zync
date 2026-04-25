@@ -11,7 +11,7 @@ Malaysia sits on RM 1 trillion in Rare Earth Element (REE) resources but lacks t
 | Resource | Link |
 |---|---|
 | Pitch Deck | [ZYNC](https://canva.link/cne9bpdxwz3f12l) |
-| Demo Video | [Video](https://youtu.be/oSN3vXfGr0o) |
+| Demo Video | [Video](https://youtu.be/p5k_B3rlL3A) |
 | Documentations | Zync/documents |
  
 ---
