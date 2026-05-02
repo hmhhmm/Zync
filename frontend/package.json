@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "deck.gl": "^9.3.2",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
+    "maplibre-gl": "^5.24.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-map-gl": "^8.1.1",
     "recharts": "^3.8.1",
     "tailwindcss": "^4.2.2",
     "three": "^0.184.0"

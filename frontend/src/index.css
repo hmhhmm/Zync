@@ -2414,3 +2414,42 @@ body::-webkit-scrollbar { width: 0; height: 0; }
 /* ── light-mode adjustments for non-purple accents ── */
 [data-accent="teal"][data-theme="light"]   { --color-accent: #0d9488; --color-accent-bright: #0f766e; }
 [data-accent="amber"][data-theme="light"]  { --color-accent: #b45309; --color-accent-bright: #92400e; }
+
+/* ==========================================================================
+   REE Map (REEMapViz)
+   ========================================================================== */
+
+.map-filter-select {
+  background: rgba(5, 8, 31, 0.88);
+  border: 1px solid var(--border-soft);
+  color: var(--color-text-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.map-filter-select:hover,
+.map-filter-select:focus {
+  border-color: rgba(0, 240, 255, 0.45);
+}
+
+/* Hide MapLibre default nav controls; keep attribution */
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-top-right,
+.maplibregl-ctrl-bottom-left { display: none; }
+
+.maplibregl-ctrl-attrib {
+  background: transparent !important;
+  font-size: 9px !important;
+  color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: rgba(255, 255, 255, 0.25) !important;
+}

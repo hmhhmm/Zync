@@ -4,6 +4,7 @@ import ModuleHero from '../../components/layout/ModuleHero';
 import LogicExplorer from '../../components/trust/LogicExplorer';
 import ReferencesPanel from '../../components/trust/ReferencesPanel';
 import useZoneStrategy from '../../hooks/useZoneStrategy';
+import REEMapViz from '../../components/viz/REEMapViz';
 
 const STATUS_MAP = {
   Approved:       { icon: CheckCircle, tone: 'text-[var(--color-accent-bright)] bg-[rgba(124,58,237,0.22)] border-[rgba(167,139,250,0.45)]' },
@@ -348,6 +349,12 @@ export default function ZoneStrategyModule() {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* REE Deposit Context Map */}
+          <div className="animate-slide-in-up" style={{ animationDelay: '0.5s' }}>
+            <p className="muted-kicker mb-3">Global REE Deposit Context · USGS Database</p>
+            <REEMapViz zones={zones} height={480} />
           </div>
         </div>
       )}
