@@ -509,7 +509,7 @@ export default function OptimizerViz({ iterations }) {
           {log.map((entry, i) => {
             const scoreColor  = entry.score > 0.75 ? '#4af0c4' : entry.score > 0.5 ? '#7fbfff' : '#8899aa';
             const deltaColor  = (entry.delta ?? 0) > 0 ? '#4af0c4' : '#ff6b8a';
-            const statusColor = entry.status === 'converged' ? '#a78bfa'
+            const statusColor = entry.status === 'converged' ? 'var(--color-accent)'
               : entry.status === 'improved'  ? '#4af0c4'
               : entry.status === 'violation' ? '#ff6b8a'
               : 'rgba(255,255,255,0.35)';

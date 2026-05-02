@@ -78,7 +78,7 @@ export default function Sidebar({
                     className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center"
                     style={{
                       border: '1px solid var(--border-soft)',
-                      background: active ? 'rgba(124,58,237,0.12)' : 'var(--icon-btn-bg)',
+                      background: active ? 'rgba(167, 139, 250, 0.12)' : 'var(--icon-btn-bg)',
                       color: active ? 'var(--color-accent)' : 'var(--text-muted)',
                       transition: 'background 0.18s ease, color 0.18s ease',
                     }}
@@ -124,9 +124,10 @@ export default function Sidebar({
                   className="flex-1 h-1.5 rounded-full"
                   style={{
                     background: on
-                      ? 'linear-gradient(90deg, #5769f7, #b45fee)'
+                      ? 'var(--color-accent)'
                       : 'var(--border-soft)',
                     transition: 'background 0.3s ease',
+                    opacity: on ? 1 : 0.5,
                   }}
                 />
               );

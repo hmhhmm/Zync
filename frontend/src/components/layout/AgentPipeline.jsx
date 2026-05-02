@@ -3,9 +3,9 @@ import { RefreshCcw } from 'lucide-react';
 
 const AGENTS = [
   { id: 0, label: 'Agentic RAG', sub: 'Router · decides next agent', critical: true },
-  { id: 1, label: 'GraphRAG', sub: 'Malaysian geological knowledge graph' },
+  { id: 1, label: 'GraphRAG', sub: 'Malaysian geological knowledge graph', critical: true },
   { id: 2, label: 'SciGLM', sub: 'College-level scientific reasoning', critical: true },
-  { id: 3, label: 'Optimizer + SQL', sub: 'Stores / queries iteration results' },
+  { id: 3, label: 'Optimizer + SQL', sub: 'Stores / queries iteration results', critical: true },
   { id: 4, label: 'ESG Hybrid', sub: 'Regulatory & radiological thresholds', critical: true },
   { id: 5, label: 'Report', sub: 'Synthesis · explainable output', critical: true },
   { id: 6, label: 'Zone Scorer', sub: 'Economic · ESG · Strategic · Infra', critical: true },

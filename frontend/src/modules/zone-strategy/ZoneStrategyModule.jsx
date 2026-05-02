@@ -159,30 +159,9 @@ export default function ZoneStrategyModule() {
       {/* Active Dashboard State */}
       {(isLoading || isLive) && (
         <div className="animate-slide-in-up grid gap-6">
-          <div className="kpi-row">
-            <div className="kpi-cell kpi-cell--accent" style={{ animation: 'slide-in-up 0.4s ease-out 0.1s both' }}>
-              <span className="kpi-cell__label">Zones Assessed</span>
-              <span className="kpi-cell__value">{isLoading && !isLive ? '...' : (liveResult?.zones_assessed ?? zones.length)}</span>
-              <span className="kpi-cell__hint">{isLive ? 'Live from Agent 06' : 'Baseline dataset'}</span>
-            </div>
-            <div className="kpi-cell kpi-cell--accent" style={{ animation: 'slide-in-up 0.4s ease-out 0.2s both' }}>
-              <span className="kpi-cell__label">Approved Zones</span>
-              <span className="kpi-cell__value">{isLoading && !isLive ? '...' : approvedCount}</span>
-              <span className="kpi-cell__hint">Pass DOE river threshold</span>
-            </div>
-            <div className="kpi-cell" style={{ animation: 'slide-in-up 0.4s ease-out 0.3s both' }}>
-              <span className="kpi-cell__label">Aggregate Reserves</span>
-              <span className="kpi-cell__value">
-                {isLoading && !isLive ? '...' : (totalReserves > 0 ? `${(totalReserves / 1000).toFixed(0)}k` : '—')}
-                {totalReserves > 0 && !isLoading && <span className="text-sm text-white/55 ml-1">t</span>}
-              </span>
-              <span className="kpi-cell__hint">Estimated TREO</span>
-            </div>
-            <div className="kpi-cell" style={{ animation: 'slide-in-up 0.4s ease-out 0.4s both' }}>
-              <span className="kpi-cell__label">Top Score</span>
-              <span className="kpi-cell__value">{isLoading && !isLive ? '...' : (zones[0]?.score ?? '—')}{!isLoading && <span className="text-sm text-white/55 ml-1">/100</span>}</span>
-              <span className="kpi-cell__hint">{isLoading && !isLive ? 'Ranking...' : (zones[0]?.name ?? 'Awaiting analysis')}</span>
-            </div>
+          <div style={{ animation: 'slide-in-up 0.4s ease-out 0.1s both' }}>
+            
+            <REEMapViz zones={zones} height={320} />
           </div>
 
           <div className="grid grid-cols-1 2xl:grid-cols-5 gap-6">
@@ -271,91 +250,100 @@ export default function ZoneStrategyModule() {
               })}
             </div>
 
-            <div className="2xl:col-span-2 grid gap-5">
+            <div className="2xl:col-span-2 grid gap-4 content-start">
               <AgentTerminal streamingReasoning={streamingReasoning} streamingSteps={streamingSteps} agentStatus={agentStatus} />
 
-              <div className="panel-inset--accent" id="sovereign-summary" style={{ padding: '24px' }}>
-                <div className="flex items-center gap-2">
-                  <Shield size={15} className="text-[var(--color-accent)]" />
-                  <p className="muted-kicker">Sovereign Summary · Agent 05</p>
-                </div>
-                <h3 className="text-[16px] font-semibold text-white mt-2.5">{summaryBM.title}</h3>
-                <div className="inline-flex items-center gap-2 flex-wrap mt-2.5">
-                  {liveResult?.recommended?.composite_score && (
-                    <div className="inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
-                      <TrendingUp size={11} /> Score: {liveResult.recommended.composite_score}/100
-                    </div>
-                  )}
-                  {liveResult?.recommended?.confidence && (
-                    <div className="inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
-                      <BadgeCheck size={11} /> Confidence: {liveResult.recommended.confidence}
-                    </div>
-                  )}
-                </div>
-                <p className="text-[13px] text-white/75 whitespace-pre-line max-w-[52ch] mt-4" style={{ lineHeight: 1.75 }}>
-                  {summaryBM.content}
-                </p>
-              </div>
+              <div className="grid gap-4">
 
-              <div className="panel-inset p-6" id="methodology-card">
-                <p className="muted-kicker mb-2">Weighted Scoring · Agent 06</p>
-                <div className="grid gap-2.5">
-                  {SCORING_WEIGHTS.map((item) => (
-                    <div key={item.label} className="panel-inset--soft px-4 py-3">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-white/85 text-[13px]">{item.label}</span>
-                        <span className="font-mono font-semibold text-[13px]" style={{ color: item.color }}>{item.weight}%</span>
+                <div className="panel-inset" id="sovereign-summary" style={{ padding: '20px 24px' }}>
+                  <div className="flex items-center gap-2">
+                    <Shield size={15} className="text-[var(--color-accent)]" />
+                    <p className="muted-kicker">Sovereign Summary · Agent 05</p>
+                  </div>
+                  <h3 className="text-[15px] font-semibold text-white mt-2">{summaryBM.title}</h3>
+                  <div className="inline-flex items-center gap-2 flex-wrap mt-2">
+                    {liveResult?.recommended?.composite_score && (
+                      <div className="inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
+                        <TrendingUp size={11} /> Score: {liveResult.recommended.composite_score}/100
                       </div>
-                      <div className="score-bar-track">
-                        <div className="score-bar-fill" style={{ width: `${item.weight * 2}%`, background: item.color }} />
+                    )}
+                    {liveResult?.recommended?.confidence && (
+                      <div className="inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
+                        <BadgeCheck size={11} /> Confidence: {liveResult.recommended.confidence}
                       </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                  <p className="terminal__text terminal__text--output mt-3" style={{ fontSize: 12, lineHeight: 1.75, whiteSpace: 'pre-line', margin: 0, marginTop: 12 }}>{summaryBM.content}</p>
                 </div>
-              </div>
 
-              <div className="panel-inset p-6" id="validation-card">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="muted-kicker">Known-Answer Validation</p>
+                <div className="panel-inset" id="methodology-card" style={{ padding: '20px 24px' }}>
+                  <p className="muted-kicker mb-3">Zone Portfolio Scores</p>
+                  <div className="grid gap-2">
+                    {zones.length > 0 && (() => {
+                      const dims = [
+                        { key: 'economic', label: 'Economic', color: '#a78bfa' },
+                        { key: 'strategic', label: 'Strategic', color: '#34d399' },
+                        { key: 'esg_risk', label: 'ESG Risk', color: '#fbd38d' },
+                        { key: 'infra', label: 'Infrastructure', color: '#38bdf8' },
+                      ];
+                      return dims.map((dim) => {
+                        const scores = zones.filter(z => z.scores?.[dim.key]).map(z => z.scores[dim.key]);
+                        const mean = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+                        return (
+                          <div key={dim.key} className="panel-inset--soft px-4 py-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-white/85 text-[13px]">{dim.label}</span>
+                              <span className="font-mono font-semibold text-[13px]" style={{ color: dim.color }}>{mean}/100</span>
+                            </div>
+                            <div className="score-bar-track">
+                              <div className="score-bar-fill" style={{ width: `${mean}%`, background: dim.color }} />
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
                 </div>
-                <button
-                  onClick={() => runValidationSuite()}
-                  disabled={isValidating}
-                  className="btn btn-primary w-full"
-                  id="run-validation-btn"
-                >
-                  {isValidating ? <><Loader2 size={13} className="animate-spin" /> Running…</> : 'Run validation suite'}
-                </button>
 
-                {validation && (
-                  <div className="mt-5 pt-4 border-t border-white/6 grid gap-3 animate-slide-in-up">
-                    <div className="flex items-center justify-between font-mono text-[12px]">
-                      <span className="text-white/60">Result</span>
-                      <span className="text-[var(--color-accent-bright)]">
-                        {validation.passed}/{validation.total} pass
-                      </span>
-                    </div>
-                    {validation.results?.map((r) => (
-                      <div key={r.test_id} className="panel-inset--soft flex items-center justify-between gap-3 px-3 py-2.5">
-                        <span className="text-[12px] text-white/75 truncate">{r.scenario}</span>
-                        <span className={`font-mono text-[10px] px-2 py-0.5 rounded-md border shrink-0 ${
-                          r.status === 'pass' ? 'border-green-500/40 text-green-300 bg-green-500/10' : 'border-amber-500/40 text-amber-200 bg-amber-500/10'
-                        }`}>
-                          {r.status}
+                <div className="panel-inset" id="validation-card" style={{ padding: '20px 24px' }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="muted-kicker">Known-Answer Validation</p>
+                  </div>
+                  <button
+                    onClick={() => runValidationSuite()}
+                    disabled={isValidating}
+                    className="btn btn-primary w-full"
+                    id="run-validation-btn"
+                  >
+                    {isValidating ? <><Loader2 size={13} className="animate-spin" /> Running…</> : 'Run validation suite'}
+                  </button>
+
+                  {validation && (
+                    <div className="mt-4 pt-4 border-t border-white/6 grid gap-2.5 animate-slide-in-up">
+                      <div className="flex items-center justify-between font-mono text-[12px]">
+                        <span className="text-white/60">Result</span>
+                        <span className="text-[var(--color-accent-bright)]">
+                          {validation.passed}/{validation.total} pass
                         </span>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      {validation.results?.map((r) => (
+                        <div key={r.test_id} className="panel-inset--soft flex items-center justify-between gap-3 px-3 py-2.5">
+                          <span className="text-[12px] text-white/75 truncate">{r.scenario}</span>
+                          <span className={`font-mono text-[10px] px-2 py-0.5 rounded-md border shrink-0 ${
+                            r.status === 'pass' ? 'border-green-500/40 text-green-300 bg-green-500/10' : 'border-amber-500/40 text-amber-200 bg-amber-500/10'
+                          }`}>
+                            {r.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           </div>
 
-          {/* REE Deposit Context Map */}
-          <div className="animate-slide-in-up" style={{ animationDelay: '0.5s' }}>
-            <p className="muted-kicker mb-3">Global REE Deposit Context · USGS Database</p>
-            <REEMapViz zones={zones} height={480} />
-          </div>
         </div>
       )}
     </section>

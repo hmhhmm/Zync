@@ -11,7 +11,7 @@ export default function ModuleHero({
   return (
     <header className="module-hero">
       <div className="module-hero__tags">
-        {step && <span className="chip chip--accent">Module {step}</span>}
+        {step && <span className="chip chip--accent" style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}>Module {step}</span>}
         {eyebrow && <span className="mono-meta">{eyebrow}</span>}
       </div>
       <h2 className="module-hero__title title-gradient">{title}</h2>
