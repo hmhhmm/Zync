@@ -7,13 +7,13 @@ Malaysia sits on RM 1 trillion in Rare Earth Element (REE) resources but lacks t
 ---
 
 ## Demo
- 
+
 | Resource | Link |
 |---|---|
 | Pitch Deck | [ZYNC](https://canva.link/cne9bpdxwz3f12l) |
 | Demo Video | [Video](https://youtu.be/p5k_B3rlL3A) |
-| Documentations | Zync/documents |
- 
+| Documentation | [`documents/`](documents/) |
+
 ---
 
 ## The Three Decisions
@@ -31,12 +31,14 @@ Zync is not a chatbot. It is a **three-decision engine** backed by GLM-5.1's sci
 ## What Makes This Different
 
 Most AI systems in this space are:
-```
+
+```text
 Frontend → one LLM call → response
 ```
 
 Zync is:
-```
+
+```text
 Frontend → Router → right agent → right database → grounded GLM reasoning → streamed response
 ```
 
@@ -51,83 +53,70 @@ Every recommendation is grounded in real data — not hallucination:
 
 ---
 
+## Screenshots and Photos
+
+Yes, you can add photos to this README.
+
+Put image files in a tracked folder such as [`frontend/src/assets/`](frontend/src/assets/) or [`documents/`](documents/) and reference them with standard Markdown image syntax:
+
+```md
+![System preview](frontend/src/assets/hero.png)
+```
+
+Current preview image:
+
+![Zync preview](frontend/src/assets/hero.png)
+
+If you add a new screenshot, keep the file size reasonable and prefer PNG or WebP for UI captures.
+
+System architecture photo:
+
+![Zync system architecture](documents/Screenshot%202026-05-03%20at%203.52.13%E2%80%AFAM.png)
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart TD
+	A[Operator Input\nDeposit profile · logs · survey PDFs] --> B[Frontend · React + Vite]
+	B --> C[AGENT 0 · Router]
+	C --> D[AGENT 1 · Historian\nNeo4j GraphRAG]
+	C --> E[AGENT 2 · Chemist\nStreaming SciGLM reasoning]
+	C --> F[AGENT 3 · Optimizer\nLive GLM iteration loop]
+	C --> G[AGENT 4 · Compliance\nQdrant hybrid search]
+	C --> H[AGENT 6 · Zone Prioritiser\n5-step scoring]
+	D -. queries .-> L[(Neo4j)]
+	F -. writes .-> M[(PostgreSQL)]
+	G -. searches .-> N[(Qdrant)]
+	E --> I[AGENT 5 · Report Writer\nBilingual BM + EN]
+	D --> I
+	F --> I
+	G --> I
+	H --> I
+	I --> J[Decision output\nReasoning trace · ESG badge · PDF]
+```
+
+The main idea is that every user action is routed through the backend agents, which pull from the graph, rules, and optimization data before producing the final recommendation.
+
+---
+
 ## GLM Capability Layers
 
 | Capability | Where it's used |
 |---|---|
 | Streaming `reasoning_content` | Agent 2 — chemistry thinking visible token by token |
 | Function calling | Agent 2 — lixiviant knowledge base lookup mid-reasoning |
-| Long context (202K tokens) | Agent 1 — ingests entire geological survey PDFs |
+| Long context (202K tokens) | Agent 1 — ingests geological survey PDFs |
 | JSON structured output | All agents — no freeform text, every output is typed |
 | Bahasa Malaysia output | Agent 4 + Agent 6 — compliance and zone ranking in BM |
 | Multi-variable scoring | Agent 6 — 5-step framework scoring across economic, ESG, and infrastructure dimensions simultaneously |
 
 ---
 
-## System Architecture
- 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     OPERATOR INPUT                          │
-│          Deposit profile · logs · survey PDFs               │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│               AGENT 0 — ROUTER                              │
-│   Reads query · classifies intent · routes to pipeline      │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│               AGENT 1 — HISTORIAN                           │
-│   GraphRAG · Neo4j · 10 real Malaysian REE cases            │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│            AGENT 2 — CHEMIST  ★ streaming                   │
-│   SciGLM · thinking mode · function calling                 │
-│   Output: theoretical flowsheet + reasoning chain           │
-└────────────────┬────────────────────────┬───────────────────┘
-                 │      parallel          │
-                 ▼                        ▼
-┌───────────────────────┐   ┌────────────────────────────────┐
-│  AGENT 3 — OPTIMIZER  │◄─►│  AGENT 4 — COMPLIANCE          │
-│  GLM iteration loop   │   │  Qdrant hybrid search          │
-│  15 live iterations   │   │  AELB + DOE + JMG checks       │
-│  PostgreSQL SQL RAG   │   │  Pass/fail per regulation      │
-└───────────┬───────────┘   └──────────────┬─────────────────┘
-            └───────────────┬───────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│            AGENT 6 — ZONE PRIORITISER                       │
-│   5-step scoring: HREE value · ESG · infrastructure         │
-│   13MP alignment · ranked recommendation in BM + EN         │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│            AGENT 5 — REPORT WRITER                          │
-│   Bilingual BM + EN · PDF export · SFILES 2.0               │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          ▼
-     Decision card · ESG badge · Reasoning block · PDF
- 
-DATA LAYER
-  Neo4j (GraphRAG) · PostgreSQL (SQL RAG) · Qdrant (hybrid search)
- 
-STREAMING — KILLER FEATURE
-  FastAPI SSE · Agent 2 reasoning_content streams token by token
-```
- 
----
-
 ## Agent Pipeline
 
-```
+```text
 Decision 1 & 2 — POST /api/pipeline
 ─────────────────────────────────────
 Agent 0  Router          Classifies request, routes to correct pipeline
@@ -140,7 +129,7 @@ Agent 5  Report Writer   Bilingual BM + EN report, PDF export
 Decision 3 — POST /api/zone
 ─────────────────────────────────────
 Agent 6  Zone Prioritiser   5-step scoring: HREE value, ESG, infrastructure
-                            Outputs ranked investment recommendation in BM + EN
+							Outputs ranked investment recommendation in BM + EN
 ```
 
 ---
@@ -165,47 +154,53 @@ Agent 6  Zone Prioritiser   5-step scoring: HREE value, ESG, infrastructure
 - GLM API key from [console.ilmu.ai](https://console.ilmu.ai) or [z.ai](https://z.ai)
 
 ### 1. Configure environment
+
 ```bash
-cp .env.example .env
-# Open .env and set:
+cp .env.example backend/.env
+# Open backend/.env and set:
 # GLM_API_KEY=your_key_here
 # GLM_MODEL=ILMU-GLM-5.1
 # GLM_URL=https://api.ilmu.ai/v1/chat/completions
 ```
 
 ### 2. Start everything
+
 ```bash
 docker compose up --build
 ```
+
 - Backend API → `http://localhost:8000`
 - Frontend → `http://localhost:5173`
 - API docs → `http://localhost:8000/docs`
 - Neo4j browser → `http://localhost:7474`
 
 ### 3. Seed databases (first run only)
+
 ```bash
 # Seed Neo4j with Malaysian REE historical cases
 curl -X POST http://localhost:8000/api/admin/seed \
-  -H "X-Admin-Secret: zync-admin"
+	-H "X-Admin-Secret: zync-admin"
 
-# Seed Qdrant with regulatory documents (downloads embedding model ~50MB)
+# Seed Qdrant with regulatory documents
 curl -X POST http://localhost:8000/api/admin/seed-qdrant \
-  -H "X-Admin-Secret: zync-admin"
+	-H "X-Admin-Secret: zync-admin"
 
 # Verify both are ready
 curl http://localhost:8000/api/admin/status \
-  -H "X-Admin-Secret: zync-admin"
+	-H "X-Admin-Secret: zync-admin"
 ```
 
 Expected output:
+
 ```json
 {
-  "neo4j":  { "cases_in_graph": 10, "ready": true },
-  "qdrant": { "regulations_count": 6, "ready": true }
+	"neo4j": { "cases_in_graph": 10, "ready": true },
+	"qdrant": { "regulations_count": 6, "ready": true }
 }
 ```
 
 ### 4. Daily startup
+
 ```bash
 docker compose up
 # Stop with: docker compose down
@@ -241,36 +236,38 @@ Zync's scientific reasoning is validated against 5 published Malaysian REE sourc
 | Insufficient data handling | Returns low confidence | OECD AI Principles 2023 |
 
 Run validation:
+
 ```bash
 curl -X POST http://localhost:8000/api/validate \
-  -H "Content-Type: application/json" \
-  -d '{}'
+	-H "Content-Type: application/json" \
+	-d '{}'
 ```
 
 ---
 
 ## Project Structure
 
-```
+```text
 Zync/
 ├── backend/
 │   ├── agents/          # Agent 0-6 — one file per agent
 │   ├── prompts/         # System prompts for each GLM agent
 │   ├── rag/             # GraphRAG, SQL RAG, hybrid search
 │   ├── tools/           # Lixiviant KB, DOE checker, PDF extractor
-│   ├── routes/          # API endpoints
-│   ├── schemas/         # Pydantic input/output models
-│   └── db/              # Neo4j, PostgreSQL, Qdrant clients
-├── frontend/
-│   └── src/
-│       ├── pages/       # Pipeline, Results, Validate
-│       └── components/  # ReasoningStream, DecisionCard, ESGBadge
+│   └── tests/           # Validation and backend tests
 ├── data/
 │   ├── known_cases/     # Malaysian REE historical cases (Neo4j seed)
 │   ├── lixiviant_kb/    # Lixiviant knowledge base + DOE rules
 │   ├── sample_deposits/ # Demo deposit profiles
 │   └── validation/      # 5 known answer tests
+├── documents/           # Proposal, deployment plan, QATD, demo deck
+├── frontend/
+│   └── src/
+│       ├── components/  # UI, layout, trust, landing
+│       ├── hooks/       # Data fetching and streaming hooks
+│       └── modules/     # Diagnosis, Lixiviant, Zone Strategy
 ├── docker-compose.yml
+├── .env.example
 ├── CLAUDE.md            # Developer guide
 └── README.md
 ```
