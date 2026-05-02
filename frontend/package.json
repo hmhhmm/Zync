@@ -13,6 +13,8 @@
     "@tailwindcss/vite": "^4.2.2",
     "deck.gl": "^9.3.2",
     "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.8.0",
     "maplibre-gl": "^5.24.0",
     "react": "^19.2.5",
