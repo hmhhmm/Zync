@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Map, { useControl } from 'react-map-gl/maplibre';
+import Map, { Source, Layer, useControl } from 'react-map-gl/maplibre';
 import maplibregl from 'maplibre-gl';
-import { MapboxOverlay } from '@deck.gl/mapbox';
-import { HeatmapLayer } from '@deck.gl/aggregation-layers';
-import { ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 import { Loader2, Layers } from 'lucide-react';
 import { DARK_MAP_STYLE } from './mapStyles';
 
@@ -49,13 +46,6 @@ function scoreToColor(score) {
   return [0, 220, 255, alpha];
 }
 
-// Wires deck.gl into the react-map-gl/maplibre Map via useControl
-function DeckGLOverlay(props) {
-  const overlay = useControl(() => new MapboxOverlay({ interleaved: false, ...props }));
-  overlay.setProps(props);
-  return null;
-}
-
 export default function REEMapViz({ zones = [], height = 480, className = '' }) {
   const mapRef = useRef(null); // exposed for future Three.js viewport sync
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
@@ -73,6 +63,7 @@ export default function REEMapViz({ zones = [], height = 480, className = '' }) 
         return r.json();
       })
       .then(raw => {
+        console.log('Loaded', raw.length, 'Malaysia REE deposits');
         setReeData(raw);
         setIsLoading(false);
       })
@@ -83,72 +74,22 @@ export default function REEMapViz({ zones = [], height = 480, className = '' }) 
   }, []);
 
   const filteredData = useMemo(() => {
-    return reeData.filter(d => {
-      const [, , status, depType] = d;
-      const statusOk =
-        filterStatus === 'all' ||
-        status === filterStatus ||
-        status === filterStatus + '(?)';
-      const depOk =
-        filterDepType === 'all' ||
-        depType === filterDepType ||
-        depType.startsWith(filterDepType);
-      return statusOk && depOk;
-    });
-  }, [reeData, filterStatus, filterDepType]);
+    return reeData; // No filtering, show all data
+  }, [reeData]);
 
-  const heatmapLayer = new HeatmapLayer({
-    id: 'ree-heatmap',
-    data: filteredData,
-    getPosition: d => [d[0], d[1]],
-    getWeight: 1,
-    radiusPixels: 40,
-    intensity: 1.6,
-    threshold: 0.05,
-    colorRange: HEATMAP_COLOR_RANGE,
-    aggregation: 'SUM',
-    pickable: false,
-  });
-
-  const zoneLayer = new ScatterplotLayer({
-    id: 'zone-pins',
-    data: zones,
-    getPosition: d => [d.lng, d.lat],
-    getRadius: 9000,
-    getFillColor: d => scoreToColor(d.score ?? 50),
-    getLineColor: [0, 240, 255, 220],
-    lineWidthMinPixels: 1.5,
-    stroked: true,
-    filled: true,
-    pickable: true,
-    autoHighlight: true,
-    highlightColor: [0, 240, 255, 60],
-    onClick: info => {
-      if (info.object) {
-        setViewState(v => ({
-          ...v,
-          longitude: info.object.lng,
-          latitude: info.object.lat,
-          zoom: 9,
-          transitionDuration: 1200,
-        }));
-      }
-    },
-    onHover: info => setHoverInfo(info.object ? info : null),
-  });
-
-  const zoneLabelLayer = new TextLayer({
-    id: 'zone-labels',
-    data: zones,
-    getPosition: d => [d.lng, d.lat],
-    getText: d => d.name,
-    getSize: 11,
-    getColor: [255, 255, 255, 200],
-    getPixelOffset: [0, -20],
-    fontFamily: '"IBM Plex Mono", monospace',
-    fontWeight: 500,
-    pickable: false,
-  });
+  // Convert array data to GeoJSON FeatureCollection
+  const depositsGeoJSON = useMemo(() => {
+    console.log('Creating GeoJSON with', filteredData.length, 'features');
+    return {
+      type: 'FeatureCollection',
+      features: filteredData.map((d, i) => ({
+        type: 'Feature',
+        id: i,
+        geometry: { type: 'Point', coordinates: [d[0], d[1]] },
+        properties: { name: d[2], type: d[3] },
+      })),
+    };
+  }, [filteredData]);
 
   return (
     <div
@@ -213,7 +154,46 @@ export default function REEMapViz({ zones = [], height = 480, className = '' }) 
           style={{ width: '100%', height: '100%' }}
           aria-label="REE deposit map"
         >
-          <DeckGLOverlay layers={[heatmapLayer, zoneLayer, zoneLabelLayer]} />
+          {/* Deposits layer */}
+          <Source id="deposits" type="geojson" data={depositsGeoJSON}>
+            <Layer
+              id="deposits-layer"
+              type="circle"
+              paint={{
+                'circle-radius': 5,
+                'circle-color': '#00c8f0',
+                'circle-opacity': 0.9,
+                'circle-stroke-color': '#00f0ff',
+                'circle-stroke-width': 1,
+              }}
+            />
+          </Source>
+
+          {/* Zone pins layer */}
+          <Source
+            id="zones"
+            type="geojson"
+            data={{
+              type: 'FeatureCollection',
+              features: zones.map(z => ({
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [z.lng, z.lat] },
+                properties: { name: z.name, score: z.score },
+              })),
+            }}
+          >
+            <Layer
+              id="zones-layer"
+              type="circle"
+              paint={{
+                'circle-radius': 7,
+                'circle-color': ['interpolate', ['linear'], ['get', 'score'], 0, '#ff0080', 100, '#00f0ff'],
+                'circle-opacity': 1,
+                'circle-stroke-color': '#00f0ff',
+                'circle-stroke-width': 1.5,
+              }}
+            />
+          </Source>
         </Map>
       )}
 
