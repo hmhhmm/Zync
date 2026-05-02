@@ -229,8 +229,29 @@ export default function useZoneStrategy() {
     // Build zone cards from result
     const mapped = [];
     if (result.recommended) mapped.push(buildZoneCard(result.recommended, 1, false, SAMPLE_INPUT_ZONES));
-    if (result.secondary)   mapped.push(buildZoneCard(result.secondary,   2, false, SAMPLE_INPUT_ZONES));
-    if (result.tertiary)    mapped.push(buildZoneCard(result.tertiary,    3, true, SAMPLE_INPUT_ZONES));
+
+    // Handle secondary as array or single object
+    if (result.secondary) {
+      if (Array.isArray(result.secondary)) {
+        result.secondary.forEach((zone, idx) => {
+          mapped.push(buildZoneCard(zone, mapped.length + 1, false, SAMPLE_INPUT_ZONES));
+        });
+      } else {
+        mapped.push(buildZoneCard(result.secondary, 2, false, SAMPLE_INPUT_ZONES));
+      }
+    }
+
+    // Handle tertiary as array or single object
+    if (result.tertiary) {
+      if (Array.isArray(result.tertiary)) {
+        result.tertiary.forEach((zone, idx) => {
+          mapped.push(buildZoneCard(zone, mapped.length + 1, false, SAMPLE_INPUT_ZONES));
+        });
+      } else {
+        mapped.push(buildZoneCard(result.tertiary, 3, false, SAMPLE_INPUT_ZONES));
+      }
+    }
+
     if (result.rejected) {
       result.rejected.forEach((zone, idx) => {
         mapped.push(buildZoneCard(zone, mapped.length + 1, true, SAMPLE_INPUT_ZONES));
@@ -298,8 +319,29 @@ export default function useZoneStrategy() {
             const inputZones = (request ?? SAMPLE_ZONE_REQUEST).zones ?? [];
             const mapped = [];
             if (evt.result.recommended) mapped.push(buildZoneCard(evt.result.recommended, 1, false, inputZones));
-            if (evt.result.secondary)   mapped.push(buildZoneCard(evt.result.secondary,   2, false, inputZones));
-            if (evt.result.tertiary)    mapped.push(buildZoneCard(evt.result.tertiary,    3, true, inputZones));
+
+            // Handle secondary as array or single object
+            if (evt.result.secondary) {
+              if (Array.isArray(evt.result.secondary)) {
+                evt.result.secondary.forEach((zone, idx) => {
+                  mapped.push(buildZoneCard(zone, mapped.length + 1, false, inputZones));
+                });
+              } else {
+                mapped.push(buildZoneCard(evt.result.secondary, 2, false, inputZones));
+              }
+            }
+
+            // Handle tertiary as array or single object
+            if (evt.result.tertiary) {
+              if (Array.isArray(evt.result.tertiary)) {
+                evt.result.tertiary.forEach((zone, idx) => {
+                  mapped.push(buildZoneCard(zone, mapped.length + 1, false, inputZones));
+                });
+              } else {
+                mapped.push(buildZoneCard(evt.result.tertiary, 3, false, inputZones));
+              }
+            }
+
             if (evt.result.rejected) {
               evt.result.rejected.forEach((zone, idx) => {
                 mapped.push(buildZoneCard(zone, mapped.length + 1, true, inputZones));

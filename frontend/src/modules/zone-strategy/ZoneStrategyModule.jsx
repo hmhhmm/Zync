@@ -121,7 +121,7 @@ export default function ZoneStrategyModule() {
     <section className="panel panel-pad grid gap-6" id="zone-strategy-module">
       <ModuleHero
         step="03"
-        eyebrow="Agent 06 · Zone Prioritiser + GraphRAG"
+        eyebrow="All 6 agents· Zone Prioritiser + GraphRAG"
         title="Zone Prioritization"
         lead="Agent 6 scores zones across Economic, ESG, Strategic (13MP HREE), and Infrastructure dimensions."
         meta={isValidating ? 'Running POST /api/validate…' : isLoading ? 'Streaming POST /api/zone…' : null}
@@ -229,7 +229,7 @@ export default function ZoneStrategyModule() {
                     </header>
 
                     <p className="text-[13px] text-white/60 leading-relaxed max-w-[68ch]">{zone.description}</p>
-                    {zone.scores && <ScoreBreakdown scores={zone.scores} language={language} />}
+                    {!isLoading && zone.scores && <ScoreBreakdown scores={zone.scores} language={language} />}
 
                     <dl className="zone-meta zone-section">
                       <div><dt className="zone-meta__label">TREO grade</dt><dd className="zone-meta__value">{zone.treo_grade}</dd></div>
@@ -282,34 +282,36 @@ export default function ZoneStrategyModule() {
                   <p className="terminal__text terminal__text--output mt-3" style={{ fontSize: 12, lineHeight: 1.75, whiteSpace: 'pre-line', margin: 0, marginTop: 12 }}>{summaryBM.content}</p>
                 </div>
 
-                <div className="panel-inset" id="methodology-card" style={{ padding: '20px 24px' }}>
-                  <p className="muted-kicker mb-3">{t.zonePortfolioScores}</p>
-                  <div className="grid gap-2">
-                    {zones.length > 0 && (() => {
-                      const dims = [
-                        { key: 'economic', label: 'Economic', color: 'var(--color-accent)' },
-                        { key: 'strategic', label: 'Strategic', color: '#34d399' },
-                        { key: 'esg_risk', label: 'ESG Risk', color: '#fbd38d' },
-                        { key: 'infra', label: 'Infrastructure', color: '#38bdf8' },
-                      ];
-                      return dims.map((dim) => {
-                        const scores = zones.filter(z => z.scores?.[dim.key]).map(z => z.scores[dim.key]);
-                        const mean = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-                        return (
-                          <div key={dim.key} className="panel-inset--soft px-4 py-3">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-white/85 text-[13px]">{dim.label}</span>
-                              <span className="font-mono font-semibold text-[13px]" style={{ color: dim.color }}>{mean}/100</span>
+                {!isLoading && (
+                  <div className="panel-inset" id="methodology-card" style={{ padding: '20px 24px' }}>
+                    <p className="muted-kicker mb-3">{t.zonePortfolioScores}</p>
+                    <div className="grid gap-2">
+                      {zones.length > 0 && (() => {
+                        const dims = [
+                          { key: 'economic', label: 'Economic', color: 'var(--color-accent)' },
+                          { key: 'strategic', label: 'Strategic', color: '#34d399' },
+                          { key: 'esg_risk', label: 'ESG Risk', color: '#fbd38d' },
+                          { key: 'infra', label: 'Infrastructure', color: '#38bdf8' },
+                        ];
+                        return dims.map((dim) => {
+                          const scores = zones.filter(z => z.scores?.[dim.key]).map(z => z.scores[dim.key]);
+                          const mean = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+                          return (
+                            <div key={dim.key} className="panel-inset--soft px-4 py-3">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-white/85 text-[13px]">{dim.label}</span>
+                                <span className="font-mono font-semibold text-[13px]" style={{ color: dim.color }}>{mean}/100</span>
+                              </div>
+                              <div className="score-bar-track">
+                                <div className="score-bar-fill" style={{ width: `${mean}%`, background: dim.color }} />
+                              </div>
                             </div>
-                            <div className="score-bar-track">
-                              <div className="score-bar-fill" style={{ width: `${mean}%`, background: dim.color }} />
-                            </div>
-                          </div>
-                        );
-                      });
-                    })()}
+                          );
+                        });
+                      })()}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="panel-inset" id="validation-card" style={{ padding: '20px 24px' }}>
                   <div className="flex items-center justify-between mb-3">
