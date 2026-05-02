@@ -11,9 +11,7 @@ const AGENTS = [
   { id: 6, label: 'Zone Scorer', sub: 'Economic · ESG · Strategic · Infra', critical: true },
 ];
 
-export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline', variant = 'full' }) {
-  const activeSet = new Set(activeIds);
-  const isActive = (id) => activeSet.has(id);
+export default function AgentPipeline({ activeIds, title = 'Agent Pipeline', variant = 'full' }) {
 
   const renderNode = (agent) => (
     <div
@@ -34,13 +32,16 @@ export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline'
 
   // Map the variant to the agents actually displayed on screen for accurate counting
   const displayConfigs = {
-    diagnosis: [0, 1, 2], // Exactly the 3 you wanted
-    lixiviant: [2, 3, 4],
-    zone: [0, 1, 6],
+    diagnosis: [0, 2],
+    lixiviant: [0, 1, 2, 3, 4],
+    zone: [0, 1, 2, 3, 4, 6, 5],
     full: [0, 1, 2, 3, 4, 5, 6]
   };
 
   const displayedAgentIds = displayConfigs[variant] || displayConfigs.full;
+  // If no activeIds provided, all agents in this variant are active
+  const activeSet = new Set(activeIds ?? displayedAgentIds);
+  const isActive = (id) => activeSet.has(id);
   const visibleActiveCount = displayedAgentIds.filter(id => activeSet.has(id)).length;
 
   // Render the specific arrangement based on the variant prop
@@ -52,46 +53,53 @@ export default function AgentPipeline({ activeIds = [], title = 'Agent Pipeline'
           <>
             {renderNode(AGENTS[0])}
             {arrow('diag0')}
-            {renderNode(AGENTS[1])}
-            {arrow('diag1')}
             {renderNode(AGENTS[2])}
           </>
         );
 
       case 'lixiviant':
-        // Clean layout: Label sits naturally above the flow, no bounding box or borders
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            
-            <span className="mono-meta" style={{ 
-              color: 'var(--color-accent)', display: 'flex', alignItems: 'center', gap: '6px' 
+            <span className="mono-meta" style={{
+              color: 'var(--color-accent)', display: 'flex', alignItems: 'center', gap: '6px'
             }}>
               <RefreshCcw size={11} /> Iterative Optimization Loop
             </span>
-            
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {renderNode(AGENTS[0])}
+              {arrow('lix0')}
+              {renderNode(AGENTS[1])}
+              {arrow('lix1')}
               {renderNode(AGENTS[2])}
               {arrow('lix2')}
-              
               <div className="agent-parallel">
                 {renderNode(AGENTS[3])}
                 {renderNode(AGENTS[4])}
                 <span className="agent-parallel__bracket" aria-hidden />
               </div>
             </div>
-
           </div>
         );
 
       case 'zone':
         return (
-          <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {renderNode(AGENTS[0])}
             {arrow('z0')}
             {renderNode(AGENTS[1])}
             {arrow('z1')}
+            {renderNode(AGENTS[2])}
+            {arrow('z2')}
+            <div className="agent-parallel">
+              {renderNode(AGENTS[3])}
+              {renderNode(AGENTS[4])}
+              <span className="agent-parallel__bracket" aria-hidden />
+            </div>
+            {arrow('z3')}
             {renderNode(AGENTS[6])}
-          </>
+            {arrow('z4')}
+            {renderNode(AGENTS[5])}
+          </div>
         );
 
       case 'full':

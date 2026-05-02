@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { runDiagnosis } from '../api/client';
+import { runDiagnosis, uploadGeologicalPdf } from '../api/client';
 import {
   DEMO_DIAGNOSIS_REASONING,
   DEMO_DIAGNOSIS_RESULT,
@@ -114,25 +114,26 @@ export default function useDiagnosis() {
     setIsLive(false);
 
     let reasoningBuf = '';
-    let outputBuf = '';
 
     try {
       await runDiagnosis(request, {
         signal: controller.signal,
         onEvent: (evt) => {
-          if (evt.type === 'reasoning' && evt.text) {
+          // GLM has no separate reasoning trace — route output tokens to the
+          // reasoning panel so the user sees the generation live, same as demo.
+          if (evt.type === 'output' && evt.text) {
             reasoningBuf += evt.text;
             if (isMountedRef.current) setStreamingReasoning(reasoningBuf);
-          }
-          if (evt.type === 'output' && evt.text) {
-            outputBuf += evt.text;
-            if (isMountedRef.current) setStreamingOutput(outputBuf);
           }
           if (evt.status === 'done' && evt.diagnosis) {
             if (isMountedRef.current) {
               setDiagnosis(evt.diagnosis);
+              setStreamingOutput(JSON.stringify(evt.diagnosis, null, 2));
               setIsLive(true);
             }
+          }
+          if (evt.status === 'error' && isMountedRef.current) {
+            setError(evt.message || 'Diagnosis agent returned an error.');
           }
         },
       });
@@ -152,26 +153,8 @@ export default function useDiagnosis() {
 
       let request = { ...DEMO_REQUEST };
 
-      if (!DEMO_MODE && file && IMAGE_TYPES.includes(file.type)) {
-        try {
-          const b64 = await readFileAsBase64(file);
-          request = {
-            ph_readings: [],
-            temperature: [],
-            yield_pct: [],
-            operator_notes: `Uploaded log image: ${file.name}`,
-            log_image_b64: b64,
-          };
-        } catch {
-          setError('Could not read image file.');
-          return;
-        }
-      } else if (!DEMO_MODE && file) {
-        request = {
-          ...DEMO_REQUEST,
-          operator_notes: `${DEMO_REQUEST.operator_notes} (File: ${file.name})`,
-        };
-      }
+      // File is accepted for UX only — model is text-only so we always send
+      // the hardcoded Perak form readings directly to GLM for analysis.
 
       await _callDiagnose(request);
     },

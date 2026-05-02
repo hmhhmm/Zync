@@ -59,8 +59,9 @@ async def call_glm(
     )
     if tools:
         kwargs["tools"] = tools
-    if json_mode:
-        kwargs["response_format"] = {"type": "json_object"}
+    # response_format disabled — see stream_glm note above
+    # if json_mode:
+    #     kwargs["response_format"] = {"type": "json_object"}
 
     response = await _client.chat.completions.create(**kwargs)
 
@@ -102,13 +103,13 @@ async def stream_glm(
     """
     kwargs = dict(
         model=GLM_MODEL,
-        max_tokens=MAX_TOKENS,
         messages=_build_messages(system_prompt, user_message, images),
-        temperature=0.1,
         stream=True,
     )
-    if json_mode:
-        kwargs["response_format"] = {"type": "json_object"}
+    # response_format disabled — model returns 400 with json_object mode
+    # agents use fallback JSON parsing in _parse_* helpers instead
+    # if json_mode:
+    #     kwargs["response_format"] = {"type": "json_object"}
 
     full_output = ""
 
@@ -123,7 +124,8 @@ async def stream_glm(
         yield {"type": "done", "output": full_output, "reasoning": ""}
 
     except Exception as e:
-        log.error(f"stream_glm error: {e}")
+        body = getattr(e, "body", None) or getattr(e, "response", None)
+        log.error(f"stream_glm error: {e} | body: {body} | kwargs_keys: {list(kwargs.keys())} | model: {GLM_MODEL}")
         yield {"type": "error", "message": str(e)}
 
 

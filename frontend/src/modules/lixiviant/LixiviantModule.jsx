@@ -8,6 +8,7 @@ import ModuleHero from '../../components/layout/ModuleHero';
 import LogicExplorer from '../../components/trust/LogicExplorer';
 import ReferencesPanel from '../../components/trust/ReferencesPanel';
 import useLixiviant from '../../hooks/useLixiviant';
+import OptimizerViz from '../../components/viz/OptimizerViz';
 
 const CLASS_COLORS = { acid: '#f97316', alkali: '#38bdf8', organic: '#34d399' };
 
@@ -291,6 +292,8 @@ export default function LixiviantModule() {
   } = useLixiviant();
 
   const [isApiSpinning, setIsApiSpinning] = useState(false);
+  const [vizView, setVizView]             = useState('chart'); // 'chart' | '3d'
+  const [vizMounted, setVizMounted]       = useState(false);
 
   const handleRunSimulation = () => {
     setIsApiSpinning(true);
@@ -420,50 +423,78 @@ export default function LixiviantModule() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
                   <div>
                     <p className="muted-kicker">Agent 03 · Optimizer + SQL RAG</p>
-                    <h3 style={{ margin: '6px 0 0', fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>Yield vs ESG Trade-off</h3>
+                    <h3 style={{ margin: '6px 0 0', fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {vizView === 'chart' ? 'Yield vs ESG Trade-off' : 'Optimization Energy Field'}
+                    </h3>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    {Object.entries(CLASS_COLORS).map(([label, color]) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {vizView === 'chart' && Object.entries(CLASS_COLORS).map(([label, color]) => (
                       <div key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
                         <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
                         {label}
                       </div>
                     ))}
+                    {/* View toggle */}
+                    <div style={{ display: 'flex', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border-soft)', flexShrink: 0 }}>
+                      {[['chart', 'Scatter'], ['3d', '3D Field']].map(([key, label]) => (
+                        <button
+                          key={key}
+                          onClick={() => { setVizView(key); if (key === '3d') setVizMounted(true); }}
+                          style={{
+                            fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.1em',
+                            padding: '5px 12px', border: 'none', cursor: 'pointer',
+                            background: vizView === key ? 'var(--color-accent)' : 'transparent',
+                            color:      vizView === key ? '#fff'               : 'var(--text-muted)',
+                            transition: 'background 0.15s, color 0.15s',
+                          }}
+                        >{label}</button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <ResponsiveContainer width="100%" height={320}>
-                  <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 5 }}>
-                    <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.07)" />
-                    <ReferenceArea x1={75} x2={90} y1={0} y2={5} fill="#7c3aed" fillOpacity={0.07} stroke="rgba(167,139,250,0.25)" strokeDasharray="3 3" />
-                    <XAxis dataKey="x" type="number" domain={[30, 90]}
-                      tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-                      axisLine={{ stroke: 'var(--border-soft)' }}
-                      label={{ value: 'Extraction Yield (%)', position: 'bottom', offset: 8, style: { fontSize: 11, fill: 'var(--text-muted)' } }}
-                    />
-                    <YAxis dataKey="y" type="number" domain={[0, 10]}
-                      tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-                      axisLine={{ stroke: 'var(--border-soft)' }}
-                      label={{ value: 'ESG Risk', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'var(--text-muted)' } }}
-                    />
-                    <Tooltip content={<CustomTooltip />} cursor={false} />
-                    <Scatter data={chartData}>
-                      {chartData.map((entry) => (
-                        <Cell
-                          key={entry.id}
-                          fill={CLASS_COLORS[entry.class]}
-                          r={entry.id === 'h2so4_naf' ? 10 : 7}
-                          stroke={entry.id === 'h2so4_naf' ? '#ddd6fe' : 'transparent'}
-                          strokeWidth={entry.id === 'h2so4_naf' ? 1.5 : 0}
-                          opacity={0.9}
-                        />
-                      ))}
-                    </Scatter>
-                  </ScatterChart>
-                </ResponsiveContainer>
-                <p className="muted-kicker" style={{ textAlign: 'center', marginTop: 4, fontSize: 10 }}>
-                  Shaded = Pareto-optimal · high yield · low ESG risk
-                </p>
+                {/* Scatter chart — hidden via display when 3D active but never unmounted once shown */}
+                <div style={{ display: vizView === 'chart' ? 'block' : 'none' }}>
+                  <ResponsiveContainer width="100%" height={320}>
+                    <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 5 }}>
+                      <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.07)" />
+                      <ReferenceArea x1={75} x2={90} y1={0} y2={5} fill="#7c3aed" fillOpacity={0.07} stroke="rgba(167,139,250,0.25)" strokeDasharray="3 3" />
+                      <XAxis dataKey="x" type="number" domain={[30, 90]}
+                        tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                        axisLine={{ stroke: 'var(--border-soft)' }}
+                        label={{ value: 'Extraction Yield (%)', position: 'bottom', offset: 8, style: { fontSize: 11, fill: 'var(--text-muted)' } }}
+                      />
+                      <YAxis dataKey="y" type="number" domain={[0, 10]}
+                        tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                        axisLine={{ stroke: 'var(--border-soft)' }}
+                        label={{ value: 'ESG Risk', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'var(--text-muted)' } }}
+                      />
+                      <Tooltip content={<CustomTooltip />} cursor={false} />
+                      <Scatter data={chartData}>
+                        {chartData.map((entry) => (
+                          <Cell
+                            key={entry.id}
+                            fill={CLASS_COLORS[entry.class]}
+                            r={entry.id === 'h2so4_naf' ? 10 : 7}
+                            stroke={entry.id === 'h2so4_naf' ? '#ddd6fe' : 'transparent'}
+                            strokeWidth={entry.id === 'h2so4_naf' ? 1.5 : 0}
+                            opacity={0.9}
+                          />
+                        ))}
+                      </Scatter>
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                  <p className="muted-kicker" style={{ textAlign: 'center', marginTop: 4, fontSize: 10 }}>
+                    Shaded = Pareto-optimal · high yield · low ESG risk
+                  </p>
+                </div>
+
+                {/* 3D energy field — lazy mount on first switch, then kept alive */}
+                {vizMounted && (
+                  <div style={{ display: vizView === '3d' ? 'block' : 'none' }}>
+                    <OptimizerViz iterations={iterations} />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

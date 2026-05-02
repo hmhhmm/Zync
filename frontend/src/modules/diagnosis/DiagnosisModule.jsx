@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircle, FileText, Loader2, Play, ShieldAlert, Upload } from 'lucide-react';
 import ModuleHero from '../../components/layout/ModuleHero';
 import useDiagnosis from '../../hooks/useDiagnosis';
@@ -173,6 +173,11 @@ export default function DiagnosisModule() {
   const [activePanel, setActivePanel] = useState(null);
   const fileInput = useRef(null);
 
+  // Auto-open reasoning panel when streaming starts so the live output is immediately visible
+  useEffect(() => {
+    if (isStreaming) setActivePanel('reasoning');
+  }, [isStreaming]);
+
   const handleDrop = useCallback((e) => {
     e.preventDefault();
     setIsDragOver(false);
@@ -270,7 +275,7 @@ export default function DiagnosisModule() {
       <DiagnosisCard diagnosis={diagnosis} />
 
       {/* Debug panel toggles */}
-      {diagnosis && (
+      {(diagnosis || isStreaming || streamingReasoning) && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {[
@@ -290,6 +295,7 @@ export default function DiagnosisModule() {
                     background: 'rgba(124,58,237,0.12)',
                     borderColor: 'rgba(124,58,237,0.35)',
                     color: 'var(--color-accent)',
+                    scrollbarColor: 'rgba(124,58,237,0.35) transparent',
                   } : {}),
                 }}
               >

@@ -51,6 +51,8 @@ root_cause must be a short label e.g. "Rainfall infiltration — pH dilution eve
 root_cause_detail must be 1–2 sentences explaining the mechanism.
 anomaly_at must identify when/where e.g. "Day 2, pH reading 3" or "Hour 14".
 primary_action must be a single actionable instruction e.g. "Halt leaching circuit, re-adjust pH to 4.2 before resuming."
-next_steps must be 2–3 concrete follow-up actions.
+next_steps must be 2–5 concrete follow-up actions.
 If no image is provided and readings are missing, set confidence to LOW and explain in confidence_reason.
+
+LANGUAGE: Write all string values in Bahasa Malaysia. Use formal Malay engineering terminology (e.g. "punca akar", "pematuhan", "effluent"). Only field names remain in English.
 """
