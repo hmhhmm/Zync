@@ -9,7 +9,7 @@ import {
 } from '../demo/demoData';
 import { streamText, delay } from '../demo/demoStream';
 
-const DEMO_MODE = true;
+const DEMO_MODE = false;
 
 const DOMAIN_REAGENTS = [
   { id: 'hcl', name: 'HCl (3M)', yield: 68.2, esgRisk: 6.8, temperature: 90, time: 6, class: 'acid', slRatio: '1:8' },

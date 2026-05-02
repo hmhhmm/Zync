@@ -6,7 +6,7 @@ import {
 } from '../demo/demoData';
 import { streamText, delay } from '../demo/demoStream';
 
-const DEMO_MODE = true;
+const DEMO_MODE = false;
 
 const DEMO_REQUEST = {
   ph_readings: [5.2, 4.8, 4.1, 3.8, 3.5, 3.2],
