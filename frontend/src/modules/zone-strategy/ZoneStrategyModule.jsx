@@ -271,11 +271,18 @@ export default function ZoneStrategyModule() {
                   <p className="muted-kicker">Sovereign Summary · Agent 05</p>
                 </div>
                 <h3 className="text-[16px] font-semibold text-white mt-2.5">{summaryBM.title}</h3>
-                {liveResult?.recommended?.confidence && (
-                  <div className="inline-flex items-center gap-2 chip chip--accent mt-2.5" style={{ fontSize: 10 }}>
-                    <BadgeCheck size={11} /> Confidence: {liveResult.recommended.confidence}
-                  </div>
-                )}
+                <div className="inline-flex items-center gap-2 flex-wrap mt-2.5">
+                  {liveResult?.recommended?.composite_score && (
+                    <div className="inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
+                      <TrendingUp size={11} /> Score: {liveResult.recommended.composite_score}/100
+                    </div>
+                  )}
+                  {liveResult?.recommended?.confidence && (
+                    <div className="inline-flex items-center gap-2 chip chip--accent" style={{ fontSize: 10 }}>
+                      <BadgeCheck size={11} /> Confidence: {liveResult.recommended.confidence}
+                    </div>
+                  )}
+                </div>
                 <p className="text-[13px] text-white/75 whitespace-pre-line max-w-[52ch] mt-4" style={{ lineHeight: 1.75 }}>
                   {summaryBM.content}
                 </p>

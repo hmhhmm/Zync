@@ -456,7 +456,7 @@ export default function OptimizerViz({ iterations }) {
       spawnIterationNode(
         {
           iteration:  iter.iteration ?? (processedRef.current + offset + 1),
-          parameters: { pH: parsePH(iter.pH_range), temperature: iter.temperature_C ?? 85 },
+          parameters: { pH: parsePH(iter.pH_range), temperature: iter.temperature_C ?? 90 },
           score,
           delta,
           status: iter.status ?? null,

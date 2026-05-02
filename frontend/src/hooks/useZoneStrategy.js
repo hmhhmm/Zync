@@ -225,7 +225,12 @@ export default function useZoneStrategy() {
     const mapped = [];
     if (result.recommended) mapped.push(buildZoneCard(result.recommended, 1, false, SAMPLE_INPUT_ZONES));
     if (result.secondary)   mapped.push(buildZoneCard(result.secondary,   2, false, SAMPLE_INPUT_ZONES));
-    if (result.deferred)    mapped.push(buildZoneCard(result.deferred,    mapped.length + 1, true, SAMPLE_INPUT_ZONES));
+    if (result.tertiary)    mapped.push(buildZoneCard(result.tertiary,    3, true, SAMPLE_INPUT_ZONES));
+    if (result.rejected) {
+      result.rejected.forEach((zone, idx) => {
+        mapped.push(buildZoneCard(zone, mapped.length + 1, true, SAMPLE_INPUT_ZONES));
+      });
+    }
     if (mapped.length > 0) setZones(mapped);
 
     if (result.recommended) {
@@ -289,7 +294,12 @@ export default function useZoneStrategy() {
             const mapped = [];
             if (evt.result.recommended) mapped.push(buildZoneCard(evt.result.recommended, 1, false, inputZones));
             if (evt.result.secondary)   mapped.push(buildZoneCard(evt.result.secondary,   2, false, inputZones));
-            if (evt.result.deferred)    mapped.push(buildZoneCard(evt.result.deferred,    mapped.length + 1, true, inputZones));
+            if (evt.result.tertiary)    mapped.push(buildZoneCard(evt.result.tertiary,    3, true, inputZones));
+            if (evt.result.rejected) {
+              evt.result.rejected.forEach((zone, idx) => {
+                mapped.push(buildZoneCard(zone, mapped.length + 1, true, inputZones));
+              });
+            }
             if (mapped.length > 0) setZones(mapped);
 
             if (evt.result.recommended) {

@@ -119,7 +119,7 @@ function DiagnosisCard({ diagnosis }) {
 function DebugPanel({ activePanel, streamingReasoning, streamingOutput }) {
   if (!activePanel) return null;
   return (
-    <div className="panel-inset" style={{ padding: '18px 20px', maxHeight: 220, overflowY: 'auto' }}>
+    <div className="panel-inset" style={{ padding: '18px 20px', maxHeight: 220, overflowY: 'auto', scrollbarColor: 'rgba(124,58,237,0.35) transparent' }}>
       {activePanel === 'reasoning' && (
         <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--text-muted)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
           {streamingReasoning || 'No reasoning captured.'}
@@ -295,7 +295,6 @@ export default function DiagnosisModule() {
                     background: 'rgba(124,58,237,0.12)',
                     borderColor: 'rgba(124,58,237,0.35)',
                     color: 'var(--color-accent)',
-                    scrollbarColor: 'rgba(124,58,237,0.35) transparent',
                   } : {}),
                 }}
               >

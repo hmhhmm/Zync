@@ -96,7 +96,7 @@ function AgentTerminal({ reasoning, isStreaming }) {
 }
 /* ─── Iteration table ─── */
 function IterationPanel({ iterations, iterationsRun, converged, isLoading }) {
-  const TOTAL = 12;
+  const TOTAL = 30;
   const pct = iterations.length > 0 ? Math.round((iterations.length / TOTAL) * 100) : 0;
   
   const scrollRef = useRef(null);

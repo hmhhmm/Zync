@@ -76,7 +76,6 @@ export default function App() {
   }
 
   const moduleConfig = MODULES[activeModule] ?? MODULES.diagnosis;
-  const ActiveModule = moduleConfig.component;
 
   return (
     <div className={`console-shell transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
@@ -106,9 +105,18 @@ export default function App() {
               variant={moduleConfig.variant}
             />
 
-            <div key={activeModule} className="animate-[fade-in_0.35s_ease-out_forwards]">
-              <ActiveModule />
-            </div>
+            {Object.entries(MODULES).map(([moduleKey, config]) => {
+              const ModuleComponent = config.component;
+              const isActive = activeModule === moduleKey;
+              return (
+                <div
+                  key={moduleKey}
+                  style={{ display: isActive ? 'block' : 'none' }}
+                >
+                  <ModuleComponent />
+                </div>
+              );
+            })}
           </main>
         </div>
       </div>

@@ -135,8 +135,26 @@ export const DEMO_ITERATIONS = [
   { iteration: 8,  pH_range: '4.0–4.6', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 4, yield_pct: 81.1, thorium_ppm: 0.17, status: 'improved' },
   { iteration: 9,  pH_range: '4.0–4.6', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 3, yield_pct: 79.8, thorium_ppm: 0.19, status: 'stable' },
   { iteration: 10, pH_range: '4.0–4.6', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 4, yield_pct: 81.3, thorium_ppm: 0.17, status: 'improved' },
-  { iteration: 11, pH_range: '4.2–4.8', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 4, yield_pct: 81.6, thorium_ppm: 0.16, status: 'converged' },
-  { iteration: 12, pH_range: '4.2–4.8', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 4, yield_pct: 81.6, thorium_ppm: 0.16, status: 'converged' },
+  { iteration: 11, pH_range: '4.2–4.8', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 4, yield_pct: 81.6, thorium_ppm: 0.16, status: 'improved' },
+  { iteration: 12, pH_range: '4.2–4.8', concentration_M: 2.4, temperature_C: 90, contact_time_hrs: 4, yield_pct: 81.8, thorium_ppm: 0.15, status: 'improved' },
+  { iteration: 13, pH_range: '4.1–4.7', concentration_M: 2.5, temperature_C: 92, contact_time_hrs: 4, yield_pct: 82.1, thorium_ppm: 0.14, status: 'improved' },
+  { iteration: 14, pH_range: '4.1–4.7', concentration_M: 2.5, temperature_C: 92, contact_time_hrs: 3.5, yield_pct: 82.3, thorium_ppm: 0.13, status: 'improved' },
+  { iteration: 15, pH_range: '4.1–4.7', concentration_M: 2.6, temperature_C: 92, contact_time_hrs: 3.5, yield_pct: 82.5, thorium_ppm: 0.13, status: 'improved' },
+  { iteration: 16, pH_range: '4.0–4.6', concentration_M: 2.6, temperature_C: 94, contact_time_hrs: 3.5, yield_pct: 82.7, thorium_ppm: 0.12, status: 'improved' },
+  { iteration: 17, pH_range: '4.0–4.6', concentration_M: 2.6, temperature_C: 94, contact_time_hrs: 3, yield_pct: 82.9, thorium_ppm: 0.11, status: 'improved' },
+  { iteration: 18, pH_range: '4.0–4.6', concentration_M: 2.7, temperature_C: 94, contact_time_hrs: 3, yield_pct: 83.1, thorium_ppm: 0.10, status: 'improved' },
+  { iteration: 19, pH_range: '4.0–4.6', concentration_M: 2.7, temperature_C: 96, contact_time_hrs: 3, yield_pct: 83.3, thorium_ppm: 0.10, status: 'improved' },
+  { iteration: 20, pH_range: '3.9–4.5', concentration_M: 2.7, temperature_C: 96, contact_time_hrs: 2.8, yield_pct: 83.4, thorium_ppm: 0.09, status: 'stable' },
+  { iteration: 21, pH_range: '3.9–4.5', concentration_M: 2.8, temperature_C: 96, contact_time_hrs: 2.8, yield_pct: 83.6, thorium_ppm: 0.09, status: 'improved' },
+  { iteration: 22, pH_range: '3.9–4.5', concentration_M: 2.8, temperature_C: 98, contact_time_hrs: 2.8, yield_pct: 83.7, thorium_ppm: 0.08, status: 'improved' },
+  { iteration: 23, pH_range: '3.9–4.5', concentration_M: 2.8, temperature_C: 98, contact_time_hrs: 2.5, yield_pct: 83.8, thorium_ppm: 0.08, status: 'stable' },
+  { iteration: 24, pH_range: '3.8–4.4', concentration_M: 2.9, temperature_C: 98, contact_time_hrs: 2.5, yield_pct: 83.9, thorium_ppm: 0.07, status: 'improved' },
+  { iteration: 25, pH_range: '3.8–4.4', concentration_M: 2.9, temperature_C: 100, contact_time_hrs: 2.5, yield_pct: 84.0, thorium_ppm: 0.07, status: 'improved' },
+  { iteration: 26, pH_range: '3.8–4.4', concentration_M: 2.9, temperature_C: 100, contact_time_hrs: 2.3, yield_pct: 84.1, thorium_ppm: 0.06, status: 'improved' },
+  { iteration: 27, pH_range: '3.8–4.4', concentration_M: 3.0, temperature_C: 100, contact_time_hrs: 2.3, yield_pct: 84.2, thorium_ppm: 0.06, status: 'improved' },
+  { iteration: 28, pH_range: '3.8–4.4', concentration_M: 3.0, temperature_C: 102, contact_time_hrs: 2.3, yield_pct: 84.2, thorium_ppm: 0.05, status: 'stable' },
+  { iteration: 29, pH_range: '3.7–4.3', concentration_M: 3.0, temperature_C: 102, contact_time_hrs: 2.1, yield_pct: 84.3, thorium_ppm: 0.05, status: 'converged' },
+  { iteration: 30, pH_range: '3.7–4.3', concentration_M: 3.0, temperature_C: 102, contact_time_hrs: 2.1, yield_pct: 84.3, thorium_ppm: 0.05, status: 'converged' },
 ];
 
 export const DEMO_COMPLIANCE = {
@@ -240,84 +258,102 @@ Untuk kegunaan kejuruteraan sahaja · Bukan nasihat perundangan
 
 export const DEMO_ZONE_REASONING = `Saya menilai tiga zon mengikut kerangka pemarkahan MCDA Zync...
 
-ANALISIS ZON A (ree_grade=800ppm, hree=45%, river=450m, road=moderate, dist=12km):
-  Ekonomi: gred sederhana (800ppm → ~16/30), LREE-dominan
-  ESG: jarak sungai 450m → < 500m → EIA wajib → penalti sederhana
-  Strategik: HREE 45% — di bawah ambang 60% → tiada premium 13MP
-  Infra: jalan sederhana (60/100), jarak 12km → penalti +2
+ANALISIS PAHANG LAMP CORRIDOR (ree_grade=1500ppm, hree=50%, river=450m, road=sealed, dist=10km):
+  Ekonomi: gred sederhana-tinggi (1500ppm → ~22/30), dekat dengan Lynas
+  ESG: jarak sungai 450m → < 500m → EIA wajib → penalti sederhana, tapi teruji dengan baseline Lynas
+  Strategik: HREE 50% — hampir ambang 60% → premium 13MP partikal
+  Infra: jalan berturap (85/100), jarak sederhana 10km → penalti kecil
 
-ZON B (ree_grade=1200ppm, hree=65%, river=650m, road=sealed, dist=8km):
-  Ekonomi: gred tinggi (1200ppm → 87/100 ekonomi)
+PERAK TIN TAILINGS BELT (ree_grade=2000ppm, hree=65%, river=650m, road=highway, dist=8km):
+  Ekonomi: gred tinggi (2000ppm → 94/100 ekonomi), monazit kaya
   ESG: jarak sungai 650m → melebihi 500m → tiada EIA wajib → skor ESG bersih
   Strategik: HREE 65% > 60% → PREMIUM 13MP aktif (Dy, Y, Tb diutamakan)
-  Infra: jalan berturap (90/100), jarak 8km → tiada penalti
-  → TERBAIK: skor komposit 84
+  Infra: jalan utama (96/100), jarak singkat 8km → tiada penalti
+  → TERBAIK: skor komposit 94
 
-ZON C (ree_grade=600ppm, hree=30%, river=180m, road=forest track, dist=22km):
-  Ekonomi: gred rendah (600ppm → ~10/30)
-  ESG: jarak sungai 180m → < 200m → kegagalan pematuhan hampir pasti → DITANGGUHKAN
-  Peraturan keras: DOE 200m → zon mesti ditangguhkan
-  Infra: jalan hutan (30/100), jarak 22km → penalti tinggi`;
+TERENGGANU COASTAL SANDS (ree_grade=1000ppm, hree=35%, river=300m, road=moderate, dist=18km):
+  Ekonomi: gred sederhana (1000ppm → ~18/30)
+  ESG: jarak sungai 300m → < 500m → sensitiviti pantai, EIA ketat → DITANGGUHKAN
+  Peraturan keras: DOE proximity → zon mesti dikaji semula
+  Infra: jalan sederhana (65/100), jarak jauh 18km → penalti tinggi`;
 
 export const DEMO_ZONE_STEPS = `LANGKAH 1 — PEMARKAHAN EKONOMI (30%)
-  Zon A: gred 800ppm → skor 68/100 → wajaran 20.4
-  Zon B: gred 1200ppm → skor 87/100 → wajaran 26.1  ★
-  Zon C: gred 600ppm → skor 52/100 → wajaran 15.6
+  Pahang LAMP: gred 1500ppm → skor 73/100 → wajaran 21.9
+  Perak Tin Tailings: gred 2000ppm → skor 94/100 → wajaran 28.2  ★
+  Terengganu Coastal: gred 1000ppm → skor 58/100 → wajaran 17.4
 
 LANGKAH 2 — RISIKO ESG (25%)
-  Zon A: sungai 450m, EIA wajib → skor 71/100 → wajaran 17.75
-  Zon B: sungai 650m, tiada EIA → skor 91/100 → wajaran 22.75  ★
-  Zon C: sungai 180m → < 200m → KEGAGALAN PASTI → skor 12/100 → wajaran 3.0
+  Pahang LAMP: sungai 450m, EIA wajib → skor 76/100 → wajaran 19.0
+  Perak Tin Tailings: sungai 650m, tiada EIA → skor 92/100 → wajaran 23.0  ★
+  Terengganu Coastal: sungai 300m, sensitiviti pantai → KEGAGALAN → skor 15/100 → wajaran 3.75
 
 LANGKAH 3 — STRATEGIK 13MP HREE (30%)
-  Zon A: HREE 45% < 60% → tiada premium → skor 64/100 → wajaran 19.2
-  Zon B: HREE 65% > 60% → PREMIUM Dy/Y/Tb aktif → skor 88/100 → wajaran 26.4  ★
-  Zon C: HREE 30% → skor 38/100 → wajaran 11.4
+  Pahang LAMP: HREE 50% ≈ 60% → premium partikal → skor 68/100 → wajaran 20.4
+  Perak Tin Tailings: HREE 65% > 60% → PREMIUM Dy/Y/Tb aktif → skor 91/100 → wajaran 27.3  ★
+  Terengganu Coastal: HREE 35% → skor 42/100 → wajaran 12.6
 
 LANGKAH 4 — INFRASTRUKTUR (15%)
-  Zon A: jalan sederhana, 12km → skor 66/100 → wajaran 9.9
-  Zon B: jalan berturap, 8km → skor 95/100 → wajaran 14.25  ★
-  Zon C: jalan hutan, 22km → skor 28/100 → wajaran 4.2
+  Pahang LAMP: jalan berturap, 10km → skor 81/100 → wajaran 12.15
+  Perak Tin Tailings: jalan utama, 8km → skor 97/100 → wajaran 14.55  ★
+  Terengganu Coastal: jalan sederhana, 18km → skor 48/100 → wajaran 7.2
 
 LANGKAH 5 — PERINGKAT AKHIR
-  Zon B: 26.1 + 22.75 + 26.4 + 14.25 = 84  → DISYORKAN (PELABURAN)
-  Zon A: 20.4 + 17.75 + 19.2 + 9.9 = 67   → SEKUNDER
-  Zon C: 15.6 + 3.0 + 11.4 + 4.2 = 34     → DITANGGUHKAN (< 200m sungai)`;
+  Perak Tin Tailings: 28.2 + 23.0 + 27.3 + 14.55 = 93  → DISYORKAN (PELABURAN UTAMA)
+  Pahang LAMP: 21.9 + 19.0 + 20.4 + 12.15 = 73        → SEKUNDER (FASA 2)
+  Terengganu Coastal: 17.4 + 3.75 + 12.6 + 7.2 = 40    → DITANGGUHKAN (sensitiviti pantai)`;
 
 export const DEMO_ZONE_RESULT = {
   zones_assessed: 3,
   recommended: {
-    zone: 'Zone B',
-    composite_score: 84,
+    zone: 'Perak Tin Tailings Belt',
+    composite_score: 94,
     confidence: 'HIGH',
-    scores: { economic: 87, esg_risk: 91, strategic: 88, infra: 95 },
+    scores: { economic: 94, esg_risk: 92, strategic: 91, infra: 97 },
     reasoning:
-      'Zone B leads on all four dimensions. HREE proportion of 65% (exceeding the 13MP 60% threshold) activates the Dy/Y/Tb strategic premium. River proximity of 650m clears the DOE 500m mandatory-EIA threshold cleanly. Sealed road access and short 8km haul to facility minimise logistics cost.',
+      'Perak Tin Tailings Belt leads on all four dimensions. HREE proportion of 65% (exceeding the 13MP 60% threshold) activates the Dy/Y/Tb strategic premium. River proximity of 650m clears the DOE 500m mandatory-EIA threshold cleanly. Highway access and short 8km haul to facility minimise logistics cost. Monazite-rich legacy tailings provide immediate development foundation.',
     reasoning_bm:
-      'Zon B unggul dalam semua empat dimensi penilaian. Perkadaran HREE 65% (melebihi ambang 60% 13MP) mengaktifkan premium strategik Dy/Y/Tb. Jarak sungai 650m melepasi ambang EIA wajib DOE 500m dengan selamat. Akses jalan berturap dan jarak singkat 8km ke kemudahan mengurangkan kos logistik.',
+      'Perak Tin Tailings Belt unggul dalam semua empat dimensi penilaian. Perkadaran HREE 65% (melebihi ambang 60% 13MP) mengaktifkan premium strategik Dy/Y/Tb. Jarak sungai 650m melepasi ambang EIA wajib DOE 500m dengan selamat. Akses jalan raya dan jarak singkat 8km ke kemudahan mengurangkan kos logistik. Bijih monazit kaya dalam tailing warisan membekalkan asas pembangunan segera.',
   },
   secondary: {
-    zone: 'Zone A',
-    composite_score: 67,
-    scores: { economic: 68, esg_risk: 71, strategic: 64, infra: 66 },
+    zone: 'Pahang LAMP Corridor',
+    composite_score: 73,
+    scores: { economic: 73, esg_risk: 76, strategic: 68, infra: 81 },
     reasoning:
-      'Zone A is viable as a second-phase investment. River proximity (450m) requires an EIA submission but does not trigger automatic deferral. HREE proportion of 45% does not qualify for the 13MP strategic premium.',
+      'Pahang LAMP Corridor is viable as a second-phase investment. River proximity (450m) requires an EIA submission but does not trigger automatic deferral. HREE proportion of 50% approaches the 13MP strategic threshold. Existing Lynas infrastructure and supply chain provide operational synergy.',
     reasoning_bm:
-      'Zon A layak sebagai pelaburan fasa kedua. Jarak sungai (450m) memerlukan penyerahan EIA tetapi tidak mencetuskan penangguhan automatik. Perkadaran HREE 45% tidak layak untuk premium strategik 13MP.',
-    reason: 'Viable but subordinate to Zone B on all scoring dimensions.',
-    reason_bm: 'Boleh dilaksana tetapi lebih rendah daripada Zon B dalam semua dimensi pemarkahan.',
+      'Pahang LAMP Corridor berdaya maju sebagai pelaburan fasa kedua. Jarak sungai (450m) memerlukan penyerahan EIA tetapi tidak mencetuskan penangguhan automatik. Perkadaran HREE 50% hampir ambang strategik 13MP. Infrastruktur Lynas sedia ada dan rantai bekalan menyediakan sinergi operasi.',
   },
-  deferred: {
-    zone: 'Zone C',
-    composite_score: 34,
-    scores: { economic: 52, esg_risk: 12, strategic: 38, infra: 28 },
+  tertiary: {
+    zone: 'Terengganu Coastal Sands',
+    composite_score: 40,
+    scores: { economic: 58, esg_risk: 15, strategic: 42, infra: 48 },
     reason:
-      'DEFERRED: River proximity 180m is below the 200m hard-rule threshold. Near-certain compliance failure under DOE EIA regulations. Forest track access and 22km haul distance compound the infrastructure penalty.',
+      'DEFERRED: Coastal environmental sensitivity (300m from waterway) and strict DOE guidelines for marine-adjacent deposits trigger regulatory scrutiny. HREE proportion of 35% falls below the 13MP 60% threshold, eliminating strategic premium. Long 18km haul distance compounds logistics cost. Recommend reassessment after coastal environmental baseline study completion.',
     reason_bm:
-      'DITANGGUHKAN: Jarak sungai 180m di bawah ambang peraturan keras 200m. Kegagalan pematuhan hampir pasti di bawah peraturan EIA DOE. Akses jalan hutan dan jarak 22km menambahkan penalti infrastruktur.',
+      'DITANGGUHKAN: Sensitiviti alam sekitar pantai (300m dari badan air) dan garis panduan DOE ketat untuk deposit berdekatan laut mencetuskan penelitian kawal selia. Perkadaran HREE 35% jatuh di bawah ambang 13MP 60%, menghapuskan premium strategik. Jarak haul panjang 18km menambahkan kos logistik. Disyorkan penilaian semula selepas selesai kajian asas alam sekitar pantai.',
   },
+  rejected: [
+    {
+      zone: 'Sarawak Carbonatite Complex',
+      composite_score: 33,
+      scores: { economic: 48, esg_risk: 22, strategic: 35, infra: 32 },
+      reason:
+        'REJECTED: Carbonatite complex requires specialized phosphate-decoupling pretreatment not proven at scale in Malaysian context. REE grade moderate (1200ppm) but HREE 42% below strategic threshold. Remote location (45km haul) and sparse road infrastructure (58/100) incur prohibitive logistics penalties exceeding any economic gain.',
+      reason_bm:
+        'DITOLAK: Kompleks karbonatit memerlukan pra-perlakuan penguraian fosfat khusus yang belum terbukti pada skala besar dalam konteks Malaysia. Gred REE sederhana (1200ppm) tetapi HREE 42% di bawah ambang strategik. Lokasi terpencil (45km haul) dan infrastruktur jalan jarang (58/100) mengakibatkan penalti logistik pelarangan melebihi sebarang keuntungan ekonomi.',
+    },
+    {
+      zone: 'Johor Xenotime Deposits',
+      composite_score: 28,
+      scores: { economic: 42, esg_risk: 18, strategic: 28, infra: 25 },
+      reason:
+        'REJECTED: Xenotime ore body (heavy rare earth concentrate) requires distinct downstream processing — incompatible with planned H₂SO₄ + NaF flowsheet. Low economic grade (820ppm TREO equivalent). Port-side location (Johor Strait, 120m) triggers marine-protection EIA with multi-year permitting timeline. Infrastructure score penalized by industrial area congestion.',
+      reason_bm:
+        'DITOLAK: Badan bijih xenotim (kepekatan elemen tanah jarang berat) memerlukan pemprosesan hilir yang berbeza — tidak serasi dengan aliran H₂SO₄ + NaF yang dirancang. Gred ekonomi rendah (820ppm TREO setara). Lokasi pinggir pelabuhan (Selat Johor, 120m) mencetuskan EIA perlindungan marin dengan jadual permitting bertahun-tahun. Skor infrastruktur dihukum oleh kesesakan kawasan perindustrian.',
+    },
+  ],
   assessment_basis:
-    'MCDA weighted scoring: Economic (30%) + ESG Risk (25%) + Strategic/13MP HREE (30%) + Infrastructure (15%). Hard rules: DOE 200m river = mandatory deferral, 500m = EIA required. 13MP HREE premium applied at HREE% > 60%.',
+    'MCDA weighted scoring: Economic (30%) + ESG Risk (25%) + Strategic/13MP HREE (30%) + Infrastructure (15%). Hard rules: DOE 200m river = mandatory deferral, 500m = EIA required. 13MP HREE premium applied at HREE% > 60%. Tertiary zones deferred pending further study; Rejected zones fail strategic or infrastructure fit.',
 };
 
 // ── Validation suite ────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Clock3, TerminalSquare } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import AccentPicker from './AccentPicker';
 import useBackendHealth from '../../hooks/useBackendHealth';
 
 export default function SovereigntyBar() {
@@ -50,6 +51,7 @@ export default function SovereigntyBar() {
           <Clock3 size={12} />
           <span>{timeStr}</span>
         </div>
+        <AccentPicker />
         <ThemeToggle />
       </div>
     </header>
