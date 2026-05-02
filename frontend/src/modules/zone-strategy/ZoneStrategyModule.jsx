@@ -5,9 +5,11 @@ import LogicExplorer from '../../components/trust/LogicExplorer';
 import ReferencesPanel from '../../components/trust/ReferencesPanel';
 import useZoneStrategy from '../../hooks/useZoneStrategy';
 import REEMapViz from '../../components/viz/REEMapViz';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { translations } from '../../i18n/translations';
 
 const STATUS_MAP = {
-  Approved:       { icon: CheckCircle, tone: 'text-[var(--color-accent-bright)] bg-[rgba(124,58,237,0.22)] border-[rgba(167,139,250,0.45)]' },
+  Approved:       { icon: CheckCircle, tone: 'text-[var(--color-accent-bright)] bg-[var(--tone-accent-bg)] border-[var(--tone-accent-border)]' },
   Conditional:    { icon: AlertTriangle, tone: 'text-[var(--color-amber-warn)] bg-[rgba(245,158,11,0.14)] border-[rgba(245,158,11,0.4)]' },
   'Under Review': { icon: Clock, tone: 'text-[var(--color-amber-warn)] bg-[rgba(245,158,11,0.14)] border-[rgba(245,158,11,0.4)]' },
   Exploration:    { icon: MapPin, tone: 'text-white/70 bg-white/5 border-white/15' },
@@ -16,7 +18,7 @@ const STATUS_MAP = {
 };
 
 const SCORING_WEIGHTS = [
-  { label: 'Economic Value', weight: 30, color: '#a78bfa' },
+  { label: 'Economic Value', weight: 30, color: 'var(--color-accent)' },
   { label: 'Strategic (13MP HREE)', weight: 30, color: '#34d399' },
   { label: 'ESG Risk', weight: 25, color: '#fbd38d' },
   { label: 'Infrastructure', weight: 15, color: '#38bdf8' },
@@ -71,7 +73,7 @@ function AgentTerminal({ streamingReasoning, streamingSteps, agentStatus }) {
 function ScoreBreakdown({ scores }) {
   if (!scores) return null;
   const items = [
-    { label: 'Econ', key: 'economic', color: '#a78bfa' },
+    { label: 'Econ', key: 'economic', color: 'var(--color-accent)' },
     { label: 'Strategic', key: 'strategic', color: '#34d399' },
     { label: 'ESG', key: 'esg_risk', color: '#fbd38d' },
     { label: 'Infra', key: 'infra', color: '#38bdf8' },
@@ -92,6 +94,9 @@ function ScoreBreakdown({ scores }) {
 }
 
 export default function ZoneStrategyModule() {
+  const { language } = useLanguage();
+  const t = translations[language];
+
   const {
     zones, summaryBM, validation, isValidating, isLoading, isLive,
     liveResult, streamingReasoning, streamingSteps, agentStatus, error,
@@ -194,7 +199,7 @@ export default function ZoneStrategyModule() {
 
                     <header className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-10 h-10 shrink-0 rounded-lg bg-[rgba(124,58,237,0.2)] border border-[rgba(167,139,250,0.4)] text-[var(--color-accent-bright)] font-mono text-[13px] font-bold flex items-center justify-center">
+                        <div className="w-10 h-10 shrink-0 rounded-lg text-[var(--color-accent-bright)] font-mono text-[13px] font-bold flex items-center justify-center" style={{ background: 'var(--tone-accent-badge-bg)', border: '1px solid var(--tone-accent-badge-border)' }}>
                           #{zone.rank}
                         </div>
                         <div>
@@ -258,7 +263,7 @@ export default function ZoneStrategyModule() {
                 <div className="panel-inset" id="sovereign-summary" style={{ padding: '20px 24px' }}>
                   <div className="flex items-center gap-2">
                     <Shield size={15} className="text-[var(--color-accent)]" />
-                    <p className="muted-kicker">Sovereign Summary · Agent 05</p>
+                    <p className="muted-kicker">{isLive ? `${t.sovereignSummary}` : t.loading}</p>
                   </div>
                   <h3 className="text-[15px] font-semibold text-white mt-2">{summaryBM.title}</h3>
                   <div className="inline-flex items-center gap-2 flex-wrap mt-2">
@@ -277,11 +282,11 @@ export default function ZoneStrategyModule() {
                 </div>
 
                 <div className="panel-inset" id="methodology-card" style={{ padding: '20px 24px' }}>
-                  <p className="muted-kicker mb-3">Zone Portfolio Scores</p>
+                  <p className="muted-kicker mb-3">{t.zonePortfolioScores}</p>
                   <div className="grid gap-2">
                     {zones.length > 0 && (() => {
                       const dims = [
-                        { key: 'economic', label: 'Economic', color: '#a78bfa' },
+                        { key: 'economic', label: 'Economic', color: 'var(--color-accent)' },
                         { key: 'strategic', label: 'Strategic', color: '#34d399' },
                         { key: 'esg_risk', label: 'ESG Risk', color: '#fbd38d' },
                         { key: 'infra', label: 'Infrastructure', color: '#38bdf8' },
@@ -307,7 +312,7 @@ export default function ZoneStrategyModule() {
 
                 <div className="panel-inset" id="validation-card" style={{ padding: '20px 24px' }}>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="muted-kicker">Known-Answer Validation</p>
+                    <p className="muted-kicker">{t.knownAnswerValidation}</p>
                   </div>
                   <button
                     onClick={() => runValidationSuite()}
@@ -315,15 +320,15 @@ export default function ZoneStrategyModule() {
                     className="btn btn-primary w-full"
                     id="run-validation-btn"
                   >
-                    {isValidating ? <><Loader2 size={13} className="animate-spin" /> Running…</> : 'Run validation suite'}
+                    {isValidating ? <><Loader2 size={13} className="animate-spin" /> {t.running}</> : t.runValidationSuite}
                   </button>
 
                   {validation && (
                     <div className="mt-4 pt-4 border-t border-white/6 grid gap-2.5 animate-slide-in-up">
                       <div className="flex items-center justify-between font-mono text-[12px]">
-                        <span className="text-white/60">Result</span>
+                        <span className="text-white/60">{t.result}</span>
                         <span className="text-[var(--color-accent-bright)]">
-                          {validation.passed}/{validation.total} pass
+                          {validation.passed}/{validation.total} {t.pass}
                         </span>
                       </div>
                       {validation.results?.map((r) => (

@@ -6,9 +6,9 @@ import AgentPipeline from '../../components/layout/AgentPipeline';
 
 function confidenceMeta(level = 'low') {
   const l = level.toLowerCase();
-  if (l === 'high')   return { label: 'High confidence',   style: { color: 'var(--color-accent)', background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)' } };
-  if (l === 'medium') return { label: 'Medium confidence', style: { color: 'var(--color-amber-warn)', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' } };
-  return                     { label: 'Low confidence',    style: { color: 'var(--text-muted)', background: 'var(--surface-soft)', border: '1px solid var(--border-soft)' } };
+  if (l === 'high')   return { label: 'High confidence',   style: { color: 'var(--color-accent)', background: 'rgba(0, 0, 0, 0.1)', border: 'var(--color-accent))' } };
+  if (l === 'medium') return { label: 'Medium confidence', style: { color: 'var(--color-amber-warn)', background: 'rgba(245,158,11,0.1)', border: 'var(--color-accent)' } };
+  return                     { label: 'Low confidence',    style: { color: 'var(--text-muted)', background: 'var(--surface-soft)', border: 'var(--color-accent)' } };
 }
 
 function DiagnosisCard({ diagnosis }) {
@@ -292,8 +292,8 @@ export default function DiagnosisModule() {
                   minHeight: 'unset', fontSize: 12,
                   fontFamily: 'var(--font-mono)', letterSpacing: '0.04em',
                   ...(activePanel === key ? {
-                    background: 'rgba(124,58,237,0.12)',
-                    borderColor: 'rgba(124,58,237,0.35)',
+                    background: 'rgba(0, 0, 0, 0.12)',
+                    borderColor: 'var(--color-accent)',
                     color: 'var(--color-accent)',
                   } : {}),
                 }}

@@ -1,3 +1,5 @@
+import LanguageToggle from '../LanguageToggle';
+
 export default function ModuleHero({
   step,
   eyebrow,
@@ -10,9 +12,12 @@ export default function ModuleHero({
   const hasIO = inputs.length > 0 || outputs.length > 0;
   return (
     <header className="module-hero">
-      <div className="module-hero__tags">
-        {step && <span className="chip chip--accent" style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}>Module {step}</span>}
-        {eyebrow && <span className="mono-meta">{eyebrow}</span>}
+      <div className="flex items-center justify-between">
+        <div className="module-hero__tags">
+          {step && <span className="chip chip--accent" style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}>Module {step}</span>}
+          {eyebrow && <span className="mono-meta">{eyebrow}</span>}
+        </div>
+        <LanguageToggle />
       </div>
       <h2 className="module-hero__title title-gradient">{title}</h2>
       {lead && <p className="module-hero__lead">{lead}</p>}

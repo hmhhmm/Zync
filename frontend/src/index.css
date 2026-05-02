@@ -66,6 +66,13 @@
   --border-agent-node: rgba(208, 214, 255, 0.12);
   --border-nav-hover: rgba(208, 214, 255, 0.24);
 
+  /* Accent color variants (for inline styles) */
+  --tone-accent-bg: rgba(124, 58, 237, 0.22);
+  --tone-accent-border: rgba(167, 139, 250, 0.45);
+  --tone-accent-badge-bg: rgba(124, 58, 237, 0.2);
+  --tone-accent-badge-border: rgba(167, 139, 250, 0.4);
+  --scrollbar-accent: rgba(124, 58, 237, 0.3);
+
   /* Text */
   --text-primary: #f5f6ff;
   --text-soft: rgba(220, 227, 255, 0.78);
@@ -2069,11 +2076,11 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   max-height: 600px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(124,58,237,0.3) transparent;
+  scrollbar-color: var(--scrollbar-accent) transparent;
 }
 
 .terminal__body::-webkit-scrollbar { width: 4px; }
-.terminal__body::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 4px; }
+.terminal__body::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 4px; }
 
 .terminal__text {
   font-size: 12px;
@@ -2286,6 +2293,11 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   --atmosphere-top:      rgba(20, 184, 166, 0.14);
   --atmosphere-left:     rgba(20, 184, 166, 0.08);
   --atmosphere-right:    rgba(20, 184, 166, 0.08);
+  --tone-accent-bg:      rgba(20, 184, 166, 0.22);
+  --tone-accent-border:  rgba(20, 184, 166, 0.45);
+  --tone-accent-badge-bg: rgba(20, 184, 166, 0.2);
+  --tone-accent-badge-border: rgba(20, 184, 166, 0.4);
+  --scrollbar-accent:    rgba(20, 184, 166, 0.30);
 }
 
 [data-accent="teal"] .btn-primary {
@@ -2337,11 +2349,11 @@ body::-webkit-scrollbar { width: 0; height: 0; }
 }
 
 [data-accent="teal"] .terminal__body {
-  scrollbar-color: rgba(20, 184, 166, 0.30) transparent;
+  scrollbar-color: var(--scrollbar-accent) transparent;
 }
 
 [data-accent="teal"] .terminal__body::-webkit-scrollbar-thumb {
-  background: rgba(20, 184, 166, 0.30);
+  background: var(--scrollbar-accent);
 }
 
 /* ── Amber ── */
@@ -2356,6 +2368,11 @@ body::-webkit-scrollbar { width: 0; height: 0; }
   --atmosphere-top:      rgba(245, 158, 11, 0.12);
   --atmosphere-left:     rgba(245, 158, 11, 0.07);
   --atmosphere-right:    rgba(245, 158, 11, 0.07);
+  --tone-accent-bg:      rgba(245, 158, 11, 0.22);
+  --tone-accent-border:  rgba(245, 158, 11, 0.45);
+  --tone-accent-badge-bg: rgba(245, 158, 11, 0.2);
+  --tone-accent-badge-border: rgba(245, 158, 11, 0.4);
+  --scrollbar-accent:    rgba(245, 158, 11, 0.30);
 }
 
 [data-accent="amber"] .btn-primary {
@@ -2407,11 +2424,11 @@ body::-webkit-scrollbar { width: 0; height: 0; }
 }
 
 [data-accent="amber"] .terminal__body {
-  scrollbar-color: rgba(245, 158, 11, 0.30) transparent;
+  scrollbar-color: var(--scrollbar-accent) transparent;
 }
 
 [data-accent="amber"] .terminal__body::-webkit-scrollbar-thumb {
-  background: rgba(245, 158, 11, 0.30);
+  background: var(--scrollbar-accent);
 }
 
 /* ── light-mode adjustments for non-purple accents ── */
