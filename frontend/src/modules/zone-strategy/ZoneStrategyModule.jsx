@@ -222,16 +222,24 @@ export default function ZoneStrategyModule() {
                           {zone.confidence && <span className="text-[10px] font-mono text-white/40">{zone.confidence} confidence</span>}
                         </div>
                       </div>
-                      <div className="flex items-end flex-col gap-1 shrink-0">
-                        <div className="flex items-center gap-1.5">
-                          <TrendingUp size={14} className="text-[var(--color-accent)]" />
-                          <span className="text-[24px] font-bold text-[var(--color-accent-bright)] font-mono leading-none">{zone.score}</span>
-                          <span className="text-xs text-white/40 font-mono">/100</span>
+                      {isLive && (
+                        <div className="flex items-end flex-col gap-1 shrink-0">
+                          <div className="flex items-center gap-1.5">
+                            <TrendingUp size={14} className="text-[var(--color-accent)]" />
+                            <span className="text-[24px] font-bold text-[var(--color-accent-bright)] font-mono leading-none">{zone.score}</span>
+                            <span className="text-xs text-white/40 font-mono">/100</span>
+                          </div>
+                          <div className="score-bar-track w-20">
+                            <div className="score-bar-fill" style={{ width: `${zone.score}%` }} />
+                          </div>
+                          {zone.confidence && (
+                            <div className="text-center mt-2">
+                              <p className="text-[9.5px] text-white/40 font-mono">Confidence</p>
+                              <p className="text-[12px] font-bold font-mono text-[#60a5fa]">{zone.confidence}</p>
+                            </div>
+                          )}
                         </div>
-                        <div className="score-bar-track w-20">
-                          <div className="score-bar-fill" style={{ width: `${zone.score}%` }} />
-                        </div>
-                      </div>
+                      )}
                     </header>
 
                     <p className="text-[13px] text-white/60 leading-relaxed max-w-[68ch]">{zone.description}</p>
