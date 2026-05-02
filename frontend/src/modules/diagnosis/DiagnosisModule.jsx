@@ -1,255 +1,370 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CheckCircle, Clock3, FileImage, Loader2, Play, Upload, WifiOff } from 'lucide-react';
+import { CheckCircle, FileText, Loader2, Play, ShieldAlert, Upload } from 'lucide-react';
 import ModuleHero from '../../components/layout/ModuleHero';
-import LogicExplorer from '../../components/trust/LogicExplorer';
-import ReferencesPanel from '../../components/trust/ReferencesPanel';
 import useDiagnosis from '../../hooks/useDiagnosis';
+import AgentPipeline from '../../components/layout/AgentPipeline';
 
-const METHODOLOGY = [
-  'XRD · ICDD PDF-4+ match',
-  'SEM-EDS · ZAF correction',
-  'Bootstrap n=1000 · CI 95%',
-];
+function confidenceMeta(level = 'low') {
+  const l = level.toLowerCase();
+  if (l === 'high')   return { label: 'High confidence',   style: { color: 'var(--color-accent)', background: 'rgba(0, 0, 0, 0.1)', border: 'var(--color-accent))' } };
+  if (l === 'medium') return { label: 'Medium confidence', style: { color: 'var(--color-amber-warn)', background: 'rgba(245,158,11,0.1)', border: 'var(--color-accent)' } };
+  return                     { label: 'Low confidence',    style: { color: 'var(--text-muted)', background: 'var(--surface-soft)', border: 'var(--color-accent)' } };
+}
 
-export default function DiagnosisModule() {
+function DiagnosisCard({ diagnosis }) {
+  if (!diagnosis) return null;
+  const conf = confidenceMeta(diagnosis.confidence);
+
+  return (
+    <div className="animate-slide-in-up">
+      {/* ESG alert — above card */}
+      {diagnosis.esg_flag && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+          padding: '13px 16px', marginBottom: 12, borderRadius: 12,
+          border: '1px solid rgba(239,68,68,0.28)',
+          background: 'rgba(239,68,68,0.07)',
+        }}>
+          <ShieldAlert size={14} style={{ color: '#ef4444', flexShrink: 0, marginTop: 2 }} />
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: 'rgba(252,165,165,0.85)' }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.16em',
+              textTransform: 'uppercase', color: '#ef4444', marginRight: 10, fontWeight: 600,
+            }}>ESG Flag</span>
+            {diagnosis.esg_note}
+          </p>
+        </div>
+      )}
+
+      <div className="panel" style={{ overflow: 'hidden' }}>
+
+        {/* Header: title + confidence badge */}
+        <div style={{ padding: '22px 24px', borderBottom: '1px solid var(--border-softer)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{
+                margin: 0,
+                fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
+                fontWeight: 600, lineHeight: 1.3,
+                color: 'var(--text-primary)', letterSpacing: '-0.01em',
+              }}>
+                {diagnosis.root_cause || 'Root cause undetermined'}
+              </h3>
+              {diagnosis.root_cause_detail && (
+                <p style={{ margin: '8px 0 0', fontSize: 13.5, lineHeight: 1.65, color: 'var(--text-muted)', maxWidth: '68ch' }}>
+                  {diagnosis.root_cause_detail}
+                </p>
+              )}
+            </div>
+            <span style={{
+              flexShrink: 0, display: 'inline-flex', alignItems: 'center',
+              padding: '4px 12px', borderRadius: 999,
+              fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.1em',
+              textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap',
+              ...conf.style,
+            }}>
+              {conf.label}
+            </span>
+          </div>
+        </div>
+
+        {/* Meta: anomaly location + primary action */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid var(--border-softer)' }}>
+          <div style={{ padding: '16px 24px', borderRight: '1px solid var(--border-softer)' }}>
+            <p className="muted-kicker" style={{ marginBottom: 7 }}>Anomaly at</p>
+            <p style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.5 }}>
+              {diagnosis.anomaly_at || '—'}
+            </p>
+          </div>
+          <div style={{ padding: '16px 24px' }}>
+            <p className="muted-kicker" style={{ marginBottom: 7 }}>Primary action</p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.55 }}>
+              {diagnosis.primary_action || '—'}
+            </p>
+          </div>
+        </div>
+
+        {/* Next steps */}
+        {diagnosis.next_steps?.length > 0 && (
+          <div style={{ padding: '20px 24px' }}>
+            <p className="muted-kicker" style={{ marginBottom: 14 }}>Recommended next steps</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {diagnosis.next_steps.map((step, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 12,
+                  padding: '11px 14px', borderRadius: 10,
+                  border: '1px solid var(--border-softer)',
+                  background: 'var(--surface-inset)',
+                }}>
+                  <span style={{
+                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600,
+                    color: 'var(--color-accent)',
+                    background: 'rgba(124,58,237,0.12)',
+                    border: '1px solid rgba(124,58,237,0.25)',
+                    marginTop: 1,
+                  }}>{i + 1}</span>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-soft)' }}>{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DebugPanel({ activePanel, streamingReasoning, streamingOutput }) {
+  if (!activePanel) return null;
+  return (
+    <div className="panel-inset" style={{
+      padding: '18px 20px', maxHeight: 220, overflowY: 'auto', scrollbarColor: 'rgba(124,58,237,0.35) transparent',
+      animation: 'slow-slide-in 3s ease-out forwards',
+    }}>
+      <style>{`
+        @keyframes slow-slide-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes typing-blink {
+          0%, 49% { border-right-color: rgba(124,58,237,0.5); }
+          50%, 100% { border-right-color: transparent; }
+        }
+        .streaming-text {
+          animation: typing-blink 2s steps(1) infinite;
+          border-right: 2px solid rgba(124,58,237,0.5);
+          display: inline-block;
+          padding-right: 2px;
+        }
+      `}</style>
+      {activePanel === 'reasoning' && (
+        <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--text-muted)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          <span className="streaming-text">{streamingReasoning || 'No reasoning captured.'}</span>
+        </pre>
+      )}
+      {activePanel === 'output' && (
+        <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--text-muted)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          <span className="streaming-text">{streamingOutput || 'No output captured.'}</span>
+        </pre>
+      )}
+      {activePanel === 'rules' && (
+        <div>
+          {[
+            { code: 'pH < 3.8',   desc: 'ESG risk threshold' },
+            { code: 'pH > 5.5',   desc: 'Precipitation indicator' },
+            { code: '> 15% drop', desc: 'Yield anomaly trigger' },
+          ].map(({ code, desc }, i, arr) => (
+            <div key={code} style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '10px 0',
+              borderBottom: i < arr.length - 1 ? '1px solid var(--border-softer)' : 'none',
+            }}>
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11, padding: '3px 9px',
+                borderRadius: 6, flexShrink: 0,
+                background: 'var(--surface-soft)', border: '1px solid var(--border-soft)',
+                color: 'var(--color-accent)',
+              }}>{code}</span>
+              <span style={{ fontSize: 13, color: 'var(--text-soft)' }}>{desc}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function DiagnosisModule({ onComplete }) {
   const {
-    steps,
     isStreaming,
-    chainOfThought,
+    streamingReasoning,
+    streamingOutput,
+    diagnosis,
     uploadedFile,
-    sessionInfo,
     error,
-    fetchDiagnosisSession,
+    isLive,
     startDiagnosis,
     runDemo,
   } = useDiagnosis();
 
   const [isDragOver, setIsDragOver] = useState(false);
+  const [activePanel, setActivePanel] = useState(null);
+  const [showDiagnosis, setShowDiagnosis] = useState(false);
+  const [canStreamPanel, setCanStreamPanel] = useState(false);
   const fileInput = useRef(null);
 
   useEffect(() => {
-    fetchDiagnosisSession();
-  }, [fetchDiagnosisSession]);
+    if (isLive) onComplete?.();
+  }, [isLive, onComplete]);
 
-  const handleDrop = useCallback((event) => {
-    event.preventDefault();
+  // Auto-open reasoning panel when streaming starts so the live output is immediately visible
+  useEffect(() => {
+    if (isStreaming && canStreamPanel) {
+      setActivePanel('reasoning');
+    }
+  }, [isStreaming, canStreamPanel]);
+
+  // Delay before allowing reasoning panel to show
+  useEffect(() => {
+    if (isStreaming) {
+      setCanStreamPanel(false);
+      const timer = setTimeout(() => setCanStreamPanel(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isStreaming]);
+
+  // Show diagnosis with delay after it's ready
+  useEffect(() => {
+    if (diagnosis && !showDiagnosis) {
+      const timer = setTimeout(() => setShowDiagnosis(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [diagnosis, showDiagnosis]);
+
+  // Reset showDiagnosis when starting new diagnosis
+  useEffect(() => {
+    if (isStreaming) setShowDiagnosis(false);
+  }, [isStreaming]);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
     setIsDragOver(false);
-    const file = event.dataTransfer.files[0];
+    const file = e.dataTransfer.files[0];
     if (file) startDiagnosis(file);
   }, [startDiagnosis]);
 
-  const handleFileChange = useCallback((event) => {
-    const file = event.target.files[0];
+  const handleFileChange = useCallback((e) => {
+    const file = e.target.files[0];
     if (file) startDiagnosis(file);
   }, [startDiagnosis]);
 
-  const statusLabel = isStreaming
-    ? 'SciGLM reasoning live'
-    : steps.length > 0
-      ? 'Diagnosis complete'
-      : 'Awaiting evidence';
-
-  const overallConfidence = steps.length
-    ? Math.round(steps.reduce((sum, s) => sum + Number(s.confidence || 0), 0) / steps.length)
-    : null;
+  const togglePanel = (key) => setActivePanel(p => p === key ? null : key);
 
   return (
-    <section className="panel panel-pad grid gap-6" id="diagnosis-module">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, width: '100%' }}>
+
       <ModuleHero
         step="01"
-        eyebrow="Agents 00 · 02 · 05"
+        eyebrow="Agents 0 & 2 · Evidence Diagnosis" 
         title="Evidence Diagnosis"
-        lead="Convert XRD, SEM-EDS, and operator logs into a stepwise reasoning trace with confidence bounds and inline citations."
-        inputs={['XRD pattern', 'SEM image', 'Operator logs', 'Geological PDF']}
-        outputs={['Mineral ID', 'Grade estimate', 'Route suggestion', 'Regulatory flags']}
+        lead="Upload a field log or run demo to get a clear diagnosis with recommended actions."
+        inputs={['Field Log', 'Sensor Data']}
+        outputs={['Root Cause', 'Actions']}
       />
+    
+      {/* Upload zone */}
+      {!uploadedFile && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInput.current?.click()}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 14, padding: '44px 24px',
+              borderRadius: 16, cursor: 'pointer',
+              border: `1.5px dashed ${isDragOver ? 'rgba(124,58,237,0.6)' : 'var(--border-soft)'}`,
+              background: isDragOver ? 'rgba(124,58,237,0.05)' : 'transparent',
+              transition: 'border-color 0.2s ease, background 0.2s ease',
+            }}
+          >
+            <div style={{
+              width: 42, height: 42, borderRadius: 12,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)',
+              color: 'var(--color-accent)',
+            }}>
+              <Upload size={17} />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: 'var(--text-primary)' }}>Upload field log</p>
+              <p style={{ margin: '5px 0 0', fontSize: 12.5, color: 'var(--text-muted)' }}>Drag & drop or click to browse</p>
+            </div>
+            <input ref={fileInput} type="file" style={{ display: 'none' }} onChange={handleFileChange} />
+          </div>
+        </div>
+      )}
 
-      <div className="flex flex-wrap gap-2">
-        {METHODOLOGY.map((m) => (
-          <span key={m} className="chip">{m}</span>
-        ))}
-      </div>
+      {/* Uploaded file indicator */}
+      {uploadedFile && (
+        <div className="panel-inset--soft" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px' }}>
+          <FileText size={14} style={{ flexShrink: 0, color: 'var(--text-muted)' }} />
+          <span style={{ flex: 1, fontSize: 13, color: 'var(--text-soft)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {uploadedFile.name}
+          </span>
+          <CheckCircle size={13} style={{ flexShrink: 0, color: '#16a34a' }} />
+        </div>
+      )}
 
+      {/* Streaming progress */}
+      {isStreaming && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Loader2 size={13} className="animate-spin" style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
+          <span className="mono-meta">Analysing log…</span>
+          <div className="progress-bar-wrap" style={{ flex: 1 }}>
+            <div className="progress-bar-indeterminate" />
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
       {error && (
-        <div className="panel-inset--soft px-4 py-3 text-xs font-mono text-[var(--color-amber-warn)] border-[rgba(245,158,11,0.4)] inline-flex items-center gap-2">
-          <WifiOff size={13} />
-          {error}
+        <div style={{
+          padding: '13px 16px', borderRadius: 10,
+          border: '1px solid rgba(239,68,68,0.25)',
+          background: 'rgba(239,68,68,0.06)',
+        }}>
+          <p style={{ margin: 0, fontSize: 13, color: '#ef4444' }}>{error}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 2xl:grid-cols-5 gap-5">
-        <div className="2xl:col-span-2 grid gap-4">
-          {!uploadedFile ? (
-            <div
-              className={`panel-inset p-0 min-h-[300px] border-dashed transition-colors cursor-pointer ${
-                isDragOver ? 'border-[rgba(167,139,250,0.6)] bg-[rgba(124,58,237,0.08)]' : ''
-              }`}
-              id="upload-zone"
-              onDragOver={(event) => {
-                event.preventDefault();
-                setIsDragOver(true);
-              }}
-              onDragLeave={() => setIsDragOver(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInput.current?.click()}
-            >
-              <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center px-7 py-8">
-                <div className="w-12 h-12 rounded-2xl border border-[rgba(167,139,250,0.4)] bg-[rgba(124,58,237,0.18)] text-white flex items-center justify-center">
-                  <Upload size={20} />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-white">Drop or Select Evidence</h3>
-                <p className="mt-2 text-sm text-white/60 leading-relaxed max-w-[40ch]">
-                  Accepts .raw · .csv · .png · .tiff · geological PDFs. The router selects the next agent automatically.
-                </p>
-                <div className="mt-4 source-row justify-center">
-                  <span className="source-chip source-chip--active">POST /api/diagnosis</span>
-                  <span className="source-chip">SSE stream</span>
-                </div>
-                <input
-                  ref={fileInput}
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept=".raw,.csv,.png,.jpg,.tiff,.xrd"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="panel-inset--accent p-5" id="uploaded-file-preview">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl border border-[rgba(167,139,250,0.4)] bg-[rgba(124,58,237,0.2)] text-white flex items-center justify-center">
-                  <FileImage size={18} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[14px] font-semibold text-white truncate">{uploadedFile.name}</p>
-                  <p className="mono-meta mt-1" style={{ fontSize: 10 }}>
-                    {(uploadedFile.size / 1024).toFixed(1)} KB · {uploadedFile.type || 'binary/raw'}
-                  </p>
-                </div>
-              </div>
+      {/* Diagnosis card */}
+      {showDiagnosis && <DiagnosisCard diagnosis={diagnosis} />}
 
-              <div className="mt-4 h-[160px] panel-inset--soft p-3 flex items-end gap-[2px] overflow-hidden">
-                {Array.from({ length: 90 }, (_, i) => {
-                  const peaks = [16, 24, 35, 52, 68, 78];
-                  const isPeak = peaks.some((peak) => Math.abs(i - peak) < 2);
-                  const height = isPeak ? 70 + Math.random() * 70 : 12 + Math.random() * 16;
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-t-sm"
-                      style={{
-                        height: `${height}px`,
-                        opacity: isPeak ? 1 : 0.32,
-                        background: 'linear-gradient(180deg, #b8bfff, #7c3aed)',
-                      }}
-                    />
-                  );
-                })}
-              </div>
-              <p className="mono-meta mt-2 text-center" style={{ fontSize: 10 }}>Diffractogram · 2θ 10°→80° · Cu-Kα</p>
-
-              {overallConfidence !== null && (
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div className="panel-inset--soft px-3 py-2.5 text-center">
-                    <p className="mono-meta" style={{ fontSize: 9.5 }}>Steps</p>
-                    <p className="text-white font-mono font-semibold mt-1.5">{steps.length}/8</p>
-                  </div>
-                  <div className="panel-inset--soft px-3 py-2.5 text-center">
-                    <p className="mono-meta" style={{ fontSize: 9.5 }}>Mean Conf.</p>
-                    <p className="text-[var(--color-accent-bright)] font-mono font-semibold mt-1.5">{overallConfidence}%</p>
-                  </div>
-                  <div className="panel-inset--soft px-3 py-2.5 text-center">
-                    <p className="mono-meta" style={{ fontSize: 9.5 }}>Status</p>
-                    <p className="text-white font-mono font-semibold mt-1.5">{isStreaming ? 'Live' : 'Done'}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {!uploadedFile && (
-            <button onClick={runDemo} className="btn btn-secondary w-full" id="run-demo-btn">
-              <Play size={15} />
-              Run Guided Demo · Perak XRD
-            </button>
-          )}
-
-          {sessionInfo?.region && (
-            <div className="panel-inset--soft px-4 py-3">
-              <p className="mono-meta" style={{ fontSize: 9.5 }}>Active session</p>
-              <p className="text-xs font-mono text-white/75 mt-1.5">{sessionInfo.region} · {sessionInfo.model ?? 'GLM-5.1'}</p>
-            </div>
-          )}
-        </div>
-
-        <div className="panel-inset--accent p-5 md:p-6 2xl:col-span-3" id="reasoning-console">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <span className={`status-dot ${isStreaming ? 'status-dot--live' : ''}`} />
-              <span className="mono-meta">{statusLabel}</span>
-            </div>
-            <span className="mono-meta" style={{ fontSize: 10 }}>
-              {steps.length > 0 ? `${steps.length} of 8 steps` : 'Agent 02 · SciGLM'}
-            </span>
-          </div>
-
-          {steps.length === 0 && !isStreaming && (
-            <div className="h-[260px] panel-inset--soft flex flex-col items-center justify-center text-center px-10 text-white/55 gap-2">
-              <p className="text-sm">Upload evidence to begin autonomous diagnosis.</p>
-              <p className="text-xs text-white/40 max-w-[40ch]">
-                Every reasoning step exposes its confidence interval and literature citation before the final recommendation is issued.
-              </p>
-            </div>
-          )}
-
-          <div className="grid gap-2.5 max-h-[520px] overflow-y-auto pr-1">
-            {steps.map((step, index) => (
-              <div
-                key={step.step}
-                className="panel-inset--soft p-4 animate-slide-up"
-                style={{ animationDelay: `${index * 0.04}s` }}
+      {/* Debug panel toggles */}
+      {(diagnosis || isStreaming || streamingReasoning) && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {[
+              { key: 'reasoning', label: 'AI reasoning' },
+              { key: 'output',    label: 'Structured output' },
+              { key: 'rules',     label: 'Domain rules' },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => togglePanel(key)}
+                className="btn btn-ghost"
+                style={{
+                  padding: '6px 13px', borderRadius: 8,
+                  minHeight: 'unset', fontSize: 12,
+                  fontFamily: 'var(--font-mono)', letterSpacing: '0.04em',
+                  ...(activePanel === key ? {
+                    background: 'rgba(0, 0, 0, 0.12)',
+                    borderColor: 'var(--color-accent)',
+                    color: 'var(--color-accent)',
+                  } : {}),
+                }}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="mono-meta" style={{ fontSize: 10 }}>Step {step.step}</p>
-                    <p className="text-[14px] text-white font-semibold mt-1.5 leading-tight">{step.title}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="mono-meta inline-flex items-center gap-1" style={{ fontSize: 10 }}>
-                      <Clock3 size={10} />
-                      {step.duration}
-                    </span>
-                    <span className="text-[10px] rounded-md px-2 py-0.5 bg-[rgba(124,58,237,0.22)] border border-[rgba(167,139,250,0.35)] text-[#ddd6fe] font-mono">
-                      {step.confidence}%
-                    </span>
-                    {index < steps.length - 1 || !isStreaming ? (
-                      <CheckCircle size={14} className="text-[var(--color-accent)]" />
-                    ) : (
-                      <Loader2 size={14} className="text-[var(--color-amber-warn)] animate-spin" />
-                    )}
-                  </div>
-                </div>
-                <p className="text-[13px] leading-relaxed text-white/70 mt-2">{step.detail}</p>
-              </div>
+                {label}
+              </button>
             ))}
-
-            {isStreaming && (
-              <div className="text-xs font-mono text-[var(--color-amber-warn)] inline-flex items-center gap-2 px-2 py-1">
-                <Loader2 size={12} className="animate-spin" />
-                Composing next reasoning step…
-              </div>
-            )}
           </div>
+          <DebugPanel
+            activePanel={activePanel}
+            streamingReasoning={streamingReasoning}
+            streamingOutput={streamingOutput}
+          />
         </div>
-      </div>
-
-      {chainOfThought?.references?.length > 0 && (
-        <ReferencesPanel references={chainOfThought.references} title="Cited literature" />
       )}
-
-      {chainOfThought?.reasoning_content && (
-        <LogicExplorer chainOfThought={chainOfThought} title="Full reasoning trace · Agent 05" />
-      )}
-    </section>
+    </div>
   );
 }

@@ -11,18 +11,21 @@ import ZoneStrategyModule from './modules/zone-strategy/ZoneStrategyModule';
 const MODULES = {
   diagnosis: {
     component: DiagnosisModule,
-    activeAgents: [0, 2, 5],
-    pipelineTitle: 'Diagnosis pipeline · Routing → Reasoning → Report',
+    activeAgents: [0, 2], // Updated to match your 0 -> 1 -> 2 flow
+    pipelineTitle: 'Diagnosis Agent Swarm',
+    variant: 'diagnosis',    // Matches the switch case in AgentPipeline
   },
   lixiviant: {
     component: LixiviantModule,
-    activeAgents: [0, 1, 2, 3, 4, 5],
-    pipelineTitle: 'Optimization pipeline · Full 6-agent loop',
+    activeAgents: [0,1,2, 3, 4], // Updated to focus on the optimization loop
+    pipelineTitle: 'Optimization Loop',
+    variant: 'lixiviant',    // Matches the switch case in AgentPipeline
   },
   'zone-strategy': {
     component: ZoneStrategyModule,
-    activeAgents: [0, 1, 3, 4, 5],
-    pipelineTitle: 'Prioritization pipeline · GraphRAG + Parallel Optimization',
+    activeAgents: [0, 1, 2, 3, 4, 6, 5],
+    pipelineTitle: 'Prioritization pipeline · Agent 06 Zone Scorer',
+    variant: 'zone',         // Matches the switch case in AgentPipeline
   },
 };
 
@@ -30,6 +33,7 @@ export default function App() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [activeModule, setActiveModule] = useState('diagnosis');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [diagnosisComplete, setDiagnosisComplete] = useState(false);
   const timersRef = useRef([]);
 
   useEffect(() => {
@@ -73,7 +77,6 @@ export default function App() {
   }
 
   const moduleConfig = MODULES[activeModule] ?? MODULES.diagnosis;
-  const ActiveModule = moduleConfig.component;
 
   return (
     <div className={`console-shell transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
@@ -96,14 +99,29 @@ export default function App() {
           />
 
           <main className="grid gap-5 min-w-0">
+            {/* The global pipeline now dynamically shifts layout and agents! */}
             <AgentPipeline
               activeIds={moduleConfig.activeAgents}
               title={moduleConfig.pipelineTitle}
+              variant={moduleConfig.variant}
             />
 
-            <div key={activeModule} className="animate-[fade-in_0.35s_ease-out_forwards]">
-              <ActiveModule />
-            </div>
+            {Object.entries(MODULES).map(([moduleKey, config]) => {
+              const ModuleComponent = config.component;
+              const isActive = activeModule === moduleKey;
+              const moduleProps =
+                moduleKey === 'diagnosis'
+                  ? { onComplete: () => setDiagnosisComplete(true) }
+                  : { diagnosisComplete };
+              return (
+                <div
+                  key={moduleKey}
+                  style={{ display: isActive ? 'block' : 'none' }}
+                >
+                  <ModuleComponent {...moduleProps} />
+                </div>
+              );
+            })}
           </main>
         </div>
       </div>

@@ -1,6 +1,9 @@
 import json
+import logging
 import os
 from db.neo4j_client import run_query, get_driver
+
+log = logging.getLogger("zync.graph_rag")
 
 _KNOWN_CASES_PATH = os.path.join(
     os.path.dirname(__file__), "../../data/known_cases/known_cases.json"
@@ -49,7 +52,8 @@ async def query_historical_cases(deposit_profile: dict) -> list:
     try:
         records = await run_query(cypher, {"clay_type": clay_type, "state": state})
         return [dict(r) for r in records]
-    except Exception:
+    except Exception as e:
+        log.error(f"graph_rag query failed: {e}")
         return []
 
 

@@ -1,5 +1,15 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { runPipeline } from '../api/client';
+import {
+  DEMO_PIPELINE_REASONING,
+  DEMO_PIPELINE_FLOWSHEET,
+  DEMO_ITERATIONS,
+  DEMO_COMPLIANCE,
+  DEMO_REPORT,
+} from '../demo/demoData';
+import { streamText, delay } from '../demo/demoStream';
+
+const DEMO_MODE = true;
 
 const DOMAIN_REAGENTS = [
   { id: 'hcl', name: 'HCl (3M)', yield: 68.2, esgRisk: 6.8, temperature: 90, time: 6, class: 'acid', slRatio: '1:8' },
@@ -20,21 +30,17 @@ const DOMAIN_OPTIMAL = {
   residence_time_hr: 4,
   solid_liquid_ratio: '1:10',
   design_speedup: 89,
-  sfiles_notation: '(feed){crush/80μm}→{leach/H₂SO₄+NaF/85°C/4h}→(PLS)[SX/D2EHPA/kerosene]→(strip/HCl)→{precip/oxalic_acid}→{calcine/900°C}→(REE₂O₃)',
+  sfiles_notation: '(suap){hancur/80μm}→{leach/H₂SO₄+NaF/85°C/4h}→(PLS)[SX/D2EHPA/kerosin]→(jalur/HCl)→{mendak/asid_oksalik}→{kalsin/900°C}→(REE₂O₃)',
   chain_of_thought: {
-    reasoning_content: `The optimization engine evaluated 7 lixiviant systems across a multi-objective function:
+    reasoning_content: `Fungsi objektif: J(x) = 0.6·Hasil(x) − 0.4·ESG(x)
 
-Objective: Maximize f(yield, ESG) = w₁·yield - w₂·ESG_risk, where w₁=0.7, w₂=0.3
+Penemuan utama:
+1. H₂SO₄ sahaja mencapai 72.4% hasil dengan risiko ESG sederhana (5.2/10)
+2. Penambahan 0.1M NaF sebagai pengaktif katalitik meningkatkan hasil ke 81.6% dengan mengganggu kisi kristal monazit
+3. NaOH alkalin mencapai 76.8% hasil dengan ESG rendah (3.2/10) tetapi memerlukan suhu lebih tinggi (140°C vs 85°C), meningkatkan OPEX ~35%
+4. Asid organik (sitrik, EDTA) menunjukkan profil ESG cemerlang tetapi hasil tidak boleh diterima (<45%) untuk kebolehterusan ekonomi
 
-Key findings:
-1. H₂SO₄ alone achieves 72.4% yield but with moderate ESG risk (5.2/10) due to SOₓ emissions
-2. Addition of 0.1M NaF as a catalytic activator increases yield to 81.6% by disrupting the monazite crystal lattice (F⁻ substitution at phosphate sites)
-3. NaOH alkaline crack achieves 76.8% yield with low ESG risk (3.2/10) but requires higher temperature (140°C vs 85°C), increasing OPEX by ~35%
-4. Organic acids (citric, EDTA) show excellent ESG profiles but unacceptable yields (<45%) for economic viability
-
-The Pareto-optimal solution is H₂SO₄ + NaF at 85°C, offering the best yield-to-ESG ratio.
-
-SFILES 2.0 flowsheet generated per standard chemical process notation (Ryu et al., 2019).`,
+Penyelesaian Pareto-optimum: H₂SO₄ + NaF pada 85°C`,
     references: [
       { doi: '10.1016/j.mineng.2019.106025', title: 'Ryu et al. (2019) — SFILES 2.0: Chemical process flowsheet notation', journal: 'Minerals Engineering' },
       { doi: '10.1016/j.hydromet.2018.04.015', title: 'Zhang & Edwards (2018) — Fluoride-assisted acid leaching of monazite', journal: 'Hydrometallurgy' },
@@ -42,59 +48,30 @@ SFILES 2.0 flowsheet generated per standard chemical process notation (Ryu et al
   },
 };
 
-const DEFAULT_DEPOSIT = {
-  location: 'Perak Tin Tailings Belt',
-  state: 'Perak',
-  clay_type: 'laterite',
-  ree_grade: 0.08,
-  depth_m: 12,
-  area_ha: 340,
-  iron_oxide_pct: 6.5,
-  esg_priority: 'medium',
-  notes: 'Legacy tin tailings; monazite-rich; road + rail access.',
-};
-
-/**
- * Extracts the optimal lixiviant block from a raw flowsheet dict returned
- * by Agent 2. The real backend returns something like:
- *   { lixiviant, concentration_M, pH_range, temperature_C, residence_hr,
- *     yield_pct, esg_risk_score, sfiles_2_0 | sfiles_notation, ... }
- */
-function mapBackendFlowsheet(flowsheet, reasoningText) {
-  const picked = {
-    optimal_lixiviant:
-      flowsheet.lixiviant ??
-      flowsheet.optimal_lixiviant ??
-      DOMAIN_OPTIMAL.optimal_lixiviant,
-    extraction_yield: Number(
-      flowsheet.yield_pct ?? flowsheet.extraction_yield ?? DOMAIN_OPTIMAL.extraction_yield,
-    ),
-    esg_risk_score: Number(
-      flowsheet.esg_risk_score ?? flowsheet.esg_risk ?? DOMAIN_OPTIMAL.esg_risk_score,
-    ),
-    temperature_c: Number(
-      flowsheet.temperature_C ?? flowsheet.temperature_c ?? DOMAIN_OPTIMAL.temperature_c,
-    ),
-    residence_time_hr: Number(
-      flowsheet.residence_hr ??
-        flowsheet.residence_time_hr ??
-        DOMAIN_OPTIMAL.residence_time_hr,
-    ),
-    solid_liquid_ratio:
-      flowsheet.solid_liquid_ratio ??
-      flowsheet.sl_ratio ??
-      DOMAIN_OPTIMAL.solid_liquid_ratio,
+function mapFlowsheet(flowsheet, reasoningText) {
+  return {
+    optimal_lixiviant: flowsheet.lixiviant ?? DOMAIN_OPTIMAL.optimal_lixiviant,
+    extraction_yield: Number(flowsheet.predicted_yield_pct ?? flowsheet.yield_pct ?? DOMAIN_OPTIMAL.extraction_yield),
+    esg_risk_score: Number(flowsheet.esg_risk_score ?? 0),
+    concentration_M: flowsheet.concentration_M ?? null,
+    temperature_c: Number(flowsheet.temperature_C ?? DOMAIN_OPTIMAL.temperature_c),
+    residence_time_hr: Number(flowsheet.contact_time_hrs ?? DOMAIN_OPTIMAL.residence_time_hr),
+    solid_liquid_ratio: flowsheet.solid_liquid_ratio ?? DOMAIN_OPTIMAL.solid_liquid_ratio,
+    sfiles_notation: flowsheet.sfiles_string ?? flowsheet.sfiles_notation ?? DOMAIN_OPTIMAL.sfiles_notation,
+    thorium_risk: flowsheet.thorium_risk ?? null,
+    thorium_risk_reason: flowsheet.thorium_risk_reason ?? null,
+    esg_flag: flowsheet.esg_flag ?? false,
+    esg_note: flowsheet.esg_note ?? null,
+    confidence: flowsheet.confidence ?? null,
+    confidence_reason: flowsheet.confidence_reason ?? null,
+    alternative_option: flowsheet.alternative_option ?? null,
+    pH_range: flowsheet.pH_range ?? null,
     design_speedup: DOMAIN_OPTIMAL.design_speedup,
-    sfiles_notation:
-      flowsheet.sfiles_notation ??
-      flowsheet.sfiles_2_0 ??
-      DOMAIN_OPTIMAL.sfiles_notation,
     chain_of_thought: {
       reasoning_content: reasoningText || DOMAIN_OPTIMAL.chain_of_thought.reasoning_content,
       references: flowsheet.references ?? DOMAIN_OPTIMAL.chain_of_thought.references,
     },
   };
-  return picked;
 }
 
 export default function useLixiviant() {
@@ -103,14 +80,97 @@ export default function useLixiviant() {
   const [flowsheet, setFlowsheet] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isLive, setIsLive] = useState(false); // true when backend returned real data
+  const [isLive, setIsLive] = useState(false);
   const [streamingReasoning, setStreamingReasoning] = useState('');
-  const [agentStatus, setAgentStatus] = useState({}); // { 2: "thinking" | "done", ... }
+  const [agentStatus, setAgentStatus] = useState({});
+  const [iterations, setIterations] = useState([]);
+  const [iterationsRun, setIterationsRun] = useState(null);
+  const [converged, setConverged] = useState(null);
+  const [compliance, setCompliance] = useState(null);
+  const [report, setReport] = useState(null);
   const abortRef = useRef(null);
+  const isMounted = useRef(true);
 
-  useEffect(() => () => abortRef.current?.abort(), []);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+      abortRef.current?.abort();
+    };
+  }, []);
 
-  const fetchOptimization = useCallback(async (deposit = DEFAULT_DEPOSIT) => {
+  const _runDemoOptimization = useCallback(async () => {
+    if (!isMounted.current) return;
+    setIsLoading(true);
+    setError(null);
+    setStreamingReasoning('');
+    setAgentStatus({});
+    setFlowsheet(null);
+    setIterations([]);
+    setIterationsRun(null);
+    setConverged(null);
+    setCompliance(null);
+    setReport(null);
+
+    // Agent 0 — routing
+    await delay(1600);
+    if (!isMounted.current) return;
+    setAgentStatus({ 0: 'done' });
+
+    // Agent 1 — historian
+    await delay(700);
+    if (!isMounted.current) return;
+    setAgentStatus((p) => ({ ...p, 1: 'done' }));
+
+    // Agent 2 — chemist streaming reasoning
+    setAgentStatus((p) => ({ ...p, 2: 'reasoning' }));
+    let reasoningBuf = '';
+    await streamText(
+      DEMO_PIPELINE_REASONING,
+      (chunk) => {
+        if (!isMounted.current) return;
+        reasoningBuf += chunk;
+        setStreamingReasoning(reasoningBuf);
+      },
+      { chunkSize: 5, delayMs: 20 },
+    );
+    if (!isMounted.current) return;
+    setAgentStatus((p) => ({ ...p, 2: 'done' }));
+    setFlowsheet(DEMO_PIPELINE_FLOWSHEET.sfiles_string);
+
+    // Agent 3 — optimizer iterations
+    setAgentStatus((p) => ({ ...p, 3: 'active' }));
+    for (const iter of DEMO_ITERATIONS) {
+      if (!isMounted.current) return;
+      await delay(480);
+      setIterations((prev) => [...prev, iter]);
+    }
+    if (!isMounted.current) return;
+    setIterationsRun(DEMO_ITERATIONS.length);
+    setConverged(true);
+    setAgentStatus((p) => ({ ...p, 3: 'done' }));
+
+    // Agent 4 — compliance
+    await delay(800);
+    if (!isMounted.current) return;
+    setCompliance(DEMO_COMPLIANCE);
+    setAgentStatus((p) => ({ ...p, 4: 'done' }));
+
+    // Agent 5 — report
+    await delay(900);
+    if (!isMounted.current) return;
+    setReport(DEMO_REPORT);
+    setAgentStatus((p) => ({ ...p, 5: 'done' }));
+
+    setOptimal(mapFlowsheet(DEMO_PIPELINE_FLOWSHEET, reasoningBuf));
+    setReagents(DOMAIN_REAGENTS);
+    setIsLive(true);
+    setIsLoading(false);
+  }, []);
+
+  const fetchOptimization = useCallback(async (deposit) => {
+    if (DEMO_MODE) { await _runDemoOptimization(); return; }
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -120,21 +180,35 @@ export default function useLixiviant() {
     setStreamingReasoning('');
     setAgentStatus({});
     setFlowsheet(null);
+    setIterations([]);
+    setIterationsRun(null);
+    setConverged(null);
+    setCompliance(null);
+    setReport(null);
 
     let reasoningBuffer = '';
     let capturedFlowsheet = null;
 
+    const DEFAULT_DEPOSIT = {
+      location: 'Perak Tin Tailings Belt',
+      state: 'Perak',
+      clay_type: 'laterite',
+      ree_grade: 0.08,
+      depth_m: 12,
+      area_ha: 340,
+      iron_oxide_pct: 6.5,
+      esg_priority: 'medium',
+      notes: 'Legacy tin tailings; monazite-rich; road + rail access.',
+    };
+
     try {
       await runPipeline(
-        { deposit_profile: deposit },
+        { deposit_profile: deposit ?? DEFAULT_DEPOSIT },
         {
           signal: controller.signal,
           onEvent: (evt) => {
             if (typeof evt.agent === 'number') {
-              setAgentStatus((prev) => ({
-                ...prev,
-                [evt.agent]: evt.status ?? evt.type ?? 'active',
-              }));
+              setAgentStatus((prev) => ({ ...prev, [evt.agent]: evt.status ?? evt.type ?? 'active' }));
             }
             if (evt.agent === 2 && evt.type === 'reasoning' && evt.text) {
               reasoningBuffer += evt.text;
@@ -142,18 +216,27 @@ export default function useLixiviant() {
             }
             if (evt.agent === 2 && evt.status === 'done' && evt.flowsheet) {
               capturedFlowsheet = evt.flowsheet;
-              setFlowsheet(
-                capturedFlowsheet.sfiles_2_0 ??
-                  capturedFlowsheet.sfiles_notation ??
-                  null,
-              );
+              setFlowsheet(capturedFlowsheet.sfiles_string ?? capturedFlowsheet.sfiles_2_0 ?? capturedFlowsheet.sfiles_notation ?? null);
+            }
+            if (evt.agent === 3 && evt.type === 'iteration' && evt.iteration) {
+              setIterations((prev) => [...prev, evt.iteration]);
+            }
+            if (evt.agent === 3 && evt.status === 'done') {
+              setIterationsRun(evt.iterations_run ?? null);
+              setConverged(evt.converged ?? null);
+            }
+            if (evt.agent === 4 && evt.status === 'done' && evt.compliance) {
+              setCompliance(evt.compliance);
+            }
+            if (evt.agent === 5 && evt.status === 'done' && evt.report) {
+              setReport(evt.report);
             }
           },
         },
       );
 
       if (capturedFlowsheet) {
-        setOptimal(mapBackendFlowsheet(capturedFlowsheet, reasoningBuffer));
+        setOptimal(mapFlowsheet(capturedFlowsheet, reasoningBuffer));
         setIsLive(true);
       } else {
         setOptimal(DOMAIN_OPTIMAL);
@@ -169,13 +252,8 @@ export default function useLixiviant() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [_runDemoOptimization]);
 
-  /**
-   * Kept for UI compatibility. If the pipeline has already been run and we
-   * have a flowsheet, just echo it. Otherwise trigger the pipeline which
-   * will set both `optimal.sfiles_notation` and `flowsheet`.
-   */
   const generateFlowsheet = useCallback(async () => {
     if (optimal?.sfiles_notation && !flowsheet) {
       setFlowsheet(optimal.sfiles_notation);
@@ -197,6 +275,11 @@ export default function useLixiviant() {
     isLive,
     streamingReasoning,
     agentStatus,
+    iterations,
+    iterationsRun,
+    converged,
+    compliance,
+    report,
     fetchOptimization,
     generateFlowsheet,
   };

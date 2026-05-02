@@ -26,28 +26,33 @@ Output format — return ONLY valid JSON:
   "contact_time_hrs": float,
   "solid_liquid_ratio": str,
   "predicted_yield_pct": float,
+  "esg_risk_score": float,
   "thorium_risk": "low | medium | high",
   "thorium_risk_reason": str,
   "esg_flag": bool,
-  "esg_note": str,
-  "sfiles_string": str,
-  "confidence": "high | medium | low",
+  "confidence": "HIGH | MEDIUM | LOW",
   "confidence_reason": str,
-  "reasoning_steps": [
-    {
-      "step": int,
-      "decision": str,
-      "scientific_basis": str
-    }
-  ],
+  "sfiles_string": str,
   "alternative_option": {
     "lixiviant": str,
     "note": str
-  }
+  },
+  "references": [
+    {
+      "doi": str,
+      "title": str,
+      "journal": str
+    }
+  ]
 }
 
-reasoning_steps must contain at least 4 steps showing your scientific logic.
+esg_risk_score is a float from 0.0 (no risk) to 10.0 (extreme risk) summarising environmental and radiological exposure of the proposed process.
+reasoning_steps: show your step-by-step reasoning in the thinking/reasoning trace, not in the JSON output.
 sfiles_string must be a valid SFILES 2.0 notation string representing the leaching flowsheet.
-If data is insufficient to make a confident recommendation, set confidence to low and explain clearly.
+references must include 1–3 real published papers that support your lixiviant selection.
+confidence must be uppercase: HIGH, MEDIUM, or LOW.
+If data is insufficient to make a confident recommendation, set confidence to LOW and explain clearly.
 Do NOT hallucinate yield numbers — base predictions on the historical context provided.
+
+LANGUAGE: Write all string values in Bahasa Malaysia. Use formal Malay engineering terminology. Only field names and SFILES notation remain in English/symbolic form.
 """

@@ -1,7 +1,10 @@
 import json
+import logging
 from typing import AsyncGenerator
 from agents.base_agent import stream_glm
 from prompts.agent_diagnosis_prompt import DIAGNOSIS_PROMPT
+
+log = logging.getLogger("zync.agent_diagnosis")
 
 
 async def run_diagnosis(
@@ -24,7 +27,7 @@ async def run_diagnosis(
       {"type": "done",      "diagnosis": {}} <- final parsed card
       {"type": "error",     "message": "..."}
     """
-    message = _build_message(ph_readings, temperature, yield_pct, operator_notes)
+    message = _build_message(ph_readings, temperature, yield_pct, operator_notes, has_image=bool(log_image_b64))
 
     # Pass image as data URI if provided
     images = None
@@ -54,7 +57,12 @@ async def run_diagnosis(
             yield chunk
 
         if chunk["type"] == "done":
-            diagnosis = _parse_diagnosis(chunk["output"] or full_output)
+            raw = chunk["output"] or full_output
+            diagnosis = _parse_diagnosis(raw)
+            if diagnosis.get("error"):
+                log.warning(f"diagnosis parse failed — {diagnosis['error']} | raw: {raw[:200]!r}")
+            else:
+                log.info(f"diagnosis complete — root_cause={diagnosis.get('root_cause')!r} confidence={diagnosis.get('confidence')}")
             yield {
                 "type":      "done",
                 "diagnosis": diagnosis,
@@ -69,6 +77,7 @@ def _build_message(
     temperature: list,
     yield_pct: list,
     operator_notes: str | None,
+    has_image: bool = False,
 ) -> str:
     has_readings = any([ph_readings, temperature, yield_pct])
 
@@ -85,10 +94,14 @@ def _build_message(
 
     notes_block = operator_notes or "No operator notes provided."
 
-    image_note = (
-        "A photo of the handwritten process log has been attached. "
-        "Extract all values you can read from it."
-    ) if True else "No image attached — diagnose from structured readings only."
+    if has_image:
+        image_note = (
+            "A photo of the handwritten process log has been attached. "
+            "Extract all readings visible in the image — pH, temperature, yield, dates, operator notes. "
+            "Use these extracted values as your primary data source."
+        )
+    else:
+        image_note = "No image attached — diagnose from the structured readings and operator notes only."
 
     return f"""
 OPERATOR NOTES
@@ -108,17 +121,62 @@ Output valid JSON matching the specified schema.
 
 
 def _parse_diagnosis(output: str) -> dict:
-    """Safely parse GLM's JSON diagnosis card."""
+    """
+    Robustly extract diagnosis JSON from GLM output.
+    Tries four strategies before returning a fallback that includes raw_output
+    so the frontend can still display something useful.
+    """
+    import re
+
+    if not output or not output.strip():
+        return {"error": "Empty response from model", "raw_output": "", "confidence": "LOW"}
+
+    clean = output.strip()
+
+    # Strategy 1 — direct parse
     try:
-        clean = output.strip()
-        if clean.startswith("```"):
-            clean = clean.split("```")[1]
-            if clean.startswith("json"):
-                clean = clean[4:]
-        return json.loads(clean.strip())
-    except (json.JSONDecodeError, IndexError):
+        return json.loads(clean)
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 2 — strip markdown code fences ```json ... ``` or ``` ... ```
+    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", clean, re.DOTALL)
+    if fence:
+        try:
+            return json.loads(fence.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 3 — find first { … last } in the string
+    start = clean.find("{")
+    end   = clean.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            return json.loads(clean[start:end + 1])
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 4 — model returned prose, extract key fields with regex
+    def extract(pattern, text, group=1, default=None):
+        m = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+        return m.group(group).strip() if m else default
+
+    root_cause   = extract(r'"root_cause"\s*:\s*"([^"]+)"', clean)
+    primary_action = extract(r'"primary_action"\s*:\s*"([^"]+)"', clean)
+    confidence   = extract(r'"confidence"\s*:\s*"(HIGH|MEDIUM|LOW)"', clean, default="LOW")
+    esg_flag_str = extract(r'"esg_flag"\s*:\s*(true|false)', clean, default="false")
+
+    if root_cause or primary_action:
         return {
-            "error":      "Failed to parse diagnosis JSON",
-            "raw_output": output,
-            "confidence": "LOW",
+            "root_cause":    root_cause or "See raw output",
+            "primary_action": primary_action or "See raw output",
+            "confidence":    confidence,
+            "esg_flag":      esg_flag_str == "true",
+            "raw_output":    clean,
         }
+
+    return {
+        "error":      "Could not parse model response as diagnosis JSON",
+        "raw_output": clean,
+        "confidence": "LOW",
+    }

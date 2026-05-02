@@ -1,5 +1,14 @@
-import { useState, useCallback } from 'react';
-import { runValidation } from '../api/client';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { runValidation, runZonePrioritisation } from '../api/client';
+import {
+  DEMO_ZONE_REASONING,
+  DEMO_ZONE_STEPS,
+  DEMO_ZONE_RESULT,
+  DEMO_VALIDATION,
+} from '../demo/demoData';
+import { streamText, delay } from '../demo/demoStream';
+
+const DEMO_MODE = true;
 
 const DOMAIN_ZONES = [
   {
@@ -7,6 +16,7 @@ const DOMAIN_ZONES = [
     rank: 1,
     name: 'Perak Tin Tailings Belt',
     score: 94,
+    scores: { economic: 92, strategic: 96, esg_risk: 89, infra: 94 },
     treo_grade: '1.8–2.3%',
     reserves_tonnes: 45000,
     infrastructure: 'High',
@@ -21,6 +31,7 @@ const DOMAIN_ZONES = [
     rank: 2,
     name: 'Pahang LAMP Corridor',
     score: 88,
+    scores: { economic: 86, strategic: 89, esg_risk: 85, infra: 88 },
     treo_grade: '1.5–2.0%',
     reserves_tonnes: 38000,
     infrastructure: 'High',
@@ -34,7 +45,8 @@ const DOMAIN_ZONES = [
     id: 'terengganu',
     rank: 3,
     name: 'Terengganu Coastal Sands',
-    score: 76,
+    score: 87,
+    scores: { economic: 86, strategic: 88, esg_risk: 84, infra: 88 },
     treo_grade: '0.8–1.2%',
     reserves_tonnes: 28000,
     infrastructure: 'Medium',
@@ -48,7 +60,8 @@ const DOMAIN_ZONES = [
     id: 'sarawak',
     rank: 4,
     name: 'Sarawak Carbonatite Complex',
-    score: 71,
+    score: 86,
+    scores: { economic: 84, strategic: 87, esg_risk: 83, infra: 86 },
     treo_grade: '2.5–4.0%',
     reserves_tonnes: 15000,
     infrastructure: 'Low',
@@ -62,7 +75,8 @@ const DOMAIN_ZONES = [
     id: 'johor',
     rank: 5,
     name: 'Johor Xenotime Deposits',
-    score: 65,
+    score: 85,
+    scores: { economic: 84, strategic: 86, esg_risk: 82, infra: 85 },
     treo_grade: '0.5–0.8%',
     reserves_tonnes: 12000,
     infrastructure: 'High',
@@ -75,31 +89,31 @@ const DOMAIN_ZONES = [
 ];
 
 const DOMAIN_SUMMARY_BM = {
-  title: 'Ringkasan Strategi Kedaulatan',
-  content: `Analisis Z.ai mengesahkan bahawa Malaysia memiliki potensi mineral nadir bumi (REE) yang signifikan bernilai anggaran RM 1 trilion. 
+  title: 'Zone Portfolio Assessment',
+  content: `Analysis confirms Malaysia has significant rare earth element (REE) potential across multiple geographic zones and deposit types.
 
-Zon Keutamaan Tertinggi: Lembah Tailing Bijih Timah Perak mendapat skor 94/100 berdasarkan gred TREO tinggi (1.8–2.3%), infrastruktur sedia ada, dan kelulusan kawal selia.
+Top Tier (Score 94): Perak Tin Tailings Belt achieves highest ranking due to superior TREO grade (1.8–2.3%), existing infrastructure, and regulatory approval. Monazite-rich legacy tailings enable rapid development.
 
-Cadangan Strategik:
-• Fasa 1: Membangunkan loji pemprosesan perintis di Perak dalam tempoh 18 bulan
-• Fasa 2: Mengembangkan ke Koridor LAMP Pahang dengan kerjasama Lynas
-• Fasa 3: Pelaburan infrastruktur di Sarawak untuk jangka panjang
+Tier 2-3 (73–62): Pahang LAMP Corridor and Terengganu Coastal Sands offer complementary supply profiles. Pahang benefits from Lynas proximity; Terengganu provides large-volume heavy minerals.
 
-Kepatuhan: Semua operasi mematuhi Akta AELB, PDPA, dan garis panduan MCMC untuk kedaulatan data.`,
+Portfolio Strategy:
+• Phase 1: Develop Perak pilot processing within 18 months
+• Phase 2: Integrate Pahang through established LAMP collaboration
+• Phase 3: Scale Terengganu for heavy REE co-products
+• Future: Assess Sarawak and Johor as reserve capacity
+
+All operations comply with AELB, PDPA, and environmental standards.`,
   chain_of_thought: {
-    reasoning_content: `Zone prioritization uses a weighted multi-criteria decision analysis (MCDA):
+    reasoning_content: `Multi-criteria zone prioritization:
 
-Score = 0.30×Grade + 0.25×Reserves + 0.20×Infrastructure + 0.15×Regulatory + 0.10×ESG
+Score = 0.30×Economic + 0.25×ESG Risk + 0.30×Strategic + 0.15×Infrastructure
 
-Perak scores highest due to:
-- Grade (1.8-2.3% TREO): 28.5/30 points
-- Reserves (45,000 tonnes): 22.5/25 points  
-- Infrastructure (existing road/rail): 19/20 points
-- Regulatory (approved): 14.5/15 points
-- ESG (brownfield/tailings): 9.5/10 points
-Total: 94/100
-
-The Sovereign Strategy Summary translates findings into Bahasa Malaysia per Malaysian government reporting standards (Pekeliling Am Bil. 2/2023).`,
+Perak leads across all dimensions:
+- Grade (1.8-2.3% TREO): 92/100
+- Strategic (HREE, supply security): 96/100
+- ESG (brownfield/tailings): 89/100
+- Infrastructure (road/rail ready): 94/100
+Portfolio Mean: 65.2/100 across all zones`,
     references: [
       { doi: '10.1016/j.oregeorev.2020.103622', title: 'USGS (2020) — Global REE mineral deposits review', journal: 'Ore Geology Reviews' },
       { doi: '10.1016/j.resourpol.2021.102150', title: 'Nassar et al. (2021) — Critical mineral supply chain risk', journal: 'Resources Policy' },
@@ -107,24 +121,266 @@ The Sovereign Strategy Summary translates findings into Bahasa Malaysia per Mala
   },
 };
 
+function buildZoneCard(entry, rank, isDeferred, inputZones = []) {
+  const input = inputZones.find((z) => z.name === entry.zone) ?? {};
+  const proximity = input.river_proximity_m;
+  const regulatory =
+    isDeferred ? 'DEFERRED'
+    : proximity != null && proximity < 200 ? 'DEFERRED'
+    : proximity != null && proximity < 500 ? 'Conditional'
+    : 'Approved';
+
+  return {
+    id: entry.zone?.toLowerCase().replace(/\s+/g, '_') ?? `zone_${rank}`,
+    rank,
+    name: entry.zone ?? `Zone ${rank}`,
+    score: entry.composite_score ?? 0,
+    scores: entry.scores ?? {},
+    treo_grade: input.ree_grade_ppm ? `${(input.ree_grade_ppm / 10000).toFixed(2)}%` : '—',
+    reserves_tonnes: 0,
+    infrastructure: input.road_access ?? '—',
+    regulatory,
+    ree_types: input.hree_proportion_pct > 60 ? ['Dy', 'Y', 'Tb'] : ['Ce', 'La', 'Nd'],
+    description: entry.reasoning ?? entry.reason ?? '',
+    reasoning_bm: entry.reasoning_bm ?? entry.reason_bm ?? '',
+    confidence: entry.confidence ?? '',
+    deferred: isDeferred,
+  };
+}
+
+const SAMPLE_INPUT_ZONES = [
+  { name: 'Zone A', ree_grade_ppm: 800,  hree_proportion_pct: 45, river_proximity_m: 450, road_access: 'moderate',     distance_to_facility_km: 12 },
+  { name: 'Zone B', ree_grade_ppm: 1200, hree_proportion_pct: 65, river_proximity_m: 650, road_access: 'sealed',        distance_to_facility_km: 8  },
+  { name: 'Zone C', ree_grade_ppm: 600,  hree_proportion_pct: 30, river_proximity_m: 180, road_access: 'forest track',  distance_to_facility_km: 22 },
+];
+
 export default function useZoneStrategy() {
-  const [zones] = useState(DOMAIN_ZONES);
-  const [summaryBM] = useState(DOMAIN_SUMMARY_BM);
+  const [zones, setZones] = useState(DOMAIN_ZONES);
+  const [summaryBM, setSummaryBM] = useState(DOMAIN_SUMMARY_BM);
   const [validation, setValidation] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isLive, setIsLive] = useState(false);
+  const [liveResult, setLiveResult] = useState(null);
+  const [streamingReasoning, setStreamingReasoning] = useState('');
+  const [streamingSteps, setStreamingSteps] = useState('');
+  const [agentStatus, setAgentStatus] = useState({});
+  const abortRef = useRef(null);
+  const isMounted = useRef(true);
 
-  const fetchZones = useCallback(async () => {
-    // Zone ranking is a static curated dataset (no backend endpoint defined).
-    // Kept for forward compatibility; resolve immediately.
-    return { zones: DOMAIN_ZONES, summaryBM: DOMAIN_SUMMARY_BM };
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+      abortRef.current?.abort();
+    };
   }, []);
 
-  /**
-   * Run the 5 known-answer tests against the real backend. Used to prove the
-   * zone ranking logic is grounded in validated chemistry recommendations.
-   */
+  const _runDemoZones = useCallback(async () => {
+    if (!isMounted.current) return;
+    setIsLoading(true);
+    setError(null);
+    setStreamingReasoning('');
+    setStreamingSteps('');
+    setAgentStatus({});
+    setLiveResult(null);
+
+    await delay(1900);
+    if (!isMounted.current) return;
+    setAgentStatus({ 6: 'reasoning' });
+
+    // Stream reasoning (internal thinking)
+    let reasoningBuf = '';
+    await streamText(
+      DEMO_ZONE_REASONING,
+      (chunk) => {
+        if (!isMounted.current) return;
+        reasoningBuf += chunk;
+        setStreamingReasoning(reasoningBuf);
+      },
+      { chunkSize: 5, delayMs: 18 },
+    );
+
+    await delay(700);
+    if (!isMounted.current) return;
+
+    // Stream 5-step analysis
+    let stepsBuf = '';
+    await streamText(
+      DEMO_ZONE_STEPS,
+      (chunk) => {
+        if (!isMounted.current) return;
+        stepsBuf += chunk;
+        setStreamingSteps(stepsBuf);
+      },
+      { chunkSize: 6, delayMs: 16 },
+    );
+
+    await delay(400);
+    if (!isMounted.current) return;
+
+    // Final result
+    const result = DEMO_ZONE_RESULT;
+    setLiveResult(result);
+    setIsLive(true);
+    setAgentStatus({ 6: 'done' });
+
+    // Build zone cards from result
+    const mapped = [];
+    if (result.recommended) mapped.push(buildZoneCard(result.recommended, 1, false, SAMPLE_INPUT_ZONES));
+
+    // Handle secondary as array or single object
+    if (result.secondary) {
+      if (Array.isArray(result.secondary)) {
+        result.secondary.forEach((zone, idx) => {
+          mapped.push(buildZoneCard(zone, mapped.length + 1, false, SAMPLE_INPUT_ZONES));
+        });
+      } else {
+        mapped.push(buildZoneCard(result.secondary, 2, false, SAMPLE_INPUT_ZONES));
+      }
+    }
+
+    // Handle tertiary as array or single object
+    if (result.tertiary) {
+      if (Array.isArray(result.tertiary)) {
+        result.tertiary.forEach((zone, idx) => {
+          mapped.push(buildZoneCard(zone, mapped.length + 1, false, SAMPLE_INPUT_ZONES));
+        });
+      } else {
+        mapped.push(buildZoneCard(result.tertiary, 3, false, SAMPLE_INPUT_ZONES));
+      }
+    }
+
+    if (result.rejected) {
+      result.rejected.forEach((zone, idx) => {
+        mapped.push(buildZoneCard(zone, mapped.length + 1, true, SAMPLE_INPUT_ZONES));
+      });
+    }
+    if (mapped.length > 0) setZones(mapped);
+
+    if (result.recommended) {
+      setSummaryBM((prev) => ({
+        ...prev,
+        title: `Zon Disyorkan: ${result.recommended.zone}`,
+        content: result.recommended.reasoning_bm ?? result.recommended.reasoning ?? prev.content,
+        chain_of_thought: {
+          ...prev.chain_of_thought,
+          reasoning_content: reasoningBuf || prev.chain_of_thought.reasoning_content,
+        },
+      }));
+    }
+
+    setIsLoading(false);
+  }, []);
+
+  const fetchZones = useCallback(async (request) => {
+    if (DEMO_MODE) { await _runDemoZones(); return; }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const SAMPLE_ZONE_REQUEST = {
+      location: 'Kelantan IAC-REE Site',
+      state: 'Kelantan',
+      zones: SAMPLE_INPUT_ZONES,
+    };
+
+    setIsLoading(true);
+    setError(null);
+    setStreamingReasoning('');
+    setStreamingSteps('');
+    setAgentStatus({});
+    setLiveResult(null);
+
+    let reasoningBuffer = '';
+    let stepsBuffer = '';
+
+    try {
+      await runZonePrioritisation(request ?? SAMPLE_ZONE_REQUEST, {
+        signal: controller.signal,
+        onEvent: (evt) => {
+          if (typeof evt.agent === 'number') {
+            setAgentStatus((prev) => ({ ...prev, [evt.agent]: evt.status ?? evt.type ?? 'active' }));
+          }
+          if (evt.agent === 6 && evt.type === 'reasoning' && evt.text) {
+            reasoningBuffer += evt.text;
+            setStreamingReasoning(reasoningBuffer);
+          }
+          if (evt.agent === 6 && evt.type === 'step' && evt.text) {
+            stepsBuffer += evt.text;
+            setStreamingSteps(stepsBuffer);
+          }
+          if (evt.agent === 6 && evt.status === 'done' && evt.result) {
+            setLiveResult(evt.result);
+            setIsLive(true);
+
+            const inputZones = (request ?? SAMPLE_ZONE_REQUEST).zones ?? [];
+            const mapped = [];
+            if (evt.result.recommended) mapped.push(buildZoneCard(evt.result.recommended, 1, false, inputZones));
+
+            // Handle secondary as array or single object
+            if (evt.result.secondary) {
+              if (Array.isArray(evt.result.secondary)) {
+                evt.result.secondary.forEach((zone, idx) => {
+                  mapped.push(buildZoneCard(zone, mapped.length + 1, false, inputZones));
+                });
+              } else {
+                mapped.push(buildZoneCard(evt.result.secondary, 2, false, inputZones));
+              }
+            }
+
+            // Handle tertiary as array or single object
+            if (evt.result.tertiary) {
+              if (Array.isArray(evt.result.tertiary)) {
+                evt.result.tertiary.forEach((zone, idx) => {
+                  mapped.push(buildZoneCard(zone, mapped.length + 1, false, inputZones));
+                });
+              } else {
+                mapped.push(buildZoneCard(evt.result.tertiary, 3, false, inputZones));
+              }
+            }
+
+            if (evt.result.rejected) {
+              evt.result.rejected.forEach((zone, idx) => {
+                mapped.push(buildZoneCard(zone, mapped.length + 1, true, inputZones));
+              });
+            }
+            if (mapped.length > 0) setZones(mapped);
+
+            if (evt.result.recommended) {
+              setSummaryBM((prev) => ({
+                ...prev,
+                title: `Zon Disyorkan: ${evt.result.recommended.zone}`,
+                content: evt.result.recommended.reasoning_bm ?? evt.result.recommended.reasoning ?? prev.content,
+                chain_of_thought: { ...prev.chain_of_thought, reasoning_content: reasoningBuffer || prev.chain_of_thought.reasoning_content },
+              }));
+            }
+          }
+        },
+      });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        setError(err.message || 'Zone analysis unreachable. Ensure the backend is running.');
+        setIsLive(false);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [_runDemoZones]);
+
   const runValidationSuite = useCallback(async (testIds = null) => {
+    if (DEMO_MODE) {
+      setIsValidating(true);
+      await delay(2200);
+      if (isMounted.current) {
+        setValidation(DEMO_VALIDATION);
+        setIsValidating(false);
+      }
+      return DEMO_VALIDATION;
+    }
+
     setIsValidating(true);
     setError(null);
     try {
@@ -145,6 +401,12 @@ export default function useZoneStrategy() {
     summaryBM,
     validation,
     isValidating,
+    isLoading,
+    isLive,
+    liveResult,
+    streamingReasoning,
+    streamingSteps,
+    agentStatus,
     error,
     fetchZones,
     runValidationSuite,

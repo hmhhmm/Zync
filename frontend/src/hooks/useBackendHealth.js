@@ -10,6 +10,7 @@ export default function useBackendHealth(intervalMs = 20000) {
     online: null, // null = not yet checked
     lastChecked: null,
     service: null,
+    version: null,
   });
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function useBackendHealth(intervalMs = 20000) {
         online: Boolean(result),
         lastChecked: new Date(),
         service: result?.service ?? null,
+        version: result?.version ?? null,
       });
     };
 

@@ -1,0 +1,3164 @@
+[
+  [
+    101.595,
+    2.958,
+    "Ayer Hitam",
+    "district or area"
+  ],
+  [
+    101.159,
+    4.187,
+    "Ayer Kuning",
+    "district or area"
+  ],
+  [
+    100.983,
+    5.317,
+    "Babi",
+    "district or area"
+  ],
+  [
+    102.657,
+    2.055,
+    "Bakri",
+    "district or area"
+  ],
+  [
+    101.096,
+    4.384,
+    "Ban Chin Hin",
+    "district or area"
+  ],
+  [
+    101.068,
+    4.434,
+    "Batu Gajah",
+    "district or area"
+  ],
+  [
+    101.405,
+    3.426,
+    "Berjuntai",
+    "district or area"
+  ],
+  [
+    102.329,
+    2.115,
+    "Besar",
+    "district or area"
+  ],
+  [
+    101.673,
+    3.051,
+    "Besi",
+    "district or area"
+  ],
+  [
+    101.25,
+    4.068,
+    "Bidor",
+    "district or area"
+  ],
+  [
+    101.059,
+    4.42,
+    "Chai Fan Thom",
+    "district or area"
+  ],
+  [
+    100.993,
+    4.363,
+    "Che Song",
+    "site"
+  ],
+  [
+    101.654,
+    2.864,
+    "Dengkil",
+    "district or area"
+  ],
+  [
+    101.798,
+    2.963,
+    "Dengkil-Bangi",
+    "district or area"
+  ],
+  [
+    101.057,
+    4.461,
+    "Dinding",
+    "district or area"
+  ],
+  [
+    103.1,
+    3.717,
+    "Gambang",
+    "district or area"
+  ],
+  [
+    101.14,
+    4.463,
+    "Gopeng",
+    "district or area"
+  ],
+  [
+    101.034,
+    5.64,
+    "Intan",
+    "district or area"
+  ],
+  [
+    100.98,
+    4.555,
+    "Ipoh",
+    "district or area"
+  ],
+  [
+    101.077,
+    4.656,
+    "Jelapang",
+    "district or area"
+  ],
+  [
+    104.026,
+    2.016,
+    "Kambau mines",
+    "mine"
+  ],
+  [
+    101.149,
+    4.296,
+    "Kampar",
+    "district or area"
+  ],
+  [
+    101.04,
+    4.25,
+    "Kampung Gajah",
+    "district or area"
+  ],
+  [
+    102.032,
+    3.415,
+    "Karak Tin Mine",
+    "mine"
+  ],
+  [
+    100.589,
+    5.543,
+    "Karangan",
+    "district or area"
+  ],
+  [
+    102.248,
+    6.168,
+    "Kelantan",
+    "district or area"
+  ],
+  [
+    103.358,
+    4.214,
+    "Kemaman",
+    "district or area"
+  ],
+  [
+    101.155,
+    4.531,
+    "Khoo Soo Chai",
+    "district or area"
+  ],
+  [
+    101.603,
+    2.998,
+    "Killinghall",
+    "district or area"
+  ],
+  [
+    101.167,
+    4.3,
+    "Kinta Valley",
+    "district or area"
+  ],
+  [
+    101.983,
+    2.766,
+    "Kuala Kelawang",
+    "district or area"
+  ],
+  [
+    101.584,
+    2.846,
+    "Kuala Langat-Tj Duabelas",
+    "district or area"
+  ],
+  [
+    101.75,
+    3,
+    "Kuala Lumpur",
+    "district or area"
+  ],
+  [
+    101.035,
+    4.542,
+    "Lahat Mine",
+    "mine"
+  ],
+  [
+    100.749,
+    4.788,
+    "Larut",
+    "district or area"
+  ],
+  [
+    100.586,
+    4.244,
+    "Lumut-Dindings",
+    "district or area"
+  ],
+  [
+    101.088,
+    4.015,
+    "Padang",
+    "district or area"
+  ],
+  [
+    103.167,
+    3.892,
+    "Panching",
+    "district or area"
+  ],
+  [
+    100.596,
+    4.395,
+    "Pantai",
+    "district or area"
+  ],
+  [
+    102.217,
+    2.964,
+    "Pertang",
+    "district or area"
+  ],
+  [
+    101.569,
+    2.958,
+    "Petaling",
+    "district or area"
+  ],
+  [
+    101.033,
+    5.634,
+    "Rahman Hydraulic Tin Mine",
+    "mine"
+  ],
+  [
+    101.553,
+    3.328,
+    "Rawang-Kuala Kubu Baharu",
+    "district or area"
+  ],
+  [
+    101.612,
+    2.849,
+    "Selangor",
+    "district or area"
+  ],
+  [
+    101.902,
+    2.693,
+    "Seremban",
+    "district or area"
+  ],
+  [
+    100.47,
+    5.7,
+    "Siau Hin",
+    "district or area"
+  ],
+  [
+    101.865,
+    2.612,
+    "Siliau",
+    "district or area"
+  ],
+  [
+    101.302,
+    4.006,
+    "Sungkai",
+    "district or area"
+  ],
+  [
+    100.679,
+    4.822,
+    "Taiping",
+    "district or area"
+  ],
+  [
+    101.008,
+    4.334,
+    "Tanjong Tualang",
+    "district or area"
+  ],
+  [
+    101.164,
+    4.506,
+    "Tekka",
+    "district or area"
+  ],
+  [
+    100.981,
+    4.419,
+    "Teronoh",
+    "district or area"
+  ],
+  [
+    103.14,
+    5.34,
+    "Trengganu",
+    "district or area"
+  ],
+  [
+    100.707,
+    4.707,
+    "Trong",
+    "district or area"
+  ],
+  [
+    101.583,
+    3.086,
+    "Way",
+    "district or area"
+  ],
+  [
+    101.131,
+    4.438,
+    "Yong Nyee Fan",
+    "district or area"
+  ],
+  [
+    101.131,
+    4.429,
+    "Yoon Foong",
+    "district or area"
+  ],
+  [
+    100.526,
+    6.928,
+    "Thung Kamin",
+    "district or area"
+  ],
+  [
+    100.526,
+    6.921,
+    "Thung Pho",
+    "district or area"
+  ],
+  [
+    101.07,
+    4.57,
+    "Canning",
+    "district or area"
+  ],
+  [
+    101.062,
+    4.598,
+    "Falim",
+    "district or area"
+  ],
+  [
+    101.06,
+    4.58,
+    "Poh",
+    "district or area"
+  ],
+  [
+    101.05,
+    4.52,
+    "Menglembu",
+    "district or area"
+  ],
+  [
+    101.082,
+    4.51,
+    "Bercham",
+    "district or area"
+  ],
+  [
+    101.12,
+    4.55,
+    "Sungai Rapat",
+    "district or area"
+  ],
+  [
+    101.15,
+    4.53,
+    "Gunung Rapat",
+    "district or area"
+  ],
+  [
+    101.02,
+    4.39,
+    "Pusing",
+    "district or area"
+  ],
+  [
+    101.2,
+    4.4,
+    "Simpang Pulai",
+    "district or area"
+  ],
+  [
+    101.17,
+    4.34,
+    "Mambang Di Awan",
+    "district or area"
+  ],
+  [
+    101.12,
+    4.47,
+    "Papan",
+    "district or area"
+  ],
+  [
+    101.03,
+    4.59,
+    "Tasek",
+    "district or area"
+  ],
+  [
+    101.13,
+    4.68,
+    "Siputeh",
+    "district or area"
+  ],
+  [
+    101.085,
+    4.425,
+    "Bukit Merah Kinta",
+    "district or area"
+  ],
+  [
+    101.12,
+    4.725,
+    "Chemor",
+    "district or area"
+  ],
+  [
+    100.94,
+    4.62,
+    "Meru",
+    "district or area"
+  ],
+  [
+    101.045,
+    4.63,
+    "Pengkalan",
+    "district or area"
+  ],
+  [
+    101.185,
+    4.385,
+    "Tanjung Rambutan",
+    "district or area"
+  ],
+  [
+    101.225,
+    4.205,
+    "Tapah",
+    "district or area"
+  ],
+  [
+    101.355,
+    4.08,
+    "Slim River",
+    "district or area"
+  ],
+  [
+    101.285,
+    4.175,
+    "Sahom",
+    "district or area"
+  ],
+  [
+    101.22,
+    4.265,
+    "Chenderiang",
+    "district or area"
+  ],
+  [
+    101.082,
+    3.98,
+    "Teluk Intan",
+    "district or area"
+  ],
+  [
+    101.05,
+    3.95,
+    "Sungai Manik",
+    "district or area"
+  ],
+  [
+    101.005,
+    3.9,
+    "Bagan Datuk",
+    "district or area"
+  ],
+  [
+    101.12,
+    3.875,
+    "Hutan Melintang",
+    "district or area"
+  ],
+  [
+    101.2,
+    3.95,
+    "Changkat Jong",
+    "district or area"
+  ],
+  [
+    100.855,
+    4.005,
+    "Beruas",
+    "district or area"
+  ],
+  [
+    100.78,
+    4.055,
+    "Seri Manjung",
+    "district or area"
+  ],
+  [
+    100.615,
+    4.245,
+    "Lumut",
+    "district or area"
+  ],
+  [
+    100.805,
+    4.162,
+    "Sitiawan",
+    "district or area"
+  ],
+  [
+    100.722,
+    4.228,
+    "Pantai Remis",
+    "district or area"
+  ],
+  [
+    100.975,
+    5.1,
+    "Lenggong",
+    "district or area"
+  ],
+  [
+    101.128,
+    5.428,
+    "Gerik",
+    "district or area"
+  ],
+  [
+    101.38,
+    5.3,
+    "Temengor",
+    "district or area"
+  ],
+  [
+    101.25,
+    5.5,
+    "Pengkalan Hulu",
+    "district or area"
+  ],
+  [
+    100.88,
+    5.28,
+    "Kuala Kangsar",
+    "district or area"
+  ],
+  [
+    100.93,
+    4.77,
+    "Jebong",
+    "district or area"
+  ],
+  [
+    100.98,
+    4.86,
+    "Sungai Siput",
+    "district or area"
+  ],
+  [
+    101.05,
+    4.9,
+    "Enggor",
+    "district or area"
+  ],
+  [
+    101.08,
+    5.1,
+    "Sumpitan",
+    "district or area"
+  ],
+  [
+    100.75,
+    4.835,
+    "Simpang",
+    "district or area"
+  ],
+  [
+    100.8,
+    4.898,
+    "Padang Rengas",
+    "district or area"
+  ],
+  [
+    100.64,
+    4.85,
+    "Kuala Sepetang",
+    "district or area"
+  ],
+  [
+    100.68,
+    5,
+    "Selama",
+    "district or area"
+  ],
+  [
+    100.73,
+    4.978,
+    "Batu Kurau",
+    "district or area"
+  ],
+  [
+    100.652,
+    4.732,
+    "Matang",
+    "district or area"
+  ],
+  [
+    100.592,
+    4.852,
+    "Kuala Gula",
+    "district or area"
+  ],
+  [
+    100.802,
+    4.802,
+    "Bukit Gantang",
+    "district or area"
+  ],
+  [
+    100.732,
+    5.05,
+    "Bagan Serai",
+    "district or area"
+  ],
+  [
+    100.782,
+    5.12,
+    "Parit Buntar",
+    "district or area"
+  ],
+  [
+    100.742,
+    4.398,
+    "Ayer Tawar",
+    "district or area"
+  ],
+  [
+    100.802,
+    4.482,
+    "Segari",
+    "district or area"
+  ],
+  [
+    100.852,
+    4.522,
+    "Pengkalan Baharu",
+    "district or area"
+  ],
+  [
+    101.095,
+    4.358,
+    "Sungai Siput Selatan",
+    "district or area"
+  ],
+  [
+    101.165,
+    4.455,
+    "Ampang Gading",
+    "district or area"
+  ],
+  [
+    101.032,
+    4.475,
+    "Batu Karang",
+    "district or area"
+  ],
+  [
+    101.175,
+    4.508,
+    "Kepayang",
+    "district or area"
+  ],
+  [
+    101.048,
+    4.548,
+    "Tanjong Rambutan Mine",
+    "mine"
+  ],
+  [
+    101.195,
+    4.62,
+    "Sungai Siput Utara",
+    "district or area"
+  ],
+  [
+    101.098,
+    4.405,
+    "Gua Tempurung",
+    "district or area"
+  ],
+  [
+    101.042,
+    4.31,
+    "Ulu Kinta",
+    "district or area"
+  ],
+  [
+    101.115,
+    4.318,
+    "Bukit Koman",
+    "district or area"
+  ],
+  [
+    101.085,
+    4.398,
+    "Tronoh Mines",
+    "mine"
+  ],
+  [
+    101.032,
+    4.468,
+    "Rapat Mines",
+    "mine"
+  ],
+  [
+    101.155,
+    4.478,
+    "Gunong Rapat Mine",
+    "mine"
+  ],
+  [
+    101.062,
+    4.512,
+    "Sungai Pari",
+    "district or area"
+  ],
+  [
+    100.938,
+    4.58,
+    "Karai",
+    "district or area"
+  ],
+  [
+    100.962,
+    4.502,
+    "Malim Nawar",
+    "district or area"
+  ],
+  [
+    101.222,
+    4.352,
+    "Batu Putih",
+    "district or area"
+  ],
+  [
+    101.262,
+    4.442,
+    "Sungai Buloh Perak",
+    "district or area"
+  ],
+  [
+    101.302,
+    4.525,
+    "Sungai Itek",
+    "district or area"
+  ],
+  [
+    101.352,
+    4.608,
+    "Sungai Dedap",
+    "district or area"
+  ],
+  [
+    101.402,
+    4.702,
+    "Ulu Bernam Perak",
+    "district or area"
+  ],
+  [
+    101.068,
+    4.752,
+    "Sungai Siput Mine",
+    "mine"
+  ],
+  [
+    101.135,
+    4.798,
+    "Tanjong Besar",
+    "district or area"
+  ],
+  [
+    101.175,
+    4.852,
+    "Kalumpang",
+    "district or area"
+  ],
+  [
+    100.908,
+    5.042,
+    "Ulu Garing",
+    "district or area"
+  ],
+  [
+    100.958,
+    5.178,
+    "Lasah",
+    "district or area"
+  ],
+  [
+    101.018,
+    5.318,
+    "Temenggor",
+    "district or area"
+  ],
+  [
+    101.185,
+    5.602,
+    "Belum",
+    "district or area"
+  ],
+  [
+    100.848,
+    4.108,
+    "Sabak Bernam Perak",
+    "district or area"
+  ],
+  [
+    100.912,
+    4.182,
+    "Hilir Perak",
+    "district or area"
+  ],
+  [
+    100.978,
+    4.048,
+    "Bagan Datuk N",
+    "district or area"
+  ],
+  [
+    101.135,
+    4.115,
+    "Teluk Intan N",
+    "district or area"
+  ],
+  [
+    101.482,
+    3.392,
+    "Ulu Yam",
+    "district or area"
+  ],
+  [
+    101.532,
+    3.498,
+    "Batang Kali",
+    "district or area"
+  ],
+  [
+    101.578,
+    3.602,
+    "Kuala Kubu Baharu",
+    "district or area"
+  ],
+  [
+    101.452,
+    3.252,
+    "Rawang",
+    "district or area"
+  ],
+  [
+    101.415,
+    3.305,
+    "Selayang",
+    "district or area"
+  ],
+  [
+    101.402,
+    3.518,
+    "Hulu Bernam",
+    "district or area"
+  ],
+  [
+    101.682,
+    3.182,
+    "Ampang",
+    "district or area"
+  ],
+  [
+    101.722,
+    3.102,
+    "Cheras",
+    "district or area"
+  ],
+  [
+    101.652,
+    3.072,
+    "Kajang",
+    "district or area"
+  ],
+  [
+    101.792,
+    2.982,
+    "Semenyih",
+    "district or area"
+  ],
+  [
+    101.842,
+    2.948,
+    "Rinching",
+    "district or area"
+  ],
+  [
+    101.482,
+    3.062,
+    "Subang Jaya",
+    "district or area"
+  ],
+  [
+    101.452,
+    3.002,
+    "Shah Alam",
+    "district or area"
+  ],
+  [
+    101.408,
+    3.002,
+    "Klang",
+    "district or area"
+  ],
+  [
+    101.358,
+    3.052,
+    "Meru Selangor",
+    "district or area"
+  ],
+  [
+    101.362,
+    3.382,
+    "Ijok",
+    "district or area"
+  ],
+  [
+    101.482,
+    3.482,
+    "Batang Berjuntai",
+    "district or area"
+  ],
+  [
+    101.622,
+    3.252,
+    "Hulu Langat",
+    "district or area"
+  ],
+  [
+    101.778,
+    3.158,
+    "Beranang",
+    "district or area"
+  ],
+  [
+    101.565,
+    2.972,
+    "Puchong",
+    "district or area"
+  ],
+  [
+    101.688,
+    3.352,
+    "Hulu Langat S",
+    "district or area"
+  ],
+  [
+    101.522,
+    3.722,
+    "Kerling",
+    "district or area"
+  ],
+  [
+    101.568,
+    3.808,
+    "Kuala Kubu Baharu N",
+    "district or area"
+  ],
+  [
+    101.428,
+    2.902,
+    "Pulau Ketam area",
+    "district or area"
+  ],
+  [
+    101.492,
+    2.882,
+    "Sungai Pelek",
+    "district or area"
+  ],
+  [
+    101.588,
+    2.748,
+    "Sepang",
+    "district or area"
+  ],
+  [
+    101.668,
+    3.428,
+    "Ulu Langat",
+    "district or area"
+  ],
+  [
+    101.758,
+    3.508,
+    "Gombak",
+    "district or area"
+  ],
+  [
+    101.508,
+    3.588,
+    "Kuala Selangor",
+    "district or area"
+  ],
+  [
+    101.258,
+    3.348,
+    "Kuala Selangor W",
+    "district or area"
+  ],
+  [
+    103.332,
+    3.812,
+    "Kuantan N",
+    "district or area"
+  ],
+  [
+    103.298,
+    3.728,
+    "Kuantan",
+    "district or area"
+  ],
+  [
+    103.198,
+    3.682,
+    "Gambang S",
+    "district or area"
+  ],
+  [
+    103.048,
+    3.548,
+    "Maran",
+    "district or area"
+  ],
+  [
+    102.802,
+    3.425,
+    "Temerloh area",
+    "district or area"
+  ],
+  [
+    102.352,
+    3.522,
+    "Raub",
+    "district or area"
+  ],
+  [
+    102.402,
+    3.702,
+    "Bentong",
+    "district or area"
+  ],
+  [
+    102.622,
+    3.352,
+    "Triang",
+    "district or area"
+  ],
+  [
+    102.802,
+    3.652,
+    "Jerantut",
+    "district or area"
+  ],
+  [
+    102.902,
+    3.902,
+    "Tembeling",
+    "district or area"
+  ],
+  [
+    101.802,
+    3.352,
+    "Teranum",
+    "district or area"
+  ],
+  [
+    102.102,
+    3.202,
+    "Batu Talam",
+    "district or area"
+  ],
+  [
+    102.202,
+    3.602,
+    "Ulu Dong",
+    "district or area"
+  ],
+  [
+    102.452,
+    3.152,
+    "Temerloh S",
+    "district or area"
+  ],
+  [
+    103.052,
+    3.302,
+    "Sungai Lembing",
+    "district or area"
+  ],
+  [
+    103.002,
+    3.202,
+    "Bukit Pelindung",
+    "district or area"
+  ],
+  [
+    102.952,
+    3.522,
+    "Kuala Krau",
+    "district or area"
+  ],
+  [
+    102.722,
+    3.752,
+    "Chenor",
+    "district or area"
+  ],
+  [
+    102.852,
+    3.832,
+    "Maran N",
+    "district or area"
+  ],
+  [
+    102.552,
+    3.452,
+    "Semantan",
+    "district or area"
+  ],
+  [
+    102.652,
+    4.052,
+    "Kuala Tembeling",
+    "district or area"
+  ],
+  [
+    102.478,
+    4.152,
+    "Cameron Highlands border",
+    "district or area"
+  ],
+  [
+    103.158,
+    4.242,
+    "Kemaman N",
+    "district or area"
+  ],
+  [
+    103.252,
+    3.952,
+    "Kuantan coast",
+    "district or area"
+  ],
+  [
+    103.282,
+    4.052,
+    "Chendering",
+    "district or area"
+  ],
+  [
+    102.748,
+    4.252,
+    "Lipis",
+    "district or area"
+  ],
+  [
+    102.522,
+    3.952,
+    "Kuala Lipis",
+    "district or area"
+  ],
+  [
+    102.248,
+    3.852,
+    "Ulu Tembeling",
+    "district or area"
+  ],
+  [
+    102.148,
+    3.152,
+    "Luit",
+    "district or area"
+  ],
+  [
+    102.352,
+    2.852,
+    "Jelebu",
+    "district or area"
+  ],
+  [
+    102.148,
+    2.682,
+    "Rembau N",
+    "district or area"
+  ],
+  [
+    103.052,
+    2.952,
+    "Pekan",
+    "district or area"
+  ],
+  [
+    103.152,
+    3.102,
+    "Pekan N",
+    "district or area"
+  ],
+  [
+    103.252,
+    3.502,
+    "Kuala Pahang",
+    "district or area"
+  ],
+  [
+    102.852,
+    4.452,
+    "Ulu Tembeling N",
+    "district or area"
+  ],
+  [
+    103.432,
+    4.082,
+    "Kuala Terengganu border",
+    "district or area"
+  ],
+  [
+    103.098,
+    1.872,
+    "Kota Tinggi area",
+    "district or area"
+  ],
+  [
+    103.302,
+    1.752,
+    "Mersing area",
+    "district or area"
+  ],
+  [
+    103.502,
+    2.122,
+    "Endau",
+    "district or area"
+  ],
+  [
+    103.752,
+    1.962,
+    "Mersing coast",
+    "district or area"
+  ],
+  [
+    103.452,
+    1.642,
+    "Kota Tinggi coast",
+    "district or area"
+  ],
+  [
+    103.282,
+    1.552,
+    "Desaru area",
+    "district or area"
+  ],
+  [
+    103.522,
+    1.472,
+    "Tanjung Balau",
+    "district or area"
+  ],
+  [
+    103.622,
+    1.472,
+    "Tanjung Sedili",
+    "district or area"
+  ],
+  [
+    102.972,
+    1.852,
+    "Bekok",
+    "district or area"
+  ],
+  [
+    102.802,
+    1.922,
+    "Labis",
+    "district or area"
+  ],
+  [
+    102.552,
+    2.052,
+    "Segamat area",
+    "district or area"
+  ],
+  [
+    103.162,
+    2.052,
+    "Kluang",
+    "district or area"
+  ],
+  [
+    103.322,
+    2.022,
+    "Machap",
+    "district or area"
+  ],
+  [
+    103.228,
+    1.952,
+    "Ayer Hitam Johor",
+    "district or area"
+  ],
+  [
+    102.571,
+    2.044,
+    "Muar",
+    "district or area"
+  ],
+  [
+    102.796,
+    2.052,
+    "Pagoh",
+    "district or area"
+  ],
+  [
+    102.583,
+    2.574,
+    "Gemas area",
+    "district or area"
+  ],
+  [
+    102.852,
+    2.252,
+    "Kahang",
+    "district or area"
+  ],
+  [
+    103.002,
+    2.302,
+    "Paloh",
+    "district or area"
+  ],
+  [
+    103.202,
+    2.422,
+    "Mersing N",
+    "district or area"
+  ],
+  [
+    103.102,
+    2.552,
+    "Endau N",
+    "district or area"
+  ],
+  [
+    103.352,
+    2.452,
+    "Mersing river",
+    "district or area"
+  ],
+  [
+    102.652,
+    1.982,
+    "Renggam",
+    "district or area"
+  ],
+  [
+    102.728,
+    1.802,
+    "Bekok S",
+    "district or area"
+  ],
+  [
+    103.452,
+    1.352,
+    "Johor Bahru area",
+    "district or area"
+  ],
+  [
+    103.632,
+    1.452,
+    "Pasir Gudang area",
+    "district or area"
+  ],
+  [
+    103.063,
+    1.979,
+    "Yong Peng",
+    "district or area"
+  ],
+  [
+    102.923,
+    1.749,
+    "Sri Gading",
+    "district or area"
+  ],
+  [
+    102.931,
+    1.852,
+    "Batu Pahat",
+    "district or area"
+  ],
+  [
+    103.093,
+    1.977,
+    "Parit Sulong",
+    "district or area"
+  ],
+  [
+    103.248,
+    1.748,
+    "Rengit",
+    "district or area"
+  ],
+  [
+    103.359,
+    1.568,
+    "Benut",
+    "district or area"
+  ],
+  [
+    103.387,
+    1.491,
+    "Pontian",
+    "district or area"
+  ],
+  [
+    103.493,
+    1.498,
+    "Pekan Nenas",
+    "district or area"
+  ],
+  [
+    102.452,
+    2.252,
+    "Jemaluang",
+    "district or area"
+  ],
+  [
+    103.552,
+    2.802,
+    "Mersing N2",
+    "district or area"
+  ],
+  [
+    103.322,
+    1.842,
+    "Kota Tinggi SE",
+    "district or area"
+  ],
+  [
+    103.752,
+    2.282,
+    "Endau coast",
+    "district or area"
+  ],
+  [
+    104.052,
+    1.902,
+    "Sedili Besar",
+    "district or area"
+  ],
+  [
+    104.152,
+    1.752,
+    "Tanjung Sedili Besar",
+    "district or area"
+  ],
+  [
+    103.752,
+    1.652,
+    "Pengerang",
+    "district or area"
+  ],
+  [
+    103.552,
+    1.522,
+    "Tanjung Piai area",
+    "district or area"
+  ],
+  [
+    103.482,
+    1.252,
+    "Tanjung Piai",
+    "district or area"
+  ],
+  [
+    103.132,
+    5.318,
+    "Kuala Terengganu",
+    "district or area"
+  ],
+  [
+    103.182,
+    5.202,
+    "Kuala Nerus",
+    "district or area"
+  ],
+  [
+    103.202,
+    5.152,
+    "Kuala Ibai",
+    "district or area"
+  ],
+  [
+    103.102,
+    5.102,
+    "Marang",
+    "district or area"
+  ],
+  [
+    103.178,
+    4.782,
+    "Dungun",
+    "district or area"
+  ],
+  [
+    103.252,
+    4.602,
+    "Paka",
+    "district or area"
+  ],
+  [
+    103.332,
+    4.492,
+    "Kerteh",
+    "district or area"
+  ],
+  [
+    103.402,
+    5.402,
+    "Besut coast",
+    "district or area"
+  ],
+  [
+    103.332,
+    5.452,
+    "Besut",
+    "district or area"
+  ],
+  [
+    103.202,
+    5.502,
+    "Besut S",
+    "district or area"
+  ],
+  [
+    102.802,
+    5.182,
+    "Hulu Terengganu",
+    "district or area"
+  ],
+  [
+    102.902,
+    4.802,
+    "Ulu Dungun",
+    "district or area"
+  ],
+  [
+    102.602,
+    4.652,
+    "Hulu Dungun",
+    "district or area"
+  ],
+  [
+    102.452,
+    4.852,
+    "Hulu Terengganu area",
+    "district or area"
+  ],
+  [
+    102.302,
+    5.002,
+    "Setiu",
+    "district or area"
+  ],
+  [
+    102.702,
+    5.152,
+    "Setiu N",
+    "district or area"
+  ],
+  [
+    103.352,
+    4.852,
+    "Bukit Besi",
+    "mine"
+  ],
+  [
+    103.428,
+    4.512,
+    "Kemaman coast",
+    "district or area"
+  ],
+  [
+    103.252,
+    4.152,
+    "Chukai",
+    "district or area"
+  ],
+  [
+    103.452,
+    5.252,
+    "Tok Bali",
+    "district or area"
+  ],
+  [
+    103.052,
+    4.982,
+    "Ajil",
+    "district or area"
+  ],
+  [
+    102.952,
+    5.102,
+    "Ulu Setiu",
+    "district or area"
+  ],
+  [
+    103.148,
+    4.602,
+    "Dungun N",
+    "district or area"
+  ],
+  [
+    102.242,
+    6.102,
+    "Kota Bharu",
+    "district or area"
+  ],
+  [
+    102.002,
+    6.052,
+    "Pasir Mas",
+    "district or area"
+  ],
+  [
+    102.182,
+    5.802,
+    "Tanah Merah",
+    "district or area"
+  ],
+  [
+    102.228,
+    5.752,
+    "Machang",
+    "district or area"
+  ],
+  [
+    102.502,
+    5.972,
+    "Pasir Puteh",
+    "district or area"
+  ],
+  [
+    102.622,
+    6.002,
+    "Ketereh coast",
+    "district or area"
+  ],
+  [
+    102.742,
+    6.182,
+    "Tumpat",
+    "district or area"
+  ],
+  [
+    102.502,
+    6.102,
+    "Bachok",
+    "district or area"
+  ],
+  [
+    101.982,
+    5.652,
+    "Gua Musang area",
+    "district or area"
+  ],
+  [
+    101.852,
+    5.502,
+    "Gua Musang",
+    "district or area"
+  ],
+  [
+    101.952,
+    5.302,
+    "Chiku",
+    "district or area"
+  ],
+  [
+    101.782,
+    5.752,
+    "Kemubu",
+    "district or area"
+  ],
+  [
+    102.352,
+    5.602,
+    "Ulu Kelantan",
+    "district or area"
+  ],
+  [
+    101.882,
+    5.902,
+    "Kuala Krai",
+    "district or area"
+  ],
+  [
+    102.128,
+    5.452,
+    "Bertam",
+    "district or area"
+  ],
+  [
+    102.252,
+    5.552,
+    "Manik Urai",
+    "district or area"
+  ],
+  [
+    101.678,
+    5.352,
+    "Jeli",
+    "district or area"
+  ],
+  [
+    102.452,
+    5.802,
+    "Ulu Pasir",
+    "district or area"
+  ],
+  [
+    101.948,
+    6.152,
+    "Pengkalan Kubor",
+    "district or area"
+  ],
+  [
+    102.352,
+    6.252,
+    "Tumpat coast",
+    "district or area"
+  ],
+  [
+    100.372,
+    6.122,
+    "Alor Setar",
+    "district or area"
+  ],
+  [
+    100.452,
+    6.052,
+    "Simpang Empat Kedah",
+    "district or area"
+  ],
+  [
+    100.532,
+    5.952,
+    "Bedong",
+    "district or area"
+  ],
+  [
+    100.682,
+    5.782,
+    "Gurun",
+    "district or area"
+  ],
+  [
+    100.822,
+    5.982,
+    "Baling",
+    "district or area"
+  ],
+  [
+    100.752,
+    6.252,
+    "Sungai Petani N",
+    "district or area"
+  ],
+  [
+    100.632,
+    6.182,
+    "Sungai Petani",
+    "district or area"
+  ],
+  [
+    100.502,
+    6.282,
+    "Jitra",
+    "district or area"
+  ],
+  [
+    100.552,
+    5.722,
+    "Kulim",
+    "district or area"
+  ],
+  [
+    100.722,
+    5.602,
+    "Kulim E",
+    "district or area"
+  ],
+  [
+    100.522,
+    5.522,
+    "Lunas",
+    "district or area"
+  ],
+  [
+    100.482,
+    5.622,
+    "Batu Seketol",
+    "district or area"
+  ],
+  [
+    100.622,
+    5.452,
+    "Padang Serai",
+    "district or area"
+  ],
+  [
+    100.352,
+    6.002,
+    "Yan",
+    "district or area"
+  ],
+  [
+    100.422,
+    5.962,
+    "Pokok Sena",
+    "district or area"
+  ],
+  [
+    100.358,
+    6.432,
+    "Kangar",
+    "district or area"
+  ],
+  [
+    100.522,
+    6.552,
+    "Perlis",
+    "district or area"
+  ],
+  [
+    100.422,
+    6.652,
+    "Padang Besar",
+    "district or area"
+  ],
+  [
+    100.752,
+    5.852,
+    "Sik",
+    "district or area"
+  ],
+  [
+    100.632,
+    5.682,
+    "Baling W",
+    "district or area"
+  ],
+  [
+    100.548,
+    6.378,
+    "Arau",
+    "district or area"
+  ],
+  [
+    100.298,
+    6.248,
+    "Alor Setar W",
+    "district or area"
+  ],
+  [
+    100.778,
+    6.048,
+    "Pendang",
+    "district or area"
+  ],
+  [
+    100.878,
+    5.698,
+    "Baling S",
+    "district or area"
+  ],
+  [
+    100.438,
+    5.858,
+    "Guar Chempedak",
+    "district or area"
+  ],
+  [
+    101.928,
+    2.732,
+    "Seremban N",
+    "district or area"
+  ],
+  [
+    101.802,
+    2.822,
+    "Nilai",
+    "district or area"
+  ],
+  [
+    101.852,
+    2.702,
+    "Labu",
+    "district or area"
+  ],
+  [
+    101.732,
+    2.652,
+    "Batang Benar",
+    "district or area"
+  ],
+  [
+    102.052,
+    2.852,
+    "Mantin",
+    "district or area"
+  ],
+  [
+    102.202,
+    2.902,
+    "Semenyih NS area",
+    "district or area"
+  ],
+  [
+    102.352,
+    2.782,
+    "Lenggeng",
+    "district or area"
+  ],
+  [
+    101.882,
+    2.522,
+    "Port Dickson",
+    "district or area"
+  ],
+  [
+    101.932,
+    2.422,
+    "Lukut",
+    "district or area"
+  ],
+  [
+    101.856,
+    2.392,
+    "Teluk Kemang",
+    "district or area"
+  ],
+  [
+    102.402,
+    3.002,
+    "Kuala Pilah",
+    "district or area"
+  ],
+  [
+    102.552,
+    3.052,
+    "Rembau",
+    "district or area"
+  ],
+  [
+    102.382,
+    2.752,
+    "Rantau",
+    "district or area"
+  ],
+  [
+    101.982,
+    2.952,
+    "Jempol",
+    "district or area"
+  ],
+  [
+    102.322,
+    3.152,
+    "Bahau",
+    "district or area"
+  ],
+  [
+    102.452,
+    3.222,
+    "Rompin NS area",
+    "district or area"
+  ],
+  [
+    102.148,
+    2.482,
+    "Pasir Panjang NS",
+    "district or area"
+  ],
+  [
+    102.252,
+    2.202,
+    "Alor Gajah",
+    "district or area"
+  ],
+  [
+    102.202,
+    2.322,
+    "Ayer Keroh",
+    "district or area"
+  ],
+  [
+    102.242,
+    2.192,
+    "Melaka Tengah",
+    "district or area"
+  ],
+  [
+    102.302,
+    2.132,
+    "Pulau Sebang",
+    "district or area"
+  ],
+  [
+    102.382,
+    2.242,
+    "Jasin",
+    "district or area"
+  ],
+  [
+    102.452,
+    2.302,
+    "Merlimau",
+    "district or area"
+  ],
+  [
+    102.359,
+    2.229,
+    "Masjid Tanah",
+    "district or area"
+  ],
+  [
+    102.182,
+    2.262,
+    "Bukit Katil",
+    "district or area"
+  ],
+  [
+    102.082,
+    2.312,
+    "Tanjung Kling",
+    "district or area"
+  ],
+  [
+    102.152,
+    2.422,
+    "Simpang Ampat",
+    "district or area"
+  ],
+  [
+    110.332,
+    1.548,
+    "Kuching",
+    "district or area"
+  ],
+  [
+    110.228,
+    1.478,
+    "Lundu",
+    "district or area"
+  ],
+  [
+    110.438,
+    1.598,
+    "Samarahan",
+    "district or area"
+  ],
+  [
+    110.522,
+    1.482,
+    "Serian",
+    "district or area"
+  ],
+  [
+    110.582,
+    1.402,
+    "Simunjan",
+    "district or area"
+  ],
+  [
+    110.702,
+    1.352,
+    "Asajaya",
+    "district or area"
+  ],
+  [
+    110.618,
+    1.652,
+    "Kota Samarahan",
+    "district or area"
+  ],
+  [
+    110.422,
+    1.698,
+    "Kuching N",
+    "district or area"
+  ],
+  [
+    111.472,
+    1.242,
+    "Sri Aman",
+    "district or area"
+  ],
+  [
+    111.252,
+    1.102,
+    "Betong",
+    "district or area"
+  ],
+  [
+    111.652,
+    1.502,
+    "Lubok Antu",
+    "district or area"
+  ],
+  [
+    111.832,
+    1.432,
+    "Engkilili",
+    "district or area"
+  ],
+  [
+    111.818,
+    2.298,
+    "Sibu",
+    "district or area"
+  ],
+  [
+    111.952,
+    2.102,
+    "Sarikei",
+    "district or area"
+  ],
+  [
+    112.122,
+    2.052,
+    "Sarikei E",
+    "district or area"
+  ],
+  [
+    112.252,
+    1.952,
+    "Meradong",
+    "district or area"
+  ],
+  [
+    112.052,
+    2.402,
+    "Dalat",
+    "district or area"
+  ],
+  [
+    111.952,
+    2.552,
+    "Mukah N",
+    "district or area"
+  ],
+  [
+    112.102,
+    2.618,
+    "Mukah",
+    "district or area"
+  ],
+  [
+    111.682,
+    2.182,
+    "Selangau",
+    "district or area"
+  ],
+  [
+    111.522,
+    2.052,
+    "Song",
+    "district or area"
+  ],
+  [
+    111.718,
+    1.952,
+    "Kanowit",
+    "district or area"
+  ],
+  [
+    111.852,
+    2.002,
+    "Julau",
+    "district or area"
+  ],
+  [
+    111.602,
+    2.422,
+    "Sibu N",
+    "district or area"
+  ],
+  [
+    113.042,
+    3.172,
+    "Bintulu",
+    "district or area"
+  ],
+  [
+    113.152,
+    3.052,
+    "Bintulu S",
+    "district or area"
+  ],
+  [
+    112.822,
+    2.982,
+    "Tatau",
+    "district or area"
+  ],
+  [
+    112.402,
+    2.652,
+    "Belaga",
+    "district or area"
+  ],
+  [
+    112.722,
+    3.052,
+    "Sebauh",
+    "district or area"
+  ],
+  [
+    113.988,
+    4.388,
+    "Miri",
+    "district or area"
+  ],
+  [
+    114.122,
+    4.202,
+    "Miri S",
+    "district or area"
+  ],
+  [
+    114.202,
+    3.952,
+    "Niah",
+    "district or area"
+  ],
+  [
+    114.152,
+    3.802,
+    "Subis",
+    "district or area"
+  ],
+  [
+    114.302,
+    3.652,
+    "Sibuti",
+    "district or area"
+  ],
+  [
+    114.452,
+    3.452,
+    "Bekenu",
+    "district or area"
+  ],
+  [
+    113.798,
+    4.252,
+    "Marudi",
+    "district or area"
+  ],
+  [
+    113.718,
+    4.002,
+    "Baram",
+    "district or area"
+  ],
+  [
+    113.652,
+    4.452,
+    "Lawas",
+    "district or area"
+  ],
+  [
+    113.522,
+    2.152,
+    "Kapit",
+    "district or area"
+  ],
+  [
+    113.648,
+    2.002,
+    "Belaga area",
+    "district or area"
+  ],
+  [
+    113.382,
+    2.322,
+    "Kanowit area",
+    "district or area"
+  ],
+  [
+    113.252,
+    1.982,
+    "Song area",
+    "district or area"
+  ],
+  [
+    110.378,
+    1.832,
+    "Kuching NE",
+    "district or area"
+  ],
+  [
+    110.578,
+    2.002,
+    "Kota Samarahan N",
+    "district or area"
+  ],
+  [
+    110.752,
+    1.818,
+    "Serian N",
+    "district or area"
+  ],
+  [
+    110.902,
+    1.722,
+    "Serian E",
+    "district or area"
+  ],
+  [
+    111.082,
+    1.602,
+    "Lubok Antu W",
+    "district or area"
+  ],
+  [
+    113.102,
+    3.452,
+    "Bintulu coast",
+    "district or area"
+  ],
+  [
+    113.382,
+    3.682,
+    "Miri S area",
+    "district or area"
+  ],
+  [
+    113.752,
+    4.152,
+    "Limbang",
+    "district or area"
+  ],
+  [
+    110.152,
+    1.528,
+    "Lundu coast",
+    "district or area"
+  ],
+  [
+    110.072,
+    1.658,
+    "Sematan",
+    "district or area"
+  ],
+  [
+    110.202,
+    1.358,
+    "Lundu S",
+    "district or area"
+  ],
+  [
+    111.128,
+    1.198,
+    "Betong coast",
+    "district or area"
+  ],
+  [
+    111.448,
+    1.048,
+    "Sri Aman S",
+    "district or area"
+  ],
+  [
+    112.308,
+    1.502,
+    "Sarikei area",
+    "district or area"
+  ],
+  [
+    112.748,
+    1.952,
+    "Sibu interior",
+    "district or area"
+  ],
+  [
+    112.448,
+    2.152,
+    "Mukah interior",
+    "district or area"
+  ],
+  [
+    113.282,
+    2.652,
+    "Kapit N",
+    "district or area"
+  ],
+  [
+    113.748,
+    2.952,
+    "Bintulu interior",
+    "district or area"
+  ],
+  [
+    114.052,
+    3.452,
+    "Niah interior",
+    "district or area"
+  ],
+  [
+    114.552,
+    4.002,
+    "Miri coast",
+    "district or area"
+  ],
+  [
+    114.848,
+    4.152,
+    "Lawas coast",
+    "district or area"
+  ],
+  [
+    114.952,
+    4.352,
+    "Brunei border",
+    "district or area"
+  ],
+  [
+    115.152,
+    4.052,
+    "Limbang border",
+    "district or area"
+  ],
+  [
+    113.448,
+    1.452,
+    "Long Linau",
+    "district or area"
+  ],
+  [
+    113.952,
+    2.052,
+    "Long Busang",
+    "district or area"
+  ],
+  [
+    114.248,
+    2.452,
+    "Long Banga",
+    "district or area"
+  ],
+  [
+    114.648,
+    3.152,
+    "Ba'kelalan area",
+    "district or area"
+  ],
+  [
+    115.048,
+    3.752,
+    "Long Pasia",
+    "district or area"
+  ],
+  [
+    114.748,
+    3.652,
+    "Long Seridan",
+    "district or area"
+  ],
+  [
+    114.252,
+    3.852,
+    "Lio Matoh",
+    "district or area"
+  ],
+  [
+    113.852,
+    1.652,
+    "Pelagus",
+    "district or area"
+  ],
+  [
+    112.652,
+    1.652,
+    "Long Jawy",
+    "district or area"
+  ],
+  [
+    112.152,
+    1.452,
+    "Ulu Rejang",
+    "district or area"
+  ],
+  [
+    111.652,
+    1.252,
+    "Sri Aman interior",
+    "district or area"
+  ],
+  [
+    110.952,
+    1.052,
+    "Serian interior",
+    "district or area"
+  ],
+  [
+    110.752,
+    0.952,
+    "Krokong",
+    "district or area"
+  ],
+  [
+    110.652,
+    1.152,
+    "Serian S",
+    "district or area"
+  ],
+  [
+    117.892,
+    4.248,
+    "Tawau",
+    "district or area"
+  ],
+  [
+    118.332,
+    4.212,
+    "Lahad Datu",
+    "district or area"
+  ],
+  [
+    118.608,
+    4.482,
+    "Semporna",
+    "district or area"
+  ],
+  [
+    118.242,
+    4.682,
+    "Kunak",
+    "district or area"
+  ],
+  [
+    118.092,
+    4.602,
+    "Silam",
+    "district or area"
+  ],
+  [
+    117.852,
+    4.602,
+    "Tungku",
+    "district or area"
+  ],
+  [
+    118.062,
+    4.782,
+    "Tabin",
+    "district or area"
+  ],
+  [
+    117.502,
+    4.952,
+    "Ulu Tungud",
+    "district or area"
+  ],
+  [
+    117.492,
+    4.362,
+    "Kalabakan",
+    "district or area"
+  ],
+  [
+    117.648,
+    4.482,
+    "Tawau Hills",
+    "district or area"
+  ],
+  [
+    117.248,
+    4.202,
+    "Nabawan Sabah",
+    "district or area"
+  ],
+  [
+    116.848,
+    4.952,
+    "Keningau area",
+    "district or area"
+  ],
+  [
+    117.052,
+    4.752,
+    "Keningau S",
+    "district or area"
+  ],
+  [
+    117.852,
+    4.102,
+    "Tawau W",
+    "district or area"
+  ],
+  [
+    118.452,
+    4.352,
+    "Lahad Datu coast",
+    "district or area"
+  ],
+  [
+    118.252,
+    4.482,
+    "Kunak coast",
+    "district or area"
+  ],
+  [
+    117.352,
+    4.752,
+    "Nabawan area",
+    "district or area"
+  ],
+  [
+    116.952,
+    4.852,
+    "Keningau N",
+    "district or area"
+  ],
+  [
+    117.152,
+    4.652,
+    "Keningau E",
+    "district or area"
+  ],
+  [
+    118.048,
+    4.968,
+    "Beluran S",
+    "district or area"
+  ],
+  [
+    117.648,
+    4.852,
+    "Telupid S",
+    "district or area"
+  ],
+  [
+    117.252,
+    4.852,
+    "Pensiangan area",
+    "district or area"
+  ],
+  [
+    116.752,
+    4.752,
+    "Keningau W",
+    "district or area"
+  ],
+  [
+    116.552,
+    4.952,
+    "Beaufort area",
+    "district or area"
+  ],
+  [
+    116.752,
+    4.452,
+    "Tenom",
+    "district or area"
+  ],
+  [
+    116.852,
+    4.248,
+    "Long Pa' Sia",
+    "district or area"
+  ],
+  [
+    116.952,
+    4.052,
+    "Ulu Padas",
+    "district or area"
+  ],
+  [
+    117.752,
+    4.782,
+    "Tungku area",
+    "district or area"
+  ],
+  [
+    118.152,
+    4.882,
+    "Tongod area",
+    "district or area"
+  ],
+  [
+    118.452,
+    4.852,
+    "Kinabatangan S",
+    "district or area"
+  ],
+  [
+    118.548,
+    4.652,
+    "Batu Puteh area",
+    "district or area"
+  ],
+  [
+    118.248,
+    4.952,
+    "Lahad Datu N",
+    "district or area"
+  ],
+  [
+    117.952,
+    4.952,
+    "Sandakan S",
+    "district or area"
+  ],
+  [
+    117.648,
+    4.982,
+    "Telupid",
+    "district or area"
+  ],
+  [
+    116.348,
+    4.952,
+    "Kuala Penyu area",
+    "district or area"
+  ],
+  [
+    116.148,
+    4.852,
+    "Membakut area",
+    "district or area"
+  ],
+  [
+    116.448,
+    4.782,
+    "Beaufort N",
+    "district or area"
+  ],
+  [
+    116.248,
+    4.652,
+    "Sipitang area",
+    "district or area"
+  ],
+  [
+    116.052,
+    4.452,
+    "Ulu Sipitang",
+    "district or area"
+  ],
+  [
+    115.952,
+    4.352,
+    "Long Pasia border",
+    "district or area"
+  ],
+  [
+    115.748,
+    4.152,
+    "Ulu Long Pasia",
+    "district or area"
+  ],
+  [
+    115.548,
+    3.952,
+    "Long Semadoh",
+    "district or area"
+  ],
+  [
+    115.348,
+    3.752,
+    "Ba Kelalan area",
+    "district or area"
+  ],
+  [
+    101.375,
+    4.467,
+    "Cameron Highlands",
+    "district or area"
+  ],
+  [
+    101.378,
+    4.465,
+    "Tanah Rata",
+    "district or area"
+  ],
+  [
+    101.39,
+    4.51,
+    "Brinchang",
+    "district or area"
+  ],
+  [
+    101.382,
+    4.43,
+    "Ringlet",
+    "district or area"
+  ],
+  [
+    101.35,
+    4.46,
+    "Blue Valley",
+    "district or area"
+  ],
+  [
+    101.332,
+    4.475,
+    "Habu",
+    "district or area"
+  ],
+  [
+    101.41,
+    4.39,
+    "Pos Betek",
+    "district or area"
+  ],
+  [
+    101.428,
+    4.548,
+    "Gunung Brinchang",
+    "district or area"
+  ],
+  [
+    101.318,
+    4.552,
+    "Sungai Ruil",
+    "district or area"
+  ],
+  [
+    101.718,
+    3.718,
+    "Bukit Fraser",
+    "district or area"
+  ],
+  [
+    101.748,
+    3.552,
+    "Ulu Semantan",
+    "district or area"
+  ],
+  [
+    101.688,
+    3.918,
+    "Ulu Pahang W",
+    "district or area"
+  ],
+  [
+    101.582,
+    4.082,
+    "Sungai Relau",
+    "district or area"
+  ],
+  [
+    101.498,
+    4.192,
+    "Ulu Telom",
+    "district or area"
+  ],
+  [
+    101.618,
+    4.318,
+    "Banding Island",
+    "district or area"
+  ],
+  [
+    101.512,
+    4.658,
+    "Lojing Highlands",
+    "district or area"
+  ],
+  [
+    101.432,
+    4.752,
+    "Pos Sinderut",
+    "district or area"
+  ],
+  [
+    101.352,
+    4.882,
+    "Pos Gob",
+    "district or area"
+  ],
+  [
+    101.282,
+    5.052,
+    "Ulu Galas W",
+    "district or area"
+  ],
+  [
+    101.462,
+    5.082,
+    "Pos Bihai",
+    "district or area"
+  ],
+  [
+    101.552,
+    5.182,
+    "Kuala Betis",
+    "district or area"
+  ],
+  [
+    101.648,
+    5.282,
+    "Dabong area",
+    "district or area"
+  ],
+  [
+    101.788,
+    5.382,
+    "Ulu Galas",
+    "district or area"
+  ],
+  [
+    101.988,
+    3.988,
+    "Ulu Semantan E",
+    "district or area"
+  ],
+  [
+    102.088,
+    4.088,
+    "Sungai Jelai",
+    "district or area"
+  ],
+  [
+    102.188,
+    4.188,
+    "Ulu Jelai",
+    "district or area"
+  ],
+  [
+    102.288,
+    4.288,
+    "Telom River",
+    "district or area"
+  ],
+  [
+    102.388,
+    4.388,
+    "Kuala Teku",
+    "district or area"
+  ],
+  [
+    102.488,
+    4.488,
+    "Ulu Tembeling",
+    "district or area"
+  ],
+  [
+    102.588,
+    4.588,
+    "Sungai Tahan",
+    "district or area"
+  ],
+  [
+    102.688,
+    4.388,
+    "Sungai Relai",
+    "district or area"
+  ],
+  [
+    102.788,
+    4.188,
+    "Ulu Tekai",
+    "district or area"
+  ],
+  [
+    102.888,
+    3.988,
+    "Sungai Lepar",
+    "district or area"
+  ],
+  [
+    102.688,
+    3.788,
+    "Maran interior",
+    "district or area"
+  ],
+  [
+    102.488,
+    3.588,
+    "Bera interior",
+    "district or area"
+  ],
+  [
+    102.188,
+    3.788,
+    "Luit area",
+    "district or area"
+  ],
+  [
+    102.288,
+    3.388,
+    "Tras",
+    "district or area"
+  ],
+  [
+    101.888,
+    3.588,
+    "Semantan area",
+    "district or area"
+  ],
+  [
+    101.788,
+    3.788,
+    "Sungai Semantan",
+    "district or area"
+  ],
+  [
+    102.188,
+    4.688,
+    "Hulu Terengganu interior",
+    "district or area"
+  ],
+  [
+    102.388,
+    4.788,
+    "Sungai Terengganu Ulu",
+    "district or area"
+  ],
+  [
+    102.588,
+    4.888,
+    "Ulu Nerus",
+    "district or area"
+  ],
+  [
+    102.788,
+    4.688,
+    "Hulu Dungun interior",
+    "district or area"
+  ],
+  [
+    102.988,
+    4.488,
+    "Ulu Kemaman",
+    "district or area"
+  ],
+  [
+    103.088,
+    4.088,
+    "Cherul",
+    "district or area"
+  ],
+  [
+    102.888,
+    4.888,
+    "Ulu Paka",
+    "district or area"
+  ],
+  [
+    101.988,
+    5.188,
+    "Ulu Galas E",
+    "district or area"
+  ],
+  [
+    102.088,
+    5.288,
+    "Lebir",
+    "district or area"
+  ],
+  [
+    102.188,
+    5.388,
+    "Ulu Lebir",
+    "district or area"
+  ],
+  [
+    101.888,
+    4.988,
+    "Nenggiri",
+    "district or area"
+  ],
+  [
+    101.688,
+    4.788,
+    "Pos Tohoi",
+    "district or area"
+  ],
+  [
+    101.788,
+    4.688,
+    "Sungai Nenggiri",
+    "district or area"
+  ],
+  [
+    101.788,
+    3.188,
+    "Ulu Langat interior",
+    "district or area"
+  ],
+  [
+    101.888,
+    3.388,
+    "Sungai Lui",
+    "district or area"
+  ],
+  [
+    102.088,
+    3.188,
+    "Jelebu interior",
+    "district or area"
+  ],
+  [
+    102.188,
+    3.388,
+    "Ulu Muar",
+    "district or area"
+  ],
+  [
+    101.988,
+    3.588,
+    "Ulu Serting",
+    "district or area"
+  ]
+]

@@ -1,6 +1,9 @@
 import json
+import logging
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+
+log = logging.getLogger("zync.diagnosis")
 from schemas.input_schema import DiagnosisRequest
 from agents.agent_diagnosis import run_diagnosis
 
@@ -23,6 +26,7 @@ async def diagnose(body: DiagnosisRequest):
 
     async def event_stream():
         try:
+            log.info(f"diagnosis start — has_image={bool(body.log_image_b64)} readings={len(body.ph_readings or [])}")
             yield _event({"status": "diagnosing"})
 
             async for chunk in run_diagnosis(
@@ -45,12 +49,14 @@ async def diagnose(body: DiagnosisRequest):
                     })
 
                 elif chunk["type"] == "error":
+                    log.error(f"diagnosis agent error: {chunk['message']}")
                     yield _event({"status": "error", "message": chunk["message"]})
                     return
 
             yield "data: [DONE]\n\n"
 
         except Exception as e:
+            log.error(f"diagnosis route error: {e}", exc_info=True)
             yield _event({"status": "error", "message": str(e)})
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")

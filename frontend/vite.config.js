@@ -7,6 +7,10 @@ const BACKEND_URL = process.env.VITE_BACKEND_URL || 'http://localhost:8000';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
     proxy: {
       '/api': {
         target: BACKEND_URL,
