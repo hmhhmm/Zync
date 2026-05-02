@@ -3,7 +3,8 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, ReferenceArea,
 } from 'recharts';
-import { AlertTriangle, CheckCircle, Download, Loader2, Play, XCircle } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import { AlertTriangle, CheckCircle, Download, FileText, Loader2, Play, XCircle } from 'lucide-react';
 import ModuleHero from '../../components/layout/ModuleHero';
 import LogicExplorer from '../../components/trust/LogicExplorer';
 import ReferencesPanel from '../../components/trust/ReferencesPanel';
@@ -143,9 +144,9 @@ function IterationPanel({ iterations, iterationsRun, converged, isLoading }) {
         <p className="muted-kicker" style={{ marginTop: 6, textAlign: 'right', fontSize: 9 }}>{pct}% complete</p>
       </div>
 
-      <div 
-        ref={scrollRef} 
-        style={{ padding: '4px 20px 20px', overflowX: 'auto', maxHeight: '280px', overflowY: 'auto', scrollBehavior: 'smooth' }}
+      <div
+        ref={scrollRef}
+        style={{ padding: '4px 20px 20px', overflowX: 'auto', maxHeight: '280px', overflowY: 'auto', scrollBehavior: 'smooth', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}
       >
         <table className="data-table">
           <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-panel, #000)', zIndex: 10 }}>
@@ -202,7 +203,7 @@ function ComplianceCard({ compliance }) {
   const tone = COMPLIANCE_STYLE[status] ?? COMPLIANCE_STYLE.insufficient_data;
 
   return (
-    <div className="panel-inset--accent animate-slide-in-up" id="compliance-card" style={{ padding: '20px 24px' }}>
+    <div className="panel-inset--accent animate-slide-in-up" id="compliance-card" style={{ padding: '20px 24px', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <p className="muted-kicker">Agent 04 · AELB + DOE + JMG Compliance</p>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 11, padding: '4px 10px', borderRadius: 6, ...tone }}>
@@ -212,7 +213,7 @@ function ComplianceCard({ compliance }) {
       </div>
 
       {compliance.checks?.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, flex: 1 }}>
           {compliance.checks.map((check, i) => {
             const ct = COMPLIANCE_STYLE[check.status] ?? COMPLIANCE_STYLE.insufficient_data;
             const CheckIcon = COMPLIANCE_ICON[check.status] ?? AlertTriangle;
@@ -255,7 +256,8 @@ function ComplianceCard({ compliance }) {
 function ReportPanel({ report }) {
   if (!report) return null;
   const reportText = typeof report === 'string' ? report : JSON.stringify(report, null, 2);
-  const handleExport = () => {
+
+  const handleExportTxt = () => {
     const blob = new Blob([reportText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -263,18 +265,81 @@ function ReportPanel({ report }) {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportPdf = () => {
+    try {
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 10;
+      const maxWidth = pageWidth - 2 * margin;
+      let y = margin;
+
+      const lines = reportText.split('\n');
+      pdf.setFontSize(9);
+
+      lines.forEach((line) => {
+        if (y > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+        // Convert line to string and encode properly for PDF
+        const cleanLine = String(line || ' ').replace(/[^\x20-\x7E\n]/g, '?');
+        const wrappedLines = pdf.splitTextToSize(cleanLine, maxWidth);
+        wrappedLines.forEach((wrappedLine) => {
+          if (wrappedLine.trim()) {
+            pdf.text(wrappedLine, margin, y);
+          }
+          y += 4;
+        });
+      });
+
+      pdf.save(`zync_report_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      alert('Error generating PDF');
+    }
+  };
+
   return (
     <details className="panel-inset animate-slide-in-up" id="report-panel">
+      <style>{`
+        #report-panel pre {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+        #report-panel pre::-webkit-scrollbar {
+          width: 6px;
+        }
+        #report-panel pre::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        #report-panel pre::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 3px;
+        }
+      `}</style>
       <summary style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', padding: '16px 20px' }}>
         <p className="muted-kicker">Agent 05 · Final Bilingual Report</p>
-        <button
-          onClick={(e) => { e.preventDefault(); handleExport(); }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s ease' }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--text-soft)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-        >
-          <Download size={12} /> Export .txt
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={(e) => { e.preventDefault(); handleExportTxt(); }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s ease' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--text-soft)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            title="Export as text file"
+          >
+            <Download size={12} /> .txt
+          </button>
+          <button
+            onClick={(e) => { e.preventDefault(); handleExportPdf(); }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s ease' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--text-soft)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            title="Export as PDF"
+          >
+            <FileText size={12} /> .pdf
+          </button>
+        </div>
       </summary>
       <pre style={{ padding: '0 20px 20px', fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--text-muted)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: 400, overflowY: 'auto' }}>
         {reportText}
@@ -292,8 +357,8 @@ export default function LixiviantModule() {
   } = useLixiviant();
 
   const [isApiSpinning, setIsApiSpinning] = useState(false);
-  const [vizView, setVizView]             = useState('chart'); // 'chart' | '3d'
-  const [vizMounted, setVizMounted]       = useState(false);
+  const [vizView, setVizView]             = useState('3d'); // 'chart' | '3d'
+  const [vizMounted, setVizMounted]       = useState(true);
 
   const handleRunSimulation = () => {
     setIsApiSpinning(true);
@@ -416,10 +481,15 @@ export default function LixiviantModule() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
-            <style>{`@media (min-width: 1400px) { #lixiviant-main-grid { grid-template-columns: 1fr 420px !important; } }`}</style>
+            <style>{`@media (min-width: 1400px) { #lixiviant-main-grid { grid-template-columns: 1fr 420px !important; } }
+            #iteration-panel > div:nth-child(3) { scrollbar-color: rgba(255,255,255,0.1) transparent; }
+            #iteration-panel > div:nth-child(3)::-webkit-scrollbar { width: 6px; }
+            #iteration-panel > div:nth-child(3)::-webkit-scrollbar-track { background: transparent; }
+            #iteration-panel > div:nth-child(3)::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+            `}</style>
             <div id="lixiviant-main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
 
-              <div className="panel-inset--accent" id="tradeoff-matrix" style={{ padding: '20px 24px' }}>
+              <div className="panel-inset--accent" id="tradeoff-matrix" style={{ padding: '20px 24px', minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
                   <div>
                     <p className="muted-kicker">Agent 03 · Optimizer + SQL RAG</p>
@@ -454,8 +524,8 @@ export default function LixiviantModule() {
                 </div>
 
                 {/* Scatter chart — hidden via display when 3D active but never unmounted once shown */}
-                <div style={{ display: vizView === 'chart' ? 'block' : 'none' }}>
-                  <ResponsiveContainer width="100%" height={320}>
+                <div style={{ display: vizView === 'chart' ? 'flex' : 'none', flex: 1, flexDirection: 'column' }}>
+                  <ResponsiveContainer width="100%" height="100%">
                     <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 5 }}>
                       <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.07)" />
                       <ReferenceArea x1={75} x2={90} y1={0} y2={5} fill="#7c3aed" fillOpacity={0.07} stroke="rgba(167,139,250,0.25)" strokeDasharray="3 3" />
@@ -491,7 +561,7 @@ export default function LixiviantModule() {
 
                 {/* 3D energy field — lazy mount on first switch, then kept alive */}
                 {vizMounted && (
-                  <div style={{ display: vizView === '3d' ? 'block' : 'none' }}>
+                  <div style={{ display: vizView === '3d' ? 'flex' : 'none', flex: 1 }}>
                     <OptimizerViz iterations={iterations} />
                   </div>
                 )}

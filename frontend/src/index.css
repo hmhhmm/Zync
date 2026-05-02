@@ -278,7 +278,7 @@ body::-webkit-scrollbar { width: 0; height: 0; }
 .panel-inset--accent {
   border: 1px solid var(--border-accent);
   border-radius: 14px;
-  height: 500px;
+  height: 650px;
   background:
     radial-gradient(520px 160px at 50% 120%, rgba(124, 58, 237, 0.1), transparent 72%),
     var(--surface-inset);

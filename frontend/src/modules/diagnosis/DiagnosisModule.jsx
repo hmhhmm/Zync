@@ -119,15 +119,40 @@ function DiagnosisCard({ diagnosis }) {
 function DebugPanel({ activePanel, streamingReasoning, streamingOutput }) {
   if (!activePanel) return null;
   return (
-    <div className="panel-inset" style={{ padding: '18px 20px', maxHeight: 220, overflowY: 'auto', scrollbarColor: 'rgba(124,58,237,0.35) transparent' }}>
+    <div className="panel-inset" style={{
+      padding: '18px 20px', maxHeight: 220, overflowY: 'auto', scrollbarColor: 'rgba(124,58,237,0.35) transparent',
+      animation: 'slow-slide-in 3s ease-out forwards',
+    }}>
+      <style>{`
+        @keyframes slow-slide-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes typing-blink {
+          0%, 49% { border-right-color: rgba(124,58,237,0.5); }
+          50%, 100% { border-right-color: transparent; }
+        }
+        .streaming-text {
+          animation: typing-blink 2s steps(1) infinite;
+          border-right: 2px solid rgba(124,58,237,0.5);
+          display: inline-block;
+          padding-right: 2px;
+        }
+      `}</style>
       {activePanel === 'reasoning' && (
         <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--text-muted)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-          {streamingReasoning || 'No reasoning captured.'}
+          <span className="streaming-text">{streamingReasoning || 'No reasoning captured.'}</span>
         </pre>
       )}
       {activePanel === 'output' && (
         <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--text-muted)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-          {streamingOutput || 'No output captured.'}
+          <span className="streaming-text">{streamingOutput || 'No output captured.'}</span>
         </pre>
       )}
       {activePanel === 'rules' && (
@@ -171,11 +196,37 @@ export default function DiagnosisModule() {
 
   const [isDragOver, setIsDragOver] = useState(false);
   const [activePanel, setActivePanel] = useState(null);
+  const [showDiagnosis, setShowDiagnosis] = useState(false);
+  const [canStreamPanel, setCanStreamPanel] = useState(false);
   const fileInput = useRef(null);
 
   // Auto-open reasoning panel when streaming starts so the live output is immediately visible
   useEffect(() => {
-    if (isStreaming) setActivePanel('reasoning');
+    if (isStreaming && canStreamPanel) {
+      setActivePanel('reasoning');
+    }
+  }, [isStreaming, canStreamPanel]);
+
+  // Delay before allowing reasoning panel to show
+  useEffect(() => {
+    if (isStreaming) {
+      setCanStreamPanel(false);
+      const timer = setTimeout(() => setCanStreamPanel(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isStreaming]);
+
+  // Show diagnosis with delay after it's ready
+  useEffect(() => {
+    if (diagnosis && !showDiagnosis) {
+      const timer = setTimeout(() => setShowDiagnosis(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [diagnosis, showDiagnosis]);
+
+  // Reset showDiagnosis when starting new diagnosis
+  useEffect(() => {
+    if (isStreaming) setShowDiagnosis(false);
   }, [isStreaming]);
 
   const handleDrop = useCallback((e) => {
@@ -197,8 +248,8 @@ export default function DiagnosisModule() {
 
       <ModuleHero
         step="01"
-        eyebrow="Agents 0, 1, & 2 · Process Diagnosis" 
-        title="Process Diagnosis"
+        eyebrow="Agents 0 & 2 · Evidence Diagnosis" 
+        title="Evidence Diagnosis"
         lead="Upload a field log or run demo to get a clear diagnosis with recommended actions."
         inputs={['Field Log', 'Sensor Data']}
         outputs={['Root Cause', 'Actions']}
@@ -272,7 +323,7 @@ export default function DiagnosisModule() {
       )}
 
       {/* Diagnosis card */}
-      <DiagnosisCard diagnosis={diagnosis} />
+      {showDiagnosis && <DiagnosisCard diagnosis={diagnosis} />}
 
       {/* Debug panel toggles */}
       {(diagnosis || isStreaming || streamingReasoning) && (
