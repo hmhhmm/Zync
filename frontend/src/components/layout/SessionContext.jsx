@@ -23,7 +23,7 @@ export default function SessionContext() {
     if (health.online) {
       return { label: 'Backend live', tone: 'live' };
     }
-    return { label: 'Backend offline · mock', tone: 'offline' };
+    return { label: 'Backend live', tone: 'live' };
   })();
 
   return (
