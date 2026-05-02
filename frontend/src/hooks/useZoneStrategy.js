@@ -8,7 +8,7 @@ import {
 } from '../demo/demoData';
 import { streamText, delay } from '../demo/demoStream';
 
-const DEMO_MODE = false;
+const DEMO_MODE = true;
 
 const DOMAIN_ZONES = [
   {
