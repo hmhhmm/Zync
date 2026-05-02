@@ -53,49 +53,8 @@ Every recommendation is grounded in real data — not hallucination:
 
 ---
 
-## Screenshots and Photos
-
-Yes, you can add photos to this README.
-
-Put image files in a tracked folder such as [`frontend/src/assets/`](frontend/src/assets/) or [`documents/`](documents/) and reference them with standard Markdown image syntax:
-
-```md
-![System preview](frontend/src/assets/hero.png)
-```
-
-Current preview image:
-
-![Zync preview](frontend/src/assets/hero.png)
-
-If you add a new screenshot, keep the file size reasonable and prefer PNG or WebP for UI captures.
-
-System architecture photo:
-
-![Zync system architecture](documents/Screenshot%202026-05-03%20at%203.52.13%E2%80%AFAM.png)
-
----
-
 ## System Architecture
-
-```mermaid
-flowchart TD
-	A[Operator Input\nDeposit profile · logs · survey PDFs] --> B[Frontend · React + Vite]
-	B --> C[AGENT 0 · Router]
-	C --> D[AGENT 1 · Historian\nNeo4j GraphRAG]
-	C --> E[AGENT 2 · Chemist\nStreaming SciGLM reasoning]
-	C --> F[AGENT 3 · Optimizer\nLive GLM iteration loop]
-	C --> G[AGENT 4 · Compliance\nQdrant hybrid search]
-	C --> H[AGENT 6 · Zone Prioritiser\n5-step scoring]
-	D -. queries .-> L[(Neo4j)]
-	F -. writes .-> M[(PostgreSQL)]
-	G -. searches .-> N[(Qdrant)]
-	E --> I[AGENT 5 · Report Writer\nBilingual BM + EN]
-	D --> I
-	F --> I
-	G --> I
-	H --> I
-	I --> J[Decision output\nReasoning trace · ESG badge · PDF]
-```
+![Zync system architecture](documents/Screenshot%202026-05-03%20at%203.52.13%E2%80%AFAM.png)
 
 The main idea is that every user action is routed through the backend agents, which pull from the graph, rules, and optimization data before producing the final recommendation.
 
