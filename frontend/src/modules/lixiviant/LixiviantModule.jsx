@@ -349,7 +349,7 @@ function ReportPanel({ report }) {
 }
 
 /* ─── Main module ─── */
-export default function LixiviantModule() {
+export default function LixiviantModule({ diagnosisComplete = false }) {
   const {
     reagents, optimal, isLoading, error, isLive,
     iterations, iterationsRun, converged, compliance, report,
@@ -412,11 +412,12 @@ export default function LixiviantModule() {
           <p style={{ margin: 0, fontSize: 14.5, color: 'var(--text-primary)', transition: 'color 0.2s' }}>
             {isApiSpinning ? 'Initiating handshake with Agent Swarm...' : 'Optimization Loop Ready'}
           </p>
-          <button 
-            onClick={handleRunSimulation} 
-            disabled={isApiSpinning}
-            className="btn btn-primary" 
-            style={{ padding: '8px 24px', minWidth: 200, justifyContent: 'center' }}
+          <button
+            onClick={handleRunSimulation}
+            disabled={isApiSpinning || !diagnosisComplete}
+            title={!diagnosisComplete ? 'Complete Evidence Diagnosis (Module 01) first' : undefined}
+            className="btn btn-primary"
+            style={{ padding: '8px 24px', minWidth: 200, justifyContent: 'center', opacity: diagnosisComplete ? 1 : 0.4, cursor: diagnosisComplete ? undefined : 'not-allowed' }}
           >
             {isApiSpinning ? (
               <><Loader2 size={15} className="animate-spin" /> Connecting...</>
@@ -424,6 +425,11 @@ export default function LixiviantModule() {
               <><Play size={15} /> Run Iteration Process</>
             )}
           </button>
+          {!diagnosisComplete && (
+            <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-muted)', textAlign: 'center' }}>
+              Upload a field log or run demo in Module 01 first
+            </p>
+          )}
         </div>
       )}
 

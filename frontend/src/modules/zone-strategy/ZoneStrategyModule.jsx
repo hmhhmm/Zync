@@ -94,7 +94,7 @@ function ScoreBreakdown({ scores, language }) {
   );
 }
 
-export default function ZoneStrategyModule() {
+export default function ZoneStrategyModule({ diagnosisComplete = false }) {
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -147,11 +147,12 @@ export default function ZoneStrategyModule() {
           <p className="text-[14.5px] text-white/80">
             {isApiSpinning ? 'Establishing connection with Agent 06...' : 'Zone Prioritizer Engine Ready'}
           </p>
-          <button 
-            onClick={handleRunAnalysis} 
-            disabled={isApiSpinning}
-            className="btn btn-primary" 
-            style={{ padding: '8px 24px', minWidth: 200, justifyContent: 'center' }}
+          <button
+            onClick={handleRunAnalysis}
+            disabled={isApiSpinning || !diagnosisComplete}
+            title={!diagnosisComplete ? 'Complete Evidence Diagnosis (Module 01) first' : undefined}
+            className="btn btn-primary"
+            style={{ padding: '8px 24px', minWidth: 200, justifyContent: 'center', opacity: diagnosisComplete ? 1 : 0.4, cursor: diagnosisComplete ? undefined : 'not-allowed' }}
           >
             {isApiSpinning ? (
               <><Loader2 size={15} className="animate-spin" /> Connecting...</>
@@ -159,6 +160,11 @@ export default function ZoneStrategyModule() {
               <><Play size={15} /> Run Zone Analysis</>
             )}
           </button>
+          {!diagnosisComplete && (
+            <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-muted)', textAlign: 'center' }}>
+              Upload a field log or run demo in Module 01 first
+            </p>
+          )}
         </div>
       )}
 

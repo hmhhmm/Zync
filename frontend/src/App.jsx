@@ -33,6 +33,7 @@ export default function App() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [activeModule, setActiveModule] = useState('diagnosis');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [diagnosisComplete, setDiagnosisComplete] = useState(false);
   const timersRef = useRef([]);
 
   useEffect(() => {
@@ -108,12 +109,16 @@ export default function App() {
             {Object.entries(MODULES).map(([moduleKey, config]) => {
               const ModuleComponent = config.component;
               const isActive = activeModule === moduleKey;
+              const moduleProps =
+                moduleKey === 'diagnosis'
+                  ? { onComplete: () => setDiagnosisComplete(true) }
+                  : { diagnosisComplete };
               return (
                 <div
                   key={moduleKey}
                   style={{ display: isActive ? 'block' : 'none' }}
                 >
-                  <ModuleComponent />
+                  <ModuleComponent {...moduleProps} />
                 </div>
               );
             })}

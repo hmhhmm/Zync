@@ -182,7 +182,7 @@ function DebugPanel({ activePanel, streamingReasoning, streamingOutput }) {
   );
 }
 
-export default function DiagnosisModule() {
+export default function DiagnosisModule({ onComplete }) {
   const {
     isStreaming,
     streamingReasoning,
@@ -190,6 +190,7 @@ export default function DiagnosisModule() {
     diagnosis,
     uploadedFile,
     error,
+    isLive,
     startDiagnosis,
     runDemo,
   } = useDiagnosis();
@@ -199,6 +200,10 @@ export default function DiagnosisModule() {
   const [showDiagnosis, setShowDiagnosis] = useState(false);
   const [canStreamPanel, setCanStreamPanel] = useState(false);
   const fileInput = useRef(null);
+
+  useEffect(() => {
+    if (isLive) onComplete?.();
+  }, [isLive, onComplete]);
 
   // Auto-open reasoning panel when streaming starts so the live output is immediately visible
   useEffect(() => {
