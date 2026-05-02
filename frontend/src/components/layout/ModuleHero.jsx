@@ -1,3 +1,5 @@
+import { useLanguage } from '../../i18n/LanguageContext';
+import { translations } from '../../i18n/translations';
 import LanguageToggle from '../LanguageToggle';
 
 export default function ModuleHero({
@@ -9,7 +11,10 @@ export default function ModuleHero({
   inputs = [],
   outputs = [],
 }) {
+  const { language } = useLanguage();
+  const t = translations[language];
   const hasIO = inputs.length > 0 || outputs.length > 0;
+
   return (
     <header className="module-hero">
       <div className="flex items-center justify-between">

@@ -6,12 +6,12 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggleLanguage}
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-[11px] font-mono font-semibold text-white/70 hover:text-white transition-all"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 hover:bg-[var(--color-accent)]/10 text-[10px] font-mono font-semibold text-[var(--color-accent)] transition-all hover:border-[var(--color-accent)]/60"
       title={`Switch to ${language === 'en' ? 'Bahasa Melayu' : 'English'}`}
     >
-      <span>{language.toUpperCase()}</span>
-      <span className="text-white/40">/</span>
-      <span className="text-white/40">{language === 'en' ? 'BM' : 'EN'}</span>
+      <span className={language === 'en' ? 'font-bold' : 'opacity-60'}>{language === 'en' ? 'EN' : 'BM'}</span>
+      <span className="opacity-40">/</span>
+      <span className={language === 'bm' ? 'font-bold' : 'opacity-60'}>{language === 'en' ? 'BM' : 'EN'}</span>
     </button>
   );
 }

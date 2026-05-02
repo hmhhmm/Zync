@@ -35,6 +35,10 @@ export const translations = {
     anomalyAt: 'Anomaly at',
     primaryAction: 'Primary Action',
 
+    // IO Grid
+    operatorInput: 'Operator Input',
+    agentDelivery: 'Agent Delivery',
+
     // Common
     loading: 'Loading...',
     error: 'Error',
@@ -74,6 +78,10 @@ export const translations = {
     highConfidence: 'KEYAKINAN TINGGI',
     anomalyAt: 'Anomali di',
     primaryAction: 'Tindakan Utama',
+
+    // IO Grid
+    operatorInput: 'Input Pengendali',
+    agentDelivery: 'Penghantaran Ejen',
 
     // Common
     loading: 'Memuatkan...',

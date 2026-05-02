@@ -70,13 +70,14 @@ function AgentTerminal({ streamingReasoning, streamingSteps, agentStatus }) {
   );
 }
 
-function ScoreBreakdown({ scores }) {
+function ScoreBreakdown({ scores, language }) {
   if (!scores) return null;
+  const t = translations[language];
   const items = [
-    { label: 'Econ', key: 'economic', color: 'var(--color-accent)' },
-    { label: 'Strategic', key: 'strategic', color: '#34d399' },
-    { label: 'ESG', key: 'esg_risk', color: '#fbd38d' },
-    { label: 'Infra', key: 'infra', color: '#38bdf8' },
+    { label: t.economic, key: 'economic', color: 'var(--color-accent)' },
+    { label: t.strategic, key: 'strategic', color: '#34d399' },
+    { label: t.esg, key: 'esg_risk', color: '#fbd38d' },
+    { label: t.infrastructure, key: 'infra', color: '#38bdf8' },
   ];
   return (
     <div className="grid grid-cols-4 gap-2 mt-3">
@@ -228,7 +229,7 @@ export default function ZoneStrategyModule() {
                     </header>
 
                     <p className="text-[13px] text-white/60 leading-relaxed max-w-[68ch]">{zone.description}</p>
-                    {zone.scores && <ScoreBreakdown scores={zone.scores} />}
+                    {zone.scores && <ScoreBreakdown scores={zone.scores} language={language} />}
 
                     <dl className="zone-meta zone-section">
                       <div><dt className="zone-meta__label">TREO grade</dt><dd className="zone-meta__value">{zone.treo_grade}</dd></div>
